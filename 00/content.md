@@ -479,6 +479,13 @@ let i = v2[2]; // 3
 #### `assert!(bool)` & `assert_eq!(expected, actual)`
 - `panic!`s if `bool` is false or `expected != actual`
 - Useful for testing
+    ```rust
+    #[test]
+    fn test_something() {
+        let actual = foo();
+        assert_eq!("expected", actual);
+    }
+    ```
 
 ---
 ### Match statements ###
