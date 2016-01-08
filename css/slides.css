@@ -1,0 +1,24 @@
+body {
+  font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 12pt;
+}
+
+h1, h2, h3{
+  text-align: center;
+}
+
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+  height: 50%;
+}
+
+.remark-code, .remark-inline-code {
+  color: #2179b8
+}
+
+.remark-container {
+  background-color: #ebe7df
+}

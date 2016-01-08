@@ -1,0 +1,14 @@
+---
+layout: default
+---
+
+<section>
+  <h4>Lecture Slides</h4>
+  <ul>
+    {% for page in site.pages %}
+      {% if page.url != "/index.html" %}
+        <li><a href="{{ page.url }}">{{ page.title }}</a></li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+</section>
