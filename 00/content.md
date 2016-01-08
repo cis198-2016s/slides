@@ -469,6 +469,11 @@ let i = v2[2]; // 3
 ### `panic!(msg)` 
 - Exits current task with given message. Similar to segfaulting.
 - Don't do this lightly! It is better to handle and report errors explicitly.
+    ```rust
+    if x < 0 {
+        panic!("Oh noes!");
+    }
+    ```
 
 ---
 #### `assert!(bool)` & `assert_eq!(expected, actual)`
