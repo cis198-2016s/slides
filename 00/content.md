@@ -3,6 +3,20 @@
 ![](img/cobol.png)
 
 ---
+# CIS 198: Intro to COBOL #
+
+- Designed in 1959 (57 years ago!)
+- We will be using the COBOL2014 standard.
+
+```cobol
+IDENTIFICATION DIVISION.
+PROGRAM-ID. hello-world.
+PROCEDURE DIVISION.
+    DISPLAY "Hello, world!"
+    .
+```
+
+---
 # CIS 198: Rust Programming #
 
 ![](img/rust.png)
@@ -50,7 +64,7 @@ Rust is:
 ### Functional ###
 
 - First-class functions
-- Trait-based generics (Java interfaces; composable like Haskell typeclasses)
+- Trait-based generics
 - Algebraic datatypes
 - Pattern matching
 
@@ -102,6 +116,7 @@ Consult [the website](http://cis198-2016s.github.io/) for homework assignments a
 - [The Rust Book (our course textbook)](https://doc.rust-lang.org/stable/book/)
 - [Rust By Example](http://rustbyexample.com/)
 - [Rust Playpen](https://play.rust-lang.org/)
+    - Online editing and execution!
 
 ---
 ## Let's Dive In! ##
@@ -131,14 +146,12 @@ let x: i16 = 17;
 ```
 
 - Variables are inherently immutable:
-
-    ```rust
-    let x = 5;
-    x += 1; // error: re-assignment of immutable variable x
-
-    let mut y = 5;
-    y += 1; // OK!
-    ```
+```rust
+let x = 5;
+x += 1; // error: re-assignment of immutable variable x
+let mut y = 5;
+y += 1; // OK!
+```
 
 ---
 ### Variable Bindings ###
@@ -163,19 +176,19 @@ let (a, b) = ("foo", 12);
 ### Expressions ###
 
 - (Almost!) everything is an expression: something which returns a value.
-   - Exception: variable bindings are not expressions.
+    - Exception: variable bindings are not expressions.
 - Turn an expression into a statement by adding a semicolon (discarding its value).
 
 - The "nothing" value is called "unit", which is written `()`. Statements return `()`.
 - If a function has no explicit return value, it returns `()`.
 
-    ```rust
-    fn foo() {
-    }
+```rust
+fn foo() {
+}
 
-    fn foo() -> () {
-    }
-    ```
+fn foo() -> () {
+}
+```
 
 ---
 ### Expressions ###
@@ -204,9 +217,10 @@ println!("{}", y); // "less"
 ---
 ### References ###
 
-- References are written with an `&`, much like in C++
-- References can be _dereferenced_ with `*` like in C/C++
-- References are guaranteed to always be valid
+- Reference *types* are written with an `&`: `&i32`.
+- References can be taken with `&` (like C/C++).
+- References can be _dereferenced_ with `*` (like C/C++).
+- References are guaranteed to be valid.
     - Validity is enforced through compile-time checks!
 - These are *not* the same as pointers!
 - Reference lifetimes are pretty complex, as we'll explore later on in the course.
@@ -219,42 +233,46 @@ println!("{}", *x); // 12
 
 ---
 ### Arrays ###
-- Arrays are generically of type `[T; N]`
+- Arrays are generically of type `[T; N]`.
     - N is a compile-time _constant_. Arrays cannot be resized.
     - Array access is bounds-checked at _compile time_.
-- Arrays are indexed just like in C/C++/Java/etc: `arr[3]` gives you the 4th element of `arr`
+- Arrays are indexed with `[]` like most other languages:
+    - `arr[3]` gives you the 4th element of `arr`
 
-    ```rust
-    let arr1 = `[1, 2, 3]`; // (array of 3 elements)
-    let arr2 = `[2; 32]`;   // (array of 32 `2`s)
-    ```
+```rust
+let arr1 = `[1, 2, 3]`; // (array of 3 elements)
+let arr2 = `[2; 32]`;   // (array of 32 `2`s)
+```
 
 ---
 ### Slices ###
-- A "view" into an array by reference
 - Generically of type `&[T]`
+- A "view" into an array by reference
 - Not created directly, but are borrowed from other variables
 - Mutable or immutable
 - How do you know when a slice is still valid? Coming soon...
 
-    ```rust
-    let arr = [0, 1, 2, 3, 4, 5];
-    let total_slice = &arr[..];     // Slice all of `arr`
-    let partial_slice = &arr[2..5]; // [2, 3, 4]
-    ```
+```rust
+let arr = [0, 1, 2, 3, 4, 5];
+let total_slice = &arr[..];     // Slice all of `arr`
+let partial_slice = &arr[2..5]; // [2, 3, 4]
+```
+
 ---
 ### Strings ###
 - Two types of Rust strings: `String` and `str`
 - `String` is a heap-allocated, growable vector of characters
-- `str` is an unsized type that's used to slice `String`s as an `&str`
+- `str` is an unsized type* that's used to slice `String`s as an `&str`
 - String literals like `"foo"` are of type `&str`
     - To make a `String` from an `&str`, use `"foo".to_string()` or `String::from("foo")`
 
-    ```rust
-    let s: &str = "foo";
-    let s1: String = "foo".to_string();
-    let s2: String = String::from("foo");
-    ```
+```rust
+let s: &str = "foo";
+let s1: String = "foo".to_string();
+let s2: String = String::from("foo");
+```
+
+*type which doesn't have a compile-time known size
 
 ---
 ### Tuples ###
@@ -297,51 +315,55 @@ if x > 0 {
     -10
 }
 ```
+- No parens necessary.
+- Entire if statement evaluates to one expression, so every arm must end with
+  an expression of the same type.
+
 ---
 ### Loops ###
-- Loops come in three flavors: `while`, `loop`, and `for`
+- Loops come in three flavors: `while`, `loop`, and `for`.
+    - `break` and `continue` exist just like in most languages
+
 - `while` works just like you'd expect:
 
-    ```rust
-    let mut x = 0;
-    while x < 100 {
-        x += 1;
-        println!("x: {}", x);
-    }
-    ```
+```rust
+let mut x = 0;
+while x < 100 {
+    x += 1;
+    println!("x: {}", x);
+}
+```
 
 ---
 ### Loops ###
 - `loop` is equivalent to `while true`, but the compiler can take advantage of
   knowing that it's infinite
 
-    ```rust
-    let mut x = 0;
-    loop {
-        x += 1;
-        println!("x: {}", x);
-    }
-    ```
+```rust
+let mut x = 0;
+loop {
+    x += 1;
+    println!("x: {}", x);
+}
+```
 
 ---
 ### Loops ###
 - `for` is the most different from most C-like languages
      - `for` loops use an _iterator expression_:
 
-    ```rust
-    // 0..10 is an iterator from 0 to 10 (exclusive)
-    for x in 0..10 {
-        println!("{}", x);
-    }
+```rust
+// 0..10 is an iterator from 0 to 10 (exclusive)
+for x in 0..10 {
+    println!("{}", x);
+}
 
-    let xs = [0, 1, 2, 3, 4];
-    // Arrays can be used as iterators.
-    for x in xs {
-        println!("{}", x);
-    }
-    ```
-
-- `break` and `continue` exist just like in most languages
+let xs = [0, 1, 2, 3, 4];
+// Arrays can be used as iterators.
+for x in xs {
+    println!("{}", x);
+}
+```
 
 ---
 ### Functions ###
@@ -353,19 +375,22 @@ fn foo(x: T, y: U, z: V) -> T {
 ```
 
 - `foo` is a function that takes three parameters:
-    - `x` which is of type `T`
-    - `y` which is of type `U`
-    - `z` which is of type `V` 
-    - It then returns a `T`.
+    - `x` of type `T`,
+    - `y` of type `U`,
+    - `z` of type `V`,
+    - then returns a `T`.
 
 - Must explicitly define the types of function arguments and return value.
-    - The compiler is actually smart enough to figure this out for you, but Rust's designers decided it was
-      better practice to force explicit function typing.
-- The final expression in a function is its return value.
-    - Use `return` for _early_ returns from a function.
+    - The compiler is actually smart enough to figure this out for you, but
+      Rust's designers decided it was better practice to force explicit function
+      typing.
 
 ---
 ### Functions ###
+
+- The final expression in a function is its return value.
+    - Use `return` for _early_ returns from a function.
+
 ```rust
 fn square(n: i32) -> i32 {
     n * n
@@ -390,24 +415,28 @@ fn square(n: i32) -> i32 {
 ### Bonus: Function Pointers ###
 - Much simpler than in C:
 
-    ```rust
-    let x: fn(i32) -> i32 = square;
-    ```
+```rust
+let x: fn(i32) -> i32 = square;
+```
 
 ---
 ### `Vec<T>` ###
 
-- A `Vec` (pronounced "vector") is a growable array allocated on the heap
-    (cf. Java ArrayList, C++ std::vector, etc.)
+- A `Vec` (pronounced "vector") is a growable array allocated on the heap.
+    - (cf. Java ArrayList, C++ std::vector, etc.)
 - `<T>` denotes a generic type.
     - The type of a `Vec` of `i32`s is `Vec<i32>`.
-- Vectors can be created with `Vec::new()` or with the `vec!` macro:
+    - Type inference is only possible if you add elements to the `Vec`.
+- Vectors can be created with `Vec::new()` or with the `vec!` macro.
     - `Vec::new()` is an example of namespacing. `new` is a function defined in
       the `Vec` struct.
 
 ---
 ### `Vec<T>` ###
 ```rust
+// Explicit typing
+let v0: Vec<i32> = Vec::new();
+
 // v1 and v2 are equal
 let mut v1 = Vec::new();
 v1.push(1);
@@ -421,75 +450,82 @@ let v2 = vec![1, 2, 3];
 // v3 and v3 are equal
 let v3 = vec![0; 4];
 let v4 = vec![0, 0, 0, 0];
-
-let i = v2[2]; // 3
 ```
 
 ---
 ### `Vec<T>` ###
-- Vectors can be indexed with `v2[3]`
-    - You can't index a vector with an i32/i64/etc. You must use a `usize`
-      because `usize` is guaranteed to be the same size as a pointer
 
-- Vectors have other methods on them which you may find useful. They can be
-    found in the offical Rust documentation [here](https://doc.rust-lang.org/stable/std/vec/)
+```rust
+let v2 = vec![1, 2, 3];
+let i = v2[2]; // 3
+```
+
+- Like arrays, vectors can be indexed with `[]`.
+    - You can't index a vector with an i32/i64/etc.
+    - You must use a `usize` because `usize` is guaranteed to be the same size as a pointer
+
+- Vectors has an extensive stdlib method list, which can be found at the
+  [offical Rust documentation](https://doc.rust-lang.org/stable/std/vec/).
 
 ---
 ### Macros!
 
 - Macros are like functions, but they're named with an `!` at the end.
 - Can do generally very powerful stuff.
-- Call and use them like functions.
     - They actually generate code at compile time!
+- Call and use macros like functions.
 - You can define your own with `macro_rules! macro_name` blocks.
-    - These are very complicated.
+    - These are *very* complicated. More later!
+- Because they're so powerful, a lot of common utilities are defined as macros.
 
 ---
 ### `print!` & `println!` ###
-- Print stuff out
-- Use `{}` for string interpolation, and `{:?}` for debug printing
+- Print stuff out. Yay.
+- Use `{}` for general string interpolation, and `{:?}` for debug printing.
 
-    ```rust
-    print!("{}, {}, {}", "foo", "3", true);
-    // foo, 3, true
-    println!("{:?}, {:?}", "foo", [1, 2, 3]);
-    // foo, [1, 2, 3]
-    ```
+```rust
+print!("{}, {}, {}", "foo", 3, true);
+// foo, 3, true
+println!("{:?}, {:?}", "foo", [1, 2, 3]);
+// "foo", [1, 2, 3]
+```
 
 ---
 ### `format!` ###
-- Uses `println!`-style string interpolation to create formatted `String`s
+- Uses `println!`-style string interpolation to create formatted `String`s.
 
-    ```rust
-    let formatted = format!("{}, {:x}, {:?}", 12, 15, Some("Hello"));
-    // formatted == "12, f, Some("Hello")"
-    ```
+```rust
+let formatted = format!("{}, {:x}, {:?}", 12, 15, Some("Hello"));
+// formatted == "12, f, Some("Hello")"
+```
 
 ---
-### `panic!(msg)` 
+### `panic!(msg)`
 - Exits current task with given message. Similar to segfaulting.
 - Don't do this lightly! It is better to handle and report errors explicitly.
-    ```rust
-    if x < 0 {
-        panic!("Oh noes!");
-    }
-    ```
+
+```rust
+if x < 0 {
+    panic!("Oh noes!");
+}
+```
 
 ---
 #### `assert!(bool)` & `assert_eq!(expected, actual)`
-- `panic!`s if `bool` is false or `expected != actual`
-- Useful for testing
-    ```rust
-    #[test]
-    fn test_something() {
-        let actual = foo();
-        assert_eq!("expected", actual);
-    }
-    ```
+- `panic!`s if `bool` is false or `expected != actual`.
+- Useful for testing and catching illegal conditions.
+
+```rust
+#[test]
+fn test_something() {
+    let actual = 1 + 2;
+    assert_eq!(3, actual);
+    assert!(actual == 3);
+}
+```
 
 ---
 ### Match statements ###
-
 ```rust
 let x = 3;
 
@@ -497,15 +533,17 @@ match x {
     1 => println!("one fish"),
     2 => {
         println!("two fish")
+        println!("two fish")
     },
-    _ => println!("no fish"),
+    _ => println!("no fish for you"),
 }
 ```
 *Notes:*
-- `match` takes an expression (`x`) and then branches on a list of `value => expression` statements.
-- Anything that evaluates to an expression is allowed on the right.
-    - A single expression should end with a comma
-    - Multiple lines need braces (comma optional)
+- `match` takes an expression (`x`) and branches on a list of `value => expression` statements.
+- The entire match evaluates to one expression.
+    - Like if statements, all arms must evaluate to an expression of the same type.
+- A single expression should end with a comma.
+- Multiple lines need braces (comma optional).
 - `_` represents the wildcard pattern (similar to Haskell, OCaml).
 
 ---
@@ -518,23 +556,27 @@ match (x, y) {
     (1, 1) => println!("one"),
     (2, _) => println!("two"),
     (_, 3) => println!("three"),
-    (i, j) if i > 5 && j < 0 => println!("Guard condition"),
-    (_, _) => println!("something else"),
+    (i, j) if i > 5 && j < 0 => println!("On guard!"),
+    (_, _) => println!(":<"),
 }
 ```
 
-- The expression can be any expression, including tuples and function calls.
-- You _must_ have an exhaustive match: the compiler will complain if you don't.
-- use `if`-guards to match on certain conditions instead of specific values.
+- The matched expression can be any expression, including tuples and function calls.
+- You _must_ have an exhaustive match; the compiler will complain if you don't.
+- Use `if`-guards to match on certain conditions instead of specific values.
 - Patterns are very complex, as we'll see later.
+
+---
+# Rust Environment & Tools
 
 ---
 ## Rustc ##
 
-- Rust's compiler is named `rustc`
-- Simply run `rustc your_program.rs` to compile-- things like warnings are
-    enabled by default
-- Typically, you'll use `cargo`, Rust's package manager, to build instead
+- Rust's compiler is `rustc`.
+- Run `rustc your_program.rs` to compile into an executable `your_program`.
+    - Things like warnings are enabled by default.
+    - Read all of the output! It may be verbose but it is *very* useful.
+- Typically, you'll use `cargo`, Rust's package manager, to build instead.
 
 ---
 ## Cargo ##
@@ -545,21 +587,23 @@ match (x, y) {
     - `cargo new project_name --bin` (executable)
 - Build your project: `cargo build`
 - Run your tests: `cargo test`
-    - These get tedious to type, shell alias to your heart's content: `cargob`/`cb` and `cargot`/`ct`
+    - These get tedious to type, so shell alias to your heart's content: `cargob`/`cb` and `cargot`/`ct`
 - Magic, right? How does this work?
 
 ---
 ### Cargo.toml ###
 
-- Cargo uses a TOML file named Cargo.toml to figure out dependencies
-- Build targets are determined by module declarations in `main.rs`/`lib.rs`
-    - More on this later
+- Cargo uses a TOML ("Tom's Tom's Obvious, Minimal Language") file named
+  Cargo.toml to declare and manage dependencies and project metadata.
+- Build targets are determined by module declarations in `main.rs`/`lib.rs`.
+
+- More in your first homework.
 
 ```toml
 [package]
-name = "french_press"
+name = "Rust"
 version = "0.1.0"
-authors = ["David Mally <djmally@gmail.com>"]
+authors = ["Ferris <cis198@gseas.upenn.edu>"]
 
 [dependencies]
 uuid = "0.1"
@@ -567,10 +611,6 @@ uuid = "0.1"
 [profile.release]
 opt-level = 3
 debug = false
-rpath = false
-lto = false
-debug-assertions = false
-codegen-units = 1
 ```
 
 ---
@@ -579,9 +619,16 @@ codegen-units = 1
 - A test is any function which has been annotated with `#[test]`.
 - `cargo test` will run all annotated functions in your project.
 - Any function which executes without crashing (`panic!`ing) succeeds.
-- Use `assert!` to cause a panic in your code.
+- Use `assert!` (or `assert_eq!`) to check conditions (and `panic!` on failure)
 
-- You will learn more about this in your first homework.
+- More in your first homework.
+
+```rust
+#[test]
+fn it_works() {
+    // ...
+}
+```
 
 ---
 ## Installation
@@ -590,7 +637,7 @@ codegen-units = 1
     - `rustup.sh`: a provided installation script which you can `curl | sh`
     - Official stable binaries
     - `multirust`: manages installations of multiple versions of Rust
-        - similar to `rvm`
+        - Similar to `rvm`, `virtualenv`.
 - Choose the method you are most comfortable with.
 
 TODO: I'm not sure which are the most common/recommended installation options?
@@ -604,9 +651,8 @@ TODO: brief note on homework
 ## Next Time ##
 ![Next time, baby](img/next_time.jpg)
 
-- Ownership & Lifetimes
-- Structs
-- Enums
+- Ownership, references, borrowing
+- Structed data: structs, enums
 - Methods
 
-Many code examples taken from [_The Rust Programming Language_](https://doc.rust-lang.org/stable/book/)
+Some code examples taken from [_The Rust Programming Language_](https://doc.rust-lang.org/stable/book/).
