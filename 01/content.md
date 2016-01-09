@@ -14,10 +14,9 @@
 ### Ownership ###
 
 - When a variable binding is introduced, it _takes ownership_ of its data
-- When a binding goes out of scope, the bound data will be released
-   automatically
-- Things like references to variables _must be guaranteed_ to live at least as
-   long as their referent
+- When a binding goes out of scope, the bound data will be released automatically
+    - For heap-allocated data, this means de-allocation.
+- Data _must be guaranteed_ to live at least as long as their references.
 
 ---
 ### Move Semantics ###
@@ -38,7 +37,7 @@ println!("{}", v1[2]); // error: use of moved value `v1`
 
 - `let v1 = vec![1,2,3];`
     - `v1` gets allocated as a Vector object on the stack with a pointer to the data,
-`[1,2,3]`, which is allocated on the _heap_
+      `[1,2,3]`, which is allocated on the _heap_
 - `let v2 = v1;`
     - We don't want to copy the data, since that's expensive
     - we don't want to have two pointers to the same data, since that's not safe
@@ -51,15 +50,15 @@ println!("{}", v1[2]); // error: use of moved value `v1`
 ### `Copy` Types ###
 
 - Rust defines a trait* named `Copy` that signifies that a type may be copied
-   instead whenever it would be moved
+    instead whenever it would be moved
 - While many types are not copyable, some types are, as this is useful and cheap
 - Most primitive types are `Copy` (`i32`, `f64`, `char`, `bool`, etc.)
 - Types that contain references may not be `Copy` (e.g. `Vec`)
-    ```rust
-    let x: i32 = 12;
-    let y = x; // `i32` is `Copy`, so it's not moved :D
-    println!("x still works: {}, and so does y: {}", x, y);
-    ```
+```rust
+let x: i32 = 12;
+let y = x; // `i32` is `Copy`, so it's not moved :D
+println!("x still works: {}, and so does y: {}", x, y);
+```
 
 *for now, think Java interface or Haskell typeclass
 
@@ -68,33 +67,33 @@ println!("{}", v1[2]); // error: use of moved value `v1`
 
 - Ownership does not always have to be moved (or data copied)
 - What would happen if it did? Rust would get very tedious to write:
-    ```rust
-    fn vector_length(v: Vec<i32>) -> Vec<i32> {
-        // Do whatever here, and then hand `v` back to the caller
-    }
-    ```
+```rust
+fn vector_length(v: Vec<i32>) -> Vec<i32> {
+    // Do whatever here, and then hand `v` back to the caller
+}
+```
 - You could imagine that this does not scale well either; the more variables
-   you had to hand back, the longer your return type would be
-   - Imagine having to pass ownership around for 5+ variables at a time
+    you had to hand back, the longer your return type would be
+    - Imagine having to pass ownership around for 5+ variables at a time
 
 ---
 ### Borrowing ###
 
 - Instead, we can _borrow_ variables:
-    ```rust
-    fn vector_length(v: &Vec<i32>) {
-        // Do whatever here.
-    }
-    ```
-- In the function above, we don't need to return `v` to use it again-- we only
-   borrowed it, rather than going all the way and taking ownership of it
+```rust
+fn vector_length(v: &Vec<i32>) {
+    // Do whatever here.
+}
+```
+- Here, we don't need to return `v` to use it again; we only
+    borrowed it, rather than going all the way and taking ownership of it
 - Note that the type of `v` changed: we passed it by reference, so it's now an
-   `&Vec<i32>`
-- References, much like bindings, are immutable by default, so just taking
-   reference to a variable does not let us change it
-- Variables can be borrowed by mutable reference, like `&mut v`
+    `&Vec<i32>`
+- References, like bindings, are immutable by default, so just taking
+    reference to a variable does not let us change it
+- Variables can be borrowed by _mutable_ reference, like `&mut v`
 - When you take a variable by reference, you can access its value by
-   dereferencing it with `*`, just like in C
+    dereferencing it with `*`, just like in C
 
 ---
 ## Borrowing Rules ##
@@ -108,32 +107,32 @@ Learn these rules, and they will serve you well.
 ![](img/holy-grail.jpg)
 
 ---
-### Borrowing ###
+### Borrowing Prevents... ###
 
-- Borrowing prevents:
-   - Iterator invalidation due to mutating a collection you're iterating over
+- Iterator invalidation due to mutating a collection you're iterating over.
     ```rust
     let mut vs = vec![1,2,3,4];
     for v in &vs {
-            vs.push(5);
-            // error: cannot borrow `vs` as mutable because
-            // it is also borrowed as immutable
+        vs.pop();
+        // ERROR: cannot borrow `vs` as mutable because
+        // it is also borrowed as immutable
     }
     ```
----
-### Borrowing ###
+- This pattern is valid in C, C++, Java, Python, Javascript...
 
-- Borrowing prevents:
-   - Use-after-free
+---
+### Borrowing Prevents... ###
+
+- Use-after-free
     ```rust
     let y: &i32;
     {
-            let x = 5;
-            y = &x; // error: `x` does not live long enough
+        let x = 5;
+        y = &x; // error: `x` does not live long enough
     }
     println!("{}", *y);
     ```
-- Both of these code snippets would be valid in C or C++
+- Valid in C, C++...
 - This eliminates a _huge_ number of memory safety bugs _at compile time_
 
 ---
@@ -153,18 +152,19 @@ let mut vs = vec![0,1,2,3,4,5,6];
 
 // Borrow immutably
 for v in &vs { // Can also write `for v in vs.iter()`
-   println!("I'm borrowing {}.", v);
-   println!("You have to dereference `v` to use it (sometimes):"
-   println!("{}", *v + 1);
+    println!("I'm borrowing {}.", v);
+    println!("You have to dereference `v` to use it (sometimes):"
+    println!("{}", *v + 1);
 }
 
 // Borrow mutably
 for v in &mut vs { // Can also write `for v in vs.iter_mut()`
-   println!("I'm mutably borrowing {}.", v);
+    *v = *v + 1;
+    println!("I'm mutably borrowing {}.", v);
 }
 
 // Take ownership
 for v in vs { // Can also write `for v in vs.into_iter()`
-   println!("I now own {}! AHAHAHAHA!", v);
+    println!("I now own {}! AHAHAHAHA!", v);
 }
 ```
