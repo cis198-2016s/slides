@@ -1,8 +1,8 @@
 # Site settings
 title: "CIS 198"
 email: "cis198@cis.upenn.edu"
-baseurl: ""
-url: "http://cis198-2016s.github.io/slides/"
+baseurl: "/slides/"
+url: "http://cis198-2016s.github.io"
 github_username: cis198-2016s
 
 # Build settings
