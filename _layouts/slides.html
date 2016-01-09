@@ -3,7 +3,7 @@
   {% include head.html %}
   <body>
     <textarea id="source">
-      {{ content }}
+      {% include_relative content.md %}
     </textarea>
     <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js">
     </script>
