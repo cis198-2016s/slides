@@ -1,16 +1,16 @@
 # CIS 198: Intro to COBOL #
 
-![]({{ site.baseurl }}/img/cobol.png)
+![](img/cobol.png)
 
 ---
 # CIS 198: Rust Programming #
 
-![]({{ site.baseurl }}/img/rust.png)
+![](img/rust.png)
 
 ---
 # Lecture 00: Hello, Rust! #
 
-![]({{ site.baseurl }}/img/ferris.png)
+![](img/ferris.png)
 
 ---
 ## Overview ##
@@ -602,7 +602,7 @@ TODO: brief note on homework
 
 ---
 ## Next Time ##
-![Next time, baby]({{ site.baseurl }}/img/next_time.jpg)
+![Next time, baby](img/next_time.jpg)
 
 - Ownership & Lifetimes
 - Structs

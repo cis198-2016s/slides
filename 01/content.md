@@ -105,7 +105,7 @@ Learn these rules, and they will serve you well.
 - You may have as many immutable references to a resource at once as you want (`&T`)
 - OR you may have _exactly one_ mutable reference to a resource (`&mut T`)
 
-![]({{ site.baseurl }}/img/holy-grail.jpg)
+![](img/holy-grail.jpg)
 
 ---
 ### Borrowing ###
