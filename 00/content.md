@@ -106,8 +106,18 @@ Date | Stable | Beta | Nightly
 - Weekly Rust lecture: Wed. 4:30-6:00pm, Towne 321
 - Mini-Course lecture: Tue. 6:00-7:30pm, Berger Auditorium (SKIR AUD)
 - [Piazza](https://piazza.com/class/iiksjduyiy773s)
+    - We will be using Piazza for announcements; make sure you have gotten emails!
 
 Consult [the website](http://cis198-2016s.github.io/) for homework assignments and further details.
+
+## Administrivia - Homeworks
+
+- X homeworks
+- Released on Wednesdays and (usually) due the following Wednesday night, midnight.
+- We will be using Classroom for GitHub.
+    - Click the link to make a private repo for every homework, which will be your submission.
+- 5 24-hour late days for the semester.
+    - Use up to 2 late days on an assigment.
 
 ---
 ## Helpful Links ##
@@ -122,6 +132,7 @@ Consult [the website](http://cis198-2016s.github.io/) for homework assignments a
 ## Let's Dive In! ##
 
 Hello, Rust!
+
 ```rust
 fn main() {
     println!("Hello, CIS 198!");
@@ -631,21 +642,22 @@ fn it_works() {
 ```
 
 ---
-## Installation
+## HW00: Installation
 
-- A few choices...
-    - `rustup.sh`: a provided installation script which you can `curl | sh`
-    - Official stable binaries
-    - `multirust`: manages installations of multiple versions of Rust
-        - Similar to `rvm`, `virtualenv`.
-- Choose the method you are most comfortable with.
-
-TODO: I'm not sure which are the most common/recommended installation options?
+- Due 1/25.
+- Install `multirust`: manages installations of multiple versions of Rust.
+    - Similar to `rvm`, `virtualenv`.
+    - Linux, OS X, Windows (MSYS2)
+- Install 1.5 now if you want (updating is easy).
+    - 1.6 comes out tomorrow!
+- Submitting with Classroom for GitHub is as easy as ~~pie~~ pushing to your private repo.
 
 ---
-## Homework
+## HW01: Finger Exercises
 
-TODO: brief note on homework
+- Due 1/27.
+- Get to know Rust with some easy exercises.
+- Sieve of Eratosthenes, Tower of Hanoi
 
 ---
 ## Next Time ##
