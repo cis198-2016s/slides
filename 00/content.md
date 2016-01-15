@@ -129,7 +129,7 @@ Date | Stable | Beta | Nightly
     - We will be using Piazza for announcements; make sure you have gotten emails!
 - Consult [the website](http://cis198-2016s.github.io/) for the schedule
   (including slides and homework).
-- Class source material generally hosted on [GitHub][https://github.com/cis198-2016s/].
+- Class source material generally hosted on [GitHub](https://github.com/cis198-2016s/).
     - Pull requests welcome!
 - Give us feedback! Course is being developed so feedback is valuable.
 
