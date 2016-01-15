@@ -134,6 +134,16 @@ Date | Stable | Beta | Nightly
 - Give us feedback! Course is being developed so feedback is valuable.
 
 ---
+## Administrivia: Office Hours
+
+- David Mally
+    - Office Hours: Mon 4:30-6:00pm, Levine 6 Lounge
+- Terry Sun
+    - Office Hours: Tues 3:00-4:30pm, Levine 6 Lounge
+- Kai Ninomiya
+    - Office Hours: Weds 6:00-7:00pm, Levine 6 Lounge
+
+---
 ## Administrivia: Homeworks (50%)
 
 - 8-9 homeworks
