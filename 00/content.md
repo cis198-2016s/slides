@@ -657,10 +657,11 @@ match (x, y) {
 [package]
 name = "Rust"
 version = "0.1.0"
-authors = ["Ferris <cis198@gseas.upenn.edu>"]
+authors = ["Ferris <cis198@seas.upenn.edu>"]
 
 [dependencies]
 uuid = "0.1"
+rand = "0.3"
 
 [profile.release]
 opt-level = 3
