@@ -553,7 +553,7 @@ fn test_something() {
 ```
 
 ---
-#### `unreachable!()`
+### `unreachable!()`
 
 - Used to indicate that some code should not be reached
 - Panics when reached
@@ -566,7 +566,7 @@ if false {
 ```
 
 ---
-#### `unimplemented!()`
+### `unimplemented!()`
 
 - Shorthand for `panic!("not yet implemented")`
 - You'll probably see this in your homework a lot!
