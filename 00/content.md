@@ -100,6 +100,23 @@ Date | Stable | Beta | Nightly
     - [/r/rust](http://www.reddit.com/r/rust)
 
 ---
+### Who Uses Rust?
+
+![](img/rust-in-production.png)
+
+---
+### Big Rust Projects
+
+- [Servo](https://github.com/servo/servo)
+- [Piston](https://github.com/PistonDevelopers/piston)
+- [MIO](https://github.com/carllerche/mio)
+- [nickel.rs](http://nickel.rs/)
+- [iron](https://github.com/iron/iron)
+- [lalrpop](https://github.com/nikomatsakis/lalrpop)
+- [cargo](https://github.com/rust-lang/cargo)
+- [Rust itself!](https://github.com/rust-lang/rust/)
+
+---
 ## Administrivia (TODO)
 
 - X homeworks (xx%), final project (xx%)
