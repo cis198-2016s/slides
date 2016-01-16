@@ -102,7 +102,7 @@ Date | Stable | Beta | Nightly
 ---
 ### Who Uses Rust?
 
-![](img/rust-in-production.png)
+![](img/rust-in-production.png =1600x1200)
 
 ---
 ### Big Rust Projects
