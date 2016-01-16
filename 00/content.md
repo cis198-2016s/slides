@@ -553,6 +553,32 @@ fn test_something() {
 ```
 
 ---
+#### `unreachable!()`
+
+- Used to indicate that some code should not be reached
+- Panics when reached
+- Can be useful to track down unexpected bugs (e.g. optimization bugs)
+
+```rust
+if false {
+    unreachable!();
+}
+```
+
+---
+#### `unimplemented!()`
+
+- Shorthand for `panic!("not yet implemented")`
+- You'll probably see this in your homework a lot!
+
+```rust
+fn sum(x: Vec<i32>) -> i32 {
+    // TODO
+    unimplemented!();
+}
+```
+
+---
 ### Match statements ###
 ```rust
 let x = 3;
@@ -621,7 +647,7 @@ match (x, y) {
 ---
 ### Cargo.toml ###
 
-- Cargo uses a TOML ("Tom's Tom's Obvious, Minimal Language") file named
+- Cargo uses a TOML ("Tom's Obvious, Minimal Language") file named
   Cargo.toml to declare and manage dependencies and project metadata.
 - Build targets are determined by module declarations in `main.rs`/`lib.rs`.
 
