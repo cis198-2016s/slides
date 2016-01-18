@@ -30,7 +30,7 @@ PROCEDURE DIVISION.
 ## Overview ##
 
 "Rust is a systems programming language that runs blazingly fast, prevents
-nearly all segfaults, and guarantees thread safety." -- [rust-lang.org](https://www.rust-lang.org/)
+nearly all segfaults, and guarantees thread safety." &ndash; [rust-lang.org](https://www.rust-lang.org/)
 
 ---
 ### What _is_ Rust? ###
@@ -440,11 +440,27 @@ fn square(n: i32) -> i32 {
 - Why? Its last statement ends in a semicolon, so it evaluates to `()`.
 
 ---
-### Bonus: Function Pointers ###
-- Much simpler than in C:
+### Function Objects ###
+
+- Several things can be used as function objects:
+    - Function pointers (a reference to a normal function)
+    - Closures (covered later)
+- Much more straightforward than C function pointers:
 
 ```rust
 let x: fn(i32) -> i32 = square;
+```
+
+- Can be passed by reference
+
+```rust
+fn apply_twice(f: &Fn(i32) -> i32, x: i32) -> i32 {
+    f(f(x))
+}
+
+// ...
+
+let y = apply_twice(&square, 5);
 ```
 
 ---
