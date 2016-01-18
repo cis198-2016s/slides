@@ -83,6 +83,7 @@ Rust is:
 - Current stable: Rust 1.5
 - Rust 1.6 will be out tomorrow (1/21)!
     - This is the version we'll be using in this class
+- Train model:
 
 Date | Stable | Beta | Nightly
 --- | --- | --- | ---
