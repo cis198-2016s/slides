@@ -268,8 +268,8 @@ println!("{}", *x); // 12
     - `arr[3]` gives you the 4th element of `arr`
 
 ```rust
-let arr1 = `[1, 2, 3]`; // (array of 3 elements)
-let arr2 = `[2; 32]`;   // (array of 32 `2`s)
+let arr1 = [1, 2, 3]; // (array of 3 elements)
+let arr2 = [2; 32];   // (array of 32 `2`s)
 ```
 
 ---
@@ -282,7 +282,8 @@ let arr2 = `[2; 32]`;   // (array of 32 `2`s)
 
 ```rust
 let arr = [0, 1, 2, 3, 4, 5];
-let total_slice = &arr[..];     // Slice all of `arr`
+let total_slice = &arr;         // Slice all of `arr`
+let total_slice = &arr[..];     // Same, but more explicit
 let partial_slice = &arr[2..5]; // [2, 3, 4]
 ```
 
@@ -555,8 +556,10 @@ if x < 0 {
 ```
 
 ---
-#### `assert!(bool)` & `assert_eq!(expected, actual)`
-- `panic!`s if `bool` is false or `expected != actual`.
+### `assert!` & `assert_eq!`
+
+- `assert!(condition)` panics if `condition` is `false`.
+- `assert_eq!(expected, actual)` panics if `expected != actual`.
 - Useful for testing and catching illegal conditions.
 
 ```rust
