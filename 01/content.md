@@ -39,12 +39,12 @@ println!("{}", v1[2]); // error: use of moved value `v1`
     - `v1` gets allocated as a Vector object on the stack with a pointer to the data,
       `[1,2,3]`, which is allocated on the _heap_
 - `let v2 = v1;`
-    - We don't want to copy the data, since that's expensive
-    - we don't want to have two pointers to the same data, since that's not safe
-    - So: move the pointer that `v1` holds into `v2`, and declare `v1` invalid
+    - We don't want to copy the data, since that's expensive.
+    - we don't want to have two pointers to the same data, since that's not safe.
+    - So: move the pointer that `v1` holds into `v2`, and declare `v1` invalid.
 - `println!("{}", v1[2]);`
-    - we know that `v1` is no longer a valid variable binding, so this throws an error.
-- Rust can reason about this at compile time
+    - Since we know that `v1` is no longer a valid variable binding, this throws an error.
+- Rust can reason about this at compile time.
 
 ---
 ### `Copy` Types ###
@@ -133,6 +133,12 @@ Learn these rules, and they will serve you well.
     println!("{}", *y);
     ```
 - Valid in C, C++...
+- The full error message:
+```
+error: `x` does not live long enough
+note: reference must be valid for the block suffix following statement 0 at 1:16
+...but borrowed value is only valid for hte block suffix following statement 0 at 4:18
+```
 - This eliminates a _huge_ number of memory safety bugs _at compile time_
 
 ---
@@ -168,3 +174,8 @@ for v in vs { // Can also write `for v in vs.into_iter()`
     println!("I now own {}! AHAHAHAHA!", v);
 }
 ```
+
+---
+## Example: Linked Lists ##
+
+- Who likes linked lists?

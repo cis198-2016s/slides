@@ -127,6 +127,7 @@ Date | Stable | Beta | Nightly
 
 Consult [the website](http://cis198-2016s.github.io/) for homework assignments and further details.
 
+---
 ## Administrivia - Homeworks
 
 - X homeworks
@@ -198,7 +199,6 @@ let x = "Shadowed!";
 ```rust
 let (a, b) = ("foo", 12);
 ```
-(more on this later)
 
 ---
 ### Expressions ###
@@ -211,7 +211,9 @@ let (a, b) = ("foo", 12);
 - If a function has no explicit return value, it returns `()`.
 
 ```rust
+/// Triple-slash comments are docstring comments.
 fn foo() {
+  // Double-slash comments are b̶o̶r̶i̶n̶g̶ regular.
 }
 
 fn foo() -> () {
