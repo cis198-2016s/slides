@@ -568,7 +568,7 @@ if x < 0 {
 ### `assert!` & `assert_eq!`
 
 - `assert!(condition)` panics if `condition` is `false`.
-- `assert_eq!(expected, actual)` panics if `expected != actual`.
+- `assert_eq!(left, right)` panics if `left != right`.
 - Useful for testing and catching illegal conditions.
 
 ```rust
