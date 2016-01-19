@@ -1,57 +1,148 @@
 # Ownership & Lifetimes #
 
+### CIS 198 Lecture 1
+
 ---
 ## Ownership & Borrowing ##
 
-- Explicit ownership is the biggest new feature that Rust brings to the table
-- Ownership is all* checked at compile time!
+- Explicit ownership is the biggest new feature that Rust brings to the table!
+- Ownership is all&sup1; checked at compile time!
 - Newcomers to Rust often find themselves "fighting with the borrow checker"
    trying to get their code to compile
 
-*mostly
+&sup1;*mostly*
 
 ---
-### Ownership ###
+## Ownership ##
 
-- When a variable binding is introduced, it _takes ownership_ of its data
-- When a binding goes out of scope, the bound data will be released automatically
+- When a variable binding is introduced, it _takes ownership_ of its data.
+    - Data can only have one owner at a time.
+- When a binding goes out of scope, the bound data will be released automatically.
     - For heap-allocated data, this means de-allocation.
-- Data _must be guaranteed_ to live at least as long as their references.
-
----
-### Move Semantics ###
-
-- Rust enforces a particular property that helps make the language safe: any
-   given resource has _exactly_ one binding at any given time*
-
-*mostly; special types exist to allow safe sharing
-
----
-### Move Semantics ###
+- Data _must be guaranteed_ to live at least as long as its references.
 
 ```rust
-let v1 = vec![1,2,3];
+fn foo() {
+    // Creates a Vec object.
+    // Gives ownership of the Vec object to v1.
+    let v1 = vec![1, 2, 3];
+
+    v1.pop();
+    v1.push(4);
+
+    // At the end of the scope, v1 goes out of scope.
+    // v1 still owns the Vec object, so it can be cleaned up.
+}
+```
+
+---
+## Move Semantics ##
+
+```rust
+let v1 = vec![1, 2, 3];
+
+// Ownership of the Vec object moves to v2.
 let v2 = v1;
+
 println!("{}", v1[2]); // error: use of moved value `v1`
 ```
 
-- `let v1 = vec![1,2,3];`
-    - `v1` gets allocated as a Vector object on the stack with a pointer to the data,
-      `[1,2,3]`, which is allocated on the _heap_
 - `let v2 = v1;`
     - We don't want to copy the data, since that's expensive.
-    - we don't want to have two pointers to the same data, since that's not safe.
-    - So: move the pointer that `v1` holds into `v2`, and declare `v1` invalid.
+    - The data cannot have multiple owners.
+    - So: move the Vec's ownership into `v2`, and declare `v1` invalid.
 - `println!("{}", v1[2]);`
-    - Since we know that `v1` is no longer a valid variable binding, this throws an error.
-- Rust can reason about this at compile time.
+    - We know that `v1` is no longer a valid variable binding, so this is an error.
+- Rust can reason about this at compile time, so it throws a compiler error.
+
+---
+## Move Semantics
+
+- Moving ownership is semantic; it doesn't involve moving data.
+- idk.
+
+---
+## Ownership
+
+- Ownership does not always have to be moved.
+- What would happen if it did? Rust would get very tedious to write:
+```rust
+fn vector_length(v: Vec<i32>) -> Vec<i32> {
+        // Do whatever here, and then hand `v` back to the caller
+}
+```
+- You could imagine that this does not scale well either; the more variables
+    you had to hand back, the longer your return type would be!
+    - Imagine having to pass ownership around for 5+ variables at a time :(
+
+---
+## Borrowing
+
+- Instead of constantly transferring ownership, we can _borrow_ data.
+- A variable's data can be borrowed by taking references to the variable;
+  ownership doesn't change.
+- Ownership cannot be transferred from a variable while references to the data
+  exist.
+
+```rust
+fn foo() {
+    let v = vec![1, 2, 3];
+
+    // v_ref is a reference to v.
+    let v_ref = &v;
+
+    // Moving ownership to v_new would invalidate v_ref.
+    // error: cannot move out of `v` because it is borrowed
+    let v_new = v;
+}
+```
+
+---
+
+## Borrowing
+
+```rust
+/// `length` only needs `vector` temporarily, so it is borrowed.
+fn length(vec_ref: &Vec<i32>) {
+    // Dereference vec_ref to call methods on it.
+    (*vec_ref).len();
+}
+
+fn main() {
+    let vector = vec![];
+    length(&vector);
+    println!("{:?}", *vector);
+}
+```
+
+- Note the type of `length`: `vec_ref` is passed by reference, so it's now an `&Vec<i32>`.
+- References, like bindings, are *immutable* by default.
+- When you take a variable by reference, you must dereference it with `*` before
+  you use it (just like your old friend C).
+
+---
+## Borrowing ##
+
+```rust
+/// `push` needs to modify `vector` so it is borrowed mutably.
+fn push(vec_ref: &mut Vec<i32>, x: i32) {
+    let vector = *vec_ref;
+    vector.push(x);
+}
+
+fn main() {
+    let vector = vec![];
+    length(&mut v, 4);
+}
+```
+- Variables can be borrowed by _mutable_ reference: `&mut vec_ref`.
+    - `vec_ref` is a reference to a mutable `Vec`.
 
 ---
 ### `Copy` Types ###
 
-- Rust defines a trait* named `Copy` that signifies that a type may be copied
-    instead whenever it would be moved
-- While many types are not copyable, some types are, as this is useful and cheap
+- Rust defines a trait&sup1; named `Copy` that signifies that a type may be
+    copied instead whenever it would be moved.
 - Most primitive types are `Copy` (`i32`, `f64`, `char`, `bool`, etc.)
 - Types that contain references may not be `Copy` (e.g. `Vec`)
 ```rust
@@ -60,40 +151,7 @@ let y = x; // `i32` is `Copy`, so it's not moved :D
 println!("x still works: {}, and so does y: {}", x, y);
 ```
 
-*for now, think Java interface or Haskell typeclass
-
----
-### Borrowing ###
-
-- Ownership does not always have to be moved (or data copied)
-- What would happen if it did? Rust would get very tedious to write:
-```rust
-fn vector_length(v: Vec<i32>) -> Vec<i32> {
-    // Do whatever here, and then hand `v` back to the caller
-}
-```
-- You could imagine that this does not scale well either; the more variables
-    you had to hand back, the longer your return type would be
-    - Imagine having to pass ownership around for 5+ variables at a time
-
----
-### Borrowing ###
-
-- Instead, we can _borrow_ variables:
-```rust
-fn vector_length(v: &Vec<i32>) {
-    // Do whatever here.
-}
-```
-- Here, we don't need to return `v` to use it again; we only
-    borrowed it, rather than going all the way and taking ownership of it
-- Note that the type of `v` changed: we passed it by reference, so it's now an
-    `&Vec<i32>`
-- References, like bindings, are immutable by default, so just taking
-    reference to a variable does not let us change it
-- Variables can be borrowed by _mutable_ reference, like `&mut v`
-- When you take a variable by reference, you can access its value by
-    dereferencing it with `*`, just like in C
+&sup1;for now, think Java interface or Haskell typeclass
 
 ---
 ## Borrowing Rules ##
@@ -137,7 +195,7 @@ Learn these rules, and they will serve you well.
 ```
 error: `x` does not live long enough
 note: reference must be valid for the block suffix following statement 0 at 1:16
-...but borrowed value is only valid for hte block suffix following statement 0 at 4:18
+...but borrowed value is only valid for the block suffix following statement 0 at 4:18
 ```
 - This eliminates a _huge_ number of memory safety bugs _at compile time_
 
