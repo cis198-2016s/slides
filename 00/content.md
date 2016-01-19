@@ -751,7 +751,7 @@ fn it_works() {
 ![Next time, baby](img/next_time.jpg)
 
 - Ownership, references, borrowing
-- Structed data: structs, enums
+- Structured data: structs, enums
 - Methods
 
 Some code examples taken from
