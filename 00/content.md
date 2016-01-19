@@ -413,10 +413,10 @@ fn foo(x: T, y: U, z: V) -> T {
 ```
 
 - `foo` is a function that takes three parameters:
-    - `x` of type `T`,
-    - `y` of type `U`,
-    - `z` of type `V`,
-    - then returns a `T`.
+    - `x` of type `T`
+    - `y` of type `U`
+    - `z` of type `V`
+- `foo` returns a `T`.
 
 - Must explicitly define the types of function arguments and return value.
     - The compiler is actually smart enough to figure this out for you, but
