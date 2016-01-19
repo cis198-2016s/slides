@@ -247,6 +247,8 @@ println!("{}", y); // "less"
     - `i8`, `i16`, `132`, `i64`, `isize`
     - `u8`, `u16`, `132`, `u64`, `usize`
     - `f32`, `f64`
+    - `isize` & `usize` are the size of pointers (and therefore have
+        machine-dependent size)
     - Type inference for numeric literals will default to `i32` or `f64`.
 
 ---
