@@ -714,6 +714,14 @@ fn it_works() {
 ```
 
 ---
+## `cargo check`
+
+- Not available by default!
+- Run `cargo install cargo-check` to install it
+- Functionally the same as `cargo build`, but doesn't actually generate any code
+  - Faster!
+
+---
 ## HW00: Installation
 
 - Due 1/25.
