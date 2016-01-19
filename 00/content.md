@@ -219,6 +219,9 @@ fn foo() {
 }
 
 fn foo() -> () {
+  /* Block comments
+   * also exist!
+   */
 }
 ```
 
