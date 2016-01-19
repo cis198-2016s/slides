@@ -1,9 +1,4 @@
-body {
-  font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 12pt;
-}
-
-h1, h2, h3{
+h1, h2, h3 {
   text-align: center;
 }
 
@@ -13,15 +8,6 @@ img {
   margin-right: auto;
   width: 50%;
   height: 50%;
-}
-
-table {
-  border-collapse: collapse;
-}
-
-td, th {
-  border: 1px solid gray;
-  padding: 4px;
 }
 
 .remark-code, .remark-inline-code {

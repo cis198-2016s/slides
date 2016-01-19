@@ -1,0 +1,76 @@
+body {
+  font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 12pt;
+}
+
+b, strong {
+  font-weight: 400;
+}
+
+a {
+  color: #428bca;
+  text-decoration: none;
+}
+
+a:hover, a:focus {
+  color: #2a6496;
+  text-decoration: underline;
+}
+
+.stealth {
+  text-decoration: none;
+  color: inherit;
+}
+
+.btn {
+  color: #fff;
+  background-color: #428bca;
+  border-color: #357ebd;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  height: 1.5em;
+  width: 100%;
+  padding: 1px;
+  text-align: center;
+  display: block;
+}
+
+.btn:hover, .btn:focus, .btn:active {
+  color: #fff;
+  background-color: #3276b1;
+  border-color: #285e8e;
+  text-decoration: none;
+}
+
+.btn img {
+  height: 1.25em;
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  background: #ccc;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+td, th, tr {
+  padding: 3px 4px;
+  border: 1px solid gray;
+}
+
+/* run button on rust snippets */
+code.rust { position: relative; }
+a.test-arrow {
+  display: inline-block;
+  position: absolute;
+
+  background-color: #4e8bca;
+  color: #f5f5f5;
+  padding: 5px 10px 5px 10px;
+  border-radius: 5px;
+  top: 5px;
+  right: 5px;
+}

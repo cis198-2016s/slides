@@ -5,10 +5,11 @@
     <textarea id="source">
       {% include_relative content.md %}
     </textarea>
-    <script src="{{ site.baseurl }}/js/remark.min.js">
-    </script>
+    <script src="{{ site.baseurl }}/js/remark.min.js"></script>
+    <script src="{{ site.baseurl }}/js/playpen.198.js"></script>
     <script>
       var slideshow = remark.create();
+      window.playgroundUrl = "https://play.rust-lang.org/";
     </script>
   </body>
 </html>
