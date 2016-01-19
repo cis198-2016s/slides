@@ -318,9 +318,9 @@ let s2: String = String::from("foo");
 - Index into tuples with `foo.0`, `foo.1`, etc.
 - Can be destructured in `let` bindings
     ```rust
-    let foo: (i32, char, f64) = (72, 'H', 5.);
-    let (x, y, z) = (72, 'H', 5.);
-    let (a, b, c) = foo;
+    let foo: (i32, char, f64) = (72, 'H', 5.1);
+    let (x, y, z) = (72, 'H', 5.1);
+    let (a, b, c) = foo; // a = 72, b = 'H', c = 5.1
     ```
 
 ---
