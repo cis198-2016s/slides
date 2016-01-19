@@ -167,7 +167,7 @@ fn main() {
 # Basic Rust Syntax #
 
 ---
-### Variable Bindings ###
+## Variable Bindings ###
 - Variables are bound with `let`:
 ```rust
 let x = 17;
@@ -189,7 +189,7 @@ y += 1; // OK!
 ```
 
 ---
-### Variable Bindings ###
+## Variable Bindings ###
 - Bindings may be shadowed:
 ```rust
 let x = 17;
@@ -207,7 +207,7 @@ let (a, b) = ("foo", 12);
 ```
 
 ---
-### Expressions ###
+## Expressions ###
 
 - (Almost!) everything is an expression: something which returns a value.
     - Exception: variable bindings are not expressions.
@@ -230,7 +230,7 @@ fn foo() -> () {
 ```
 
 ---
-### Expressions ###
+## Expressions ###
 - Because everything is an expression, we can bind many things to variable names:
 ```rust
 let x = -5;
@@ -242,7 +242,7 @@ println!("{}", y); // "less"
     - Similar to Python, Ruby, C#, and others; like `printf`'s `"%s"` in C/C++.
 
 ---
-### Primitives ###
+## Primitive Types ###
 
 - `bool`: spelled `true` and `false`.
 - `char`: spelled like `'c'` or `'😺'` (`chars` are Unicode!).
@@ -254,23 +254,6 @@ println!("{}", y); // "less"
     - `isize` & `usize` are the size of pointers (and therefore have
         machine-dependent size)
     - Type inference for numeric literals will default to `i32` or `f64`.
-
----
-### References ###
-
-- Reference *types* are written with an `&`: `&i32`.
-- References can be taken with `&` (like C/C++).
-- References can be _dereferenced_ with `*` (like C/C++).
-- References are guaranteed to be valid.
-    - Validity is enforced through compile-time checks!
-- These are *not* the same as pointers!
-- Reference lifetimes are pretty complex, as we'll explore later on in the course.
-
-```rust
-let x = 12;
-let ref_x = &x;
-println!("{}", *x); // 12
-```
 
 ---
 ### Arrays ###
@@ -342,6 +325,72 @@ let y: u32 = x as u32;
     - There are unsafe mechanisms to overcome this, if you know what you're doing.
 
 ---
+## `Vec<T>` ###
+
+- A standard library type: you don't need to import anything to use it.
+- A `Vec` (pronounced "vector") is a growable array allocated on the heap.
+    - (cf. Java ArrayList, C++ std::vector, etc.)
+- `<T>` denotes a generic type.
+    - The type of a `Vec` of `i32`s is `Vec<i32>`.
+    - Type inference is only possible if you add elements to the `Vec`.
+- Vectors can be created with `Vec::new()` or with the `vec!` macro.
+    - `Vec::new()` is an example of namespacing. `new` is a function defined for
+      the `Vec` struct.
+
+---
+## `Vec<T>` ###
+```rust
+// Explicit typing
+let v0: Vec<i32> = Vec::new();
+
+// v1 and v2 are equal
+let mut v1 = Vec::new();
+v1.push(1);
+v1.push(2);
+v1.push(3);
+
+let v2 = vec![1, 2, 3];
+```
+
+```rust
+// v3 and v3 are equal
+let v3 = vec![0; 4];
+let v4 = vec![0, 0, 0, 0];
+```
+
+---
+## `Vec<T>` ###
+
+```rust
+let v2 = vec![1, 2, 3];
+let i = v2[2]; // 3
+```
+
+- Like arrays, vectors can be indexed with `[]`.
+    - You can't index a vector with an i32/i64/etc.
+    - You must use a `usize` because `usize` is guaranteed to be the same size as a pointer
+
+- Vectors has an extensive stdlib method list, which can be found at the
+  [offical Rust documentation](https://doc.rust-lang.org/stable/std/vec/).
+
+---
+## References ###
+
+- Reference *types* are written with an `&`: `&i32`.
+- References can be taken with `&` (like C/C++).
+- References can be _dereferenced_ with `*` (like C/C++).
+- References are guaranteed to be valid.
+    - Validity is enforced through compile-time checks!
+- These are *not* the same as pointers!
+- Reference lifetimes are pretty complex, as we'll explore later on in the course.
+
+```rust
+let x = 12;
+let ref_x = &x;
+println!("{}", *x); // 12
+```
+
+---
 ## Control Flow ##
 
 ---
@@ -410,7 +459,7 @@ for x in xs {
 ```
 
 ---
-### Functions ###
+## Functions ##
 
 ```rust
 fn foo(x: T, y: U, z: V) -> T {
@@ -430,7 +479,7 @@ fn foo(x: T, y: U, z: V) -> T {
       typing.
 
 ---
-### Functions ###
+## Functions ##
 
 - The final expression in a function is its return value.
     - Use `return` for _early_ returns from a function.
@@ -480,55 +529,7 @@ let y = apply_twice(&square, 5);
 ```
 
 ---
-### `Vec<T>` ###
-
-- A `Vec` (pronounced "vector") is a growable array allocated on the heap.
-    - (cf. Java ArrayList, C++ std::vector, etc.)
-- `<T>` denotes a generic type.
-    - The type of a `Vec` of `i32`s is `Vec<i32>`.
-    - Type inference is only possible if you add elements to the `Vec`.
-- Vectors can be created with `Vec::new()` or with the `vec!` macro.
-    - `Vec::new()` is an example of namespacing. `new` is a function defined in
-      the `Vec` struct.
-
----
-### `Vec<T>` ###
-```rust
-// Explicit typing
-let v0: Vec<i32> = Vec::new();
-
-// v1 and v2 are equal
-let mut v1 = Vec::new();
-v1.push(1);
-v1.push(2);
-v1.push(3);
-
-let v2 = vec![1, 2, 3];
-```
-
-```rust
-// v3 and v3 are equal
-let v3 = vec![0; 4];
-let v4 = vec![0, 0, 0, 0];
-```
-
----
-### `Vec<T>` ###
-
-```rust
-let v2 = vec![1, 2, 3];
-let i = v2[2]; // 3
-```
-
-- Like arrays, vectors can be indexed with `[]`.
-    - You can't index a vector with an i32/i64/etc.
-    - You must use a `usize` because `usize` is guaranteed to be the same size as a pointer
-
-- Vectors has an extensive stdlib method list, which can be found at the
-  [offical Rust documentation](https://doc.rust-lang.org/stable/std/vec/).
-
----
-### Macros!
+## Macros!
 
 - Macros are like functions, but they're named with an `!` at the end.
 - Can do generally very powerful stuff.
@@ -614,7 +615,7 @@ fn sum(x: Vec<i32>) -> i32 {
 ```
 
 ---
-### Match statements ###
+## Match statements ###
 ```rust
 let x = 3;
 
@@ -636,7 +637,7 @@ match x {
 - `_` represents the wildcard pattern (similar to Haskell, OCaml).
 
 ---
-### Match statements ###
+## Match statements ###
 ```rust
 let x = 3;
 let y = -3;
@@ -704,13 +705,12 @@ debug = false
 ```
 
 ---
-## `cargo test`
+### `cargo test`
 
 - A test is any function which has been annotated with `#[test]`.
 - `cargo test` will run all annotated functions in your project.
 - Any function which executes without crashing (`panic!`ing) succeeds.
 - Use `assert!` (or `assert_eq!`) to check conditions (and `panic!` on failure)
-
 - You'll use this in your first homework.
 
 ```rust
@@ -721,12 +721,12 @@ fn it_works() {
 ```
 
 ---
-## `cargo check`
+### `cargo check`
 
 - Not available by default!
-- Run `cargo install cargo-check` to install it
-- Functionally the same as `cargo build`, but doesn't actually generate any code
-    - Faster!
+- Run `cargo install cargo-check` to install it.
+- Functionally the same as `cargo build`, but doesn't actually generate any code.
+    - => Faster!
 
 ---
 ## HW00: Hello Cargo & Hello Rust
