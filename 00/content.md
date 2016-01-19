@@ -118,9 +118,10 @@ Date | Stable | Beta | Nightly
 - [Rust itself!](https://github.com/rust-lang/rust/)
 
 ---
-## Administrivia (TODO)
+## Administrivia
 
-- X homeworks (xx%), final project (xx%)
+- 8-9 homeworks (50%), final project (40%) (potentially subject to change)
+- Participation (10%)
 - Weekly Rust lecture: Wed. 4:30-6:00pm, Towne 321
 - Mini-Course lecture: Tue. 6:00-7:30pm, Berger Auditorium (SKIR AUD)
 - [Piazza](https://piazza.com/class/iiksjduyiy773s)
@@ -131,7 +132,7 @@ Consult [the website](http://cis198-2016s.github.io/) for homework assignments a
 ---
 ## Administrivia - Homeworks
 
-- X homeworks
+- 8-9 homeworks
 - Released on Wednesdays and (usually) due the following Wednesday night, midnight.
 - We will be using Classroom for GitHub.
     - Click the link to make a private repo for every homework, which will be your submission.
