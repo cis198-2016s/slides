@@ -334,7 +334,7 @@ let y: u32 = x as u32;
 ```
 
 - Naturally, you can only cast between types that are safe to cast between.
-    - No casting `[i16; 4]` to `char`!
+    - No casting `[i16; 4]` to `char`! (This is called a "non-scalar" cast)
     - There are unsafe mechanisms to overcome this, if you know what you're doing.
 
 ---
