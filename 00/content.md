@@ -393,15 +393,17 @@ loop {
 ### Loops ###
 - `for` is the most different from most C-like languages
      - `for` loops use an _iterator expression_:
+     - `n..m` creates an iterator from n to m (exclusive).
+     - Some data structures can be used as iterators, like arrays and `Vec`s.
 
 ```rust
-// 0..10 is an iterator from 0 to 10 (exclusive)
+// Loops from 0 to 10.
 for x in 0..10 {
     println!("{}", x);
 }
 
 let xs = [0, 1, 2, 3, 4];
-// Arrays can be used as iterators.
+// Loop through elements in `xs`.
 for x in xs {
     println!("{}", x);
 }
@@ -465,7 +467,7 @@ fn square(n: i32) -> i32 {
 let x: fn(i32) -> i32 = square;
 ```
 
-- Can be passed by reference
+- Can be passed by reference:
 
 ```rust
 fn apply_twice(f: &Fn(i32) -> i32, x: i32) -> i32 {
@@ -540,12 +542,13 @@ let i = v2[2]; // 3
 ### `print!` & `println!` ###
 - Print stuff out. Yay.
 - Use `{}` for general string interpolation, and `{:?}` for debug printing.
+    - Some types can only be printed with `{:?}`, like arrays and `Vec`s.
 
 ```rust
 print!("{}, {}, {}", "foo", 3, true);
-// foo, 3, true
+// => foo, 3, true
 println!("{:?}, {:?}", "foo", [1, 2, 3]);
-// "foo", [1, 2, 3]
+// => "foo", [1, 2, 3]
 ```
 
 ---
@@ -559,7 +562,7 @@ let formatted = format!("{}, {:x}, {:?}", 12, 15, Some("Hello"));
 
 ---
 ### `panic!(msg)`
-- Exits current task with given message. Similar to segfaulting.
+- Exits current task with given message.
 - Don't do this lightly! It is better to handle and report errors explicitly.
 
 ```rust
@@ -579,17 +582,17 @@ if x < 0 {
 #[test]
 fn test_something() {
     let actual = 1 + 2;
-    assert_eq!(3, actual);
     assert!(actual == 3);
+    assert_eq!(3, actual);
 }
 ```
 
 ---
 ### `unreachable!()`
 
-- Used to indicate that some code should not be reached
-- Panics when reached
-- Can be useful to track down unexpected bugs (e.g. optimization bugs)
+- Used to indicate that some code should not be reached.
+- `panic!`s when reached.
+- Can be useful to track down unexpected bugs (e.g. optimization bugs).
 
 ```rust
 if false {
