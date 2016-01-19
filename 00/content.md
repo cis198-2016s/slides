@@ -30,7 +30,8 @@ PROCEDURE DIVISION.
 ## Overview ##
 
 "Rust is a systems programming language that runs blazingly fast, prevents
-nearly all segfaults, and guarantees thread safety." &ndash; [rust-lang.org](https://www.rust-lang.org/)
+nearly all segfaults, and guarantees thread safety." &ndash;
+[rust-lang.org](https://www.rust-lang.org/)
 
 ---
 ### What _is_ Rust? ###
@@ -126,11 +127,14 @@ Date | Stable | Beta | Nightly
 - Mini-Course lecture: Tue. 6:00-7:30pm, Berger Auditorium (SKIR AUD)
 - [Piazza](https://piazza.com/class/iiksjduyiy773s)
     - We will be using Piazza for announcements; make sure you have gotten emails!
-
-Consult [the website](http://cis198-2016s.github.io/) for homework assignments and further details.
+- Consult [the website](http://cis198-2016s.github.io/) for the schedule
+  (including slides and homework).
+- Class source material generally hosted on [GitHub][https://github.com/cis198-2016s/].
+    - Pull requests welcome!
+- Give us feedback! Course is being developed so feedback is valuable.
 
 ---
-## Administrivia - Homeworks
+## Administrivia: Homeworks (50%)
 
 - 8-9 homeworks
 - Released on Wednesdays and (usually) due the following Wednesday night, midnight.
@@ -704,7 +708,7 @@ debug = false
 - Any function which executes without crashing (`panic!`ing) succeeds.
 - Use `assert!` (or `assert_eq!`) to check conditions (and `panic!` on failure)
 
-- More in your first homework.
+- You'll use this in your first homework.
 
 ```rust
 #[test]
@@ -719,25 +723,25 @@ fn it_works() {
 - Not available by default!
 - Run `cargo install cargo-check` to install it
 - Functionally the same as `cargo build`, but doesn't actually generate any code
-  - Faster!
+    - Faster!
 
 ---
-## HW00: Installation
+## HW00: Hello Cargo & Hello Rust
 
-- Due 1/25.
+- Due Monday, 2016-01-25, 11:59pm.
 - Install `multirust`: manages installations of multiple versions of Rust.
     - Similar to `rvm`, `virtualenv`.
     - Linux, OS X, Windows (MSYS2)
-- Install 1.5 now if you want (updating is easy).
+- Install 1.5 now if you want (updating is easy: `multirust update stable`).
     - 1.6 comes out tomorrow!
 - Submitting with Classroom for GitHub is as easy as ~~pie~~ pushing to your private repo.
 
 ---
 ## HW01: Finger Exercises
 
-- Due 1/27.
-- Get to know Rust with some easy exercises.
-- Sieve of Eratosthenes, Tower of Hanoi
+- Due Wednesday, 2016-01-27, 11:59pm.
+- Introduction to Rust with "finger exercises". Use this lecture as a resource!
+    - Sieve of Eratosthenes, Tower of Hanoi
 
 ---
 ## Next Time ##
@@ -747,4 +751,5 @@ fn it_works() {
 - Structed data: structs, enums
 - Methods
 
-Some code examples taken from [_The Rust Programming Language_](https://doc.rust-lang.org/stable/book/).
+Some code examples taken from
+[_The Rust Programming Language_](https://doc.rust-lang.org/stable/book/).
