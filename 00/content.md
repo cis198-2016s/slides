@@ -420,7 +420,7 @@ let i = v2[2]; // 3
 ```rust
 let x = 12;
 let ref_x = &x;
-println!("{}", *x); // 12
+println!("{}", *ref_x); // 12
 ```
 
 ---
