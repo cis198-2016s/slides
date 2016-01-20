@@ -24,10 +24,10 @@ PROCEDURE DIVISION.
 ---
 # Lecture 00: Hello, Rust! #
 
+![](img/ferris.png)
+
 ##### This lecture online:
 ###### [One-Page View](https://github.com/cis198-2016s/slides/blob/gh-pages/00/content.md) &bull; [Slide View](http://cis198-2016s.github.io/slides/00/)
-
-![](img/ferris.png)
 
 ---
 ## Overview ##
