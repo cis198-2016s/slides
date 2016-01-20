@@ -1,5 +1,31 @@
-h1, h2, h3 {
+body {
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 18pt;
+}
+
+h1, h2, h3, h4, h5, h6 {
   text-align: center;
+}
+
+h1, h2, h3 {
+  height: 80px;
+  margin: 20px 0px;
+}
+
+strong, b {
+  font-weight: 600;
+}
+
+h5 {
+  font-size: 100%;
+  font-weight: 600;
+  margin: 0;
+}
+
+h6 {
+  font-size: 100%;
+  font-weight: 400;
+  margin: 0;
 }
 
 img {
@@ -9,10 +35,27 @@ img {
   width: 50%;
 }
 
-.remark-code, .remark-inline-code {
-  color: #2179b8
+.remark-code {
+  font-size: 16pt;
+}
+.remark-inline-code {
+  color: #8D1A38;
+}
+.remark-slide-content {
+  font-size: inherit;
 }
 
-.remark-container {
-  background-color: #ebe7df
+pre, code {
+  font-family: "Ubuntu Mono", "Consolas", monospace;
+}
+
+li, ul {
+  margin: 0.25em 0;
+}
+ul, pre, li > p {
+  margin: 0;
+}
+
+li li {
+  font-size: 90%;
 }

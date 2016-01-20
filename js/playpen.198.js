@@ -40,8 +40,8 @@ document.addEventListener('DOMContentLoaded', function() {
             code = code.trim();
 
             if (!code.match(/^\s*(pub\s+)?\b(fn|struct|enum|type|mod|use|impl|trait)\b/)) {
-                // If the code doesn't seem to be toplevel, add `fn main`
-                code = "fn main {\n" + code.replace(/^/gm, "    ") + "\n}";
+                // If the code doesn't seem to be toplevel, add `fn main()`
+                code = "fn main() {\n" + code.replace(/^/gm, "    ") + "\n}";
             }
 
             var channel = '';

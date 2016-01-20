@@ -24,6 +24,9 @@ PROCEDURE DIVISION.
 ---
 # Lecture 00: Hello, Rust! #
 
+##### This lecture online:
+###### [One-Page View](https://github.com/cis198-2016s/slides/blob/gh-pages/00/content.md) &bull; [Slide View](http://cis198-2016s.github.io/slides/00/)
+
 ![](img/ferris.png)
 
 ---
@@ -95,8 +98,8 @@ Date | Stable | Beta | Nightly
 ---
 ### Development
 
-- Rust is developed by Mozilla Research.
-- With very active community involvement -- on GitHub, Reddit, irc.
+- Rust is led by the Rust Team, mostly at Mozilla Research.
+- Very active community involvement - on GitHub, Reddit, irc.
     - [Rust Source](https://github.com/rust-lang/rust/)
     - [Rust Internals Forum](https://internals.rust-lang.org/)
     - [/r/rust](http://www.reddit.com/r/rust)
@@ -121,40 +124,42 @@ Date | Stable | Beta | Nightly
 ---
 ## Administrivia
 
-- 8-9 homeworks (50%), final project (40%) (potentially subject to change)
+- 8-9 homeworks (50%), final project (40%) (may change)
 - Participation (10%)
 - Weekly Rust lecture: Wed. 4:30-6:00pm, Towne 321
-- Mini-Course lecture: Tue. 6:00-7:30pm, Berger Auditorium (SKIR AUD)
+- Mini-Course lecture: Tue. 6:00-7:30pm, Berger Auditorium
 - [Piazza](https://piazza.com/class/iiksjduyiy773s)
     - We will be using Piazza for announcements; make sure you have gotten emails!
-- Consult [the website](http://cis198-2016s.github.io/) for the schedule
-  (including slides and homework).
+- Consult [the website](http://cis198-2016s.github.io/) for the schedule,
+  slides, and homework.
 - Class source material generally hosted on [GitHub](https://github.com/cis198-2016s/).
-    - Pull requests welcome!
-- Give us feedback! Course is being developed so feedback is valuable.
+    - Corrections welcome via pull request/issue!
+- Course is in development - give us feedback!
 
 ---
-## Administrivia: Office Hours
+### Administrivia: Office Hours
 
-- David Mally
-    - Office Hours: Mon 4:30-6:00pm, Levine 6 Lounge
-- Terry Sun
-    - Office Hours: Tues 3:00-4:30pm, Levine 6 Lounge
-- Kai Ninomiya
-    - Office Hours: Weds 6:00-7:00pm, Levine 6 Lounge
+- David - Mon 4:30-6:00pm
+- Terry - Tues 3:00-4:30pm
+- Kai   - Weds 6:00-7:00pm
+
+Office hours held in the Levine 6th floor lounge.
+
+Any changes will be announced.
+Check the website or Google calendar for the up-to-date schedule.
 
 ---
-## Administrivia: Homeworks (50%)
+### Administrivia: Homeworks (50%)
 
-- 8-9 homeworks
-- Released on Wednesdays and (usually) due the following Wednesday night, midnight.
+- 8-9 homeworks.
+- Released on Wednesdays and (usually) due the following Wednesday night at midnight.
 - We will be using Classroom for GitHub.
     - Click the link to make a private repo for every homework, which will be your submission.
 - 5 24-hour late days for the semester.
     - Use up to 2 late days on an assigment.
 
 ---
-## Helpful Links ##
+### Helpful Links ##
 
 - [Official Rust Docs](https://doc.rust-lang.org/stable/std/)
 - [The Rust Book (our course textbook)](https://doc.rust-lang.org/stable/book/)
@@ -217,26 +222,21 @@ let (a, b) = ("foo", 12);
 ```
 
 ---
-## Expressions ###
+## Expressions
 
 - (Almost!) everything is an expression: something which returns a value.
     - Exception: variable bindings are not expressions.
-- Turn an expression into a statement by adding a semicolon (discarding its value).
-
-- The "nothing" value is called "unit", which is written `()`. Statements return `()`.
-- If a function has no explicit return value, it returns `()`.
+- The "nothing" type is called "unit", which is written `()`.
+    - The _type_ `()` has only one value: `()`.
+    - `()` is the default return type.
+- Discard an expression's value by appending a semicolon. Now it returns `()`.
+    - Hence, if a function ends in a semicolon, it returns `()`.
 
 ```rust
-/// Triple-slash comments are docstring comments.
-fn foo() {
-  // Double-slash comments are b̶o̶r̶i̶n̶g̶ regular.
-}
-
-fn foo() -> () {
-  /* Block comments
-   * also exist!
-   */
-}
+fn foo() -> i32 { 5 }
+fn bar() -> () { () }
+fn baz() -> () { 5; }
+fn qux()       { 5; }
 ```
 
 ---
@@ -245,14 +245,33 @@ fn foo() -> () {
 ```rust
 let x = -5;
 let y = if x > 0 { "greater" } else { "less" };
-println!("{}", y); // "less"
 ```
 
 - Aside: `"{}"` is Rust's string interpolation operator
     - Similar to Python, Ruby, C#, and others; like `printf`'s `"%s"` in C/C++.
 
 ---
-## Primitive Types ###
+## Comments
+
+```rust
+/// Triple-slash comments are docstring comments.
+///
+/// `rustdoc` uses docstring comments to generate
+/// documentation, and supports **Markdown** formatting.
+fn foo() {
+    // Double-slash comments are normal.
+
+    /* Block comments
+     * also exist /* and can be nested! */
+     */
+}
+```
+
+---
+## Types
+
+---
+### Primitive Types ###
 
 - `bool`: spelled `true` and `false`.
 - `char`: spelled like `'c'` or `'😺'` (`chars` are Unicode!).
@@ -263,7 +282,10 @@ println!("{}", y); // "less"
     - `f32`, `f64`
     - `isize` & `usize` are the size of pointers (and therefore have
         machine-dependent size)
-    - Type inference for numeric literals will default to `i32` or `f64`.
+    - Type inference for numeric literals default to `i32` or `f64`.
+
+- Arrays, slices, `str`, tuples.
+- Functions.
 
 ---
 ### Arrays ###
@@ -295,30 +317,32 @@ let partial_slice = &arr[2..5]; // [2, 3, 4]
 
 ---
 ### Strings ###
-- Two types of Rust strings: `String` and `str`
-- `String` is a heap-allocated, growable vector of characters
-- `str` is an unsized type* that's used to slice `String`s as an `&str`
-- String literals like `"foo"` are of type `&str`
-    - To make a `String` from an `&str`, use `"foo".to_string()` or `String::from("foo")`
+- Two types of Rust strings: `String` and `&str`.
+- `String` is a heap-allocated, growable vector of characters.
+- `&str` is a type&sup1; that's used to slice into `String`s.
+- String literals like `"foo"` are of type `&str`.
 
 ```rust
-let s: &str = "foo";
-let s1: String = "foo".to_string();
-let s2: String = String::from("foo");
+let s: &str = "galaxy";
+let s2: String = "galaxy".to_string();
+let s3: String = String::from("galaxy");
+let s4: &str = &s3;
 ```
 
-*type which doesn't have a compile-time known size
+&sup1;`str` is an unsized type, which doesn't have a compile-time known size,
+and therefore cannot exist by itself.
 
 ---
 ### Tuples ###
 - Fixed-size, ordered, heterogeneous lists
 - Index into tuples with `foo.0`, `foo.1`, etc.
 - Can be destructured in `let` bindings
-    ```rust
-    let foo: (i32, char, f64) = (72, 'H', 5.1);
-    let (x, y, z) = (72, 'H', 5.1);
-    let (a, b, c) = foo; // a = 72, b = 'H', c = 5.1
-    ```
+
+```rust
+let foo: (i32, char, f64) = (72, 'H', 5.1);
+let (x, y, z) = (72, 'H', 5.1);
+let (a, b, c) = foo; // a = 72, b = 'H', c = 5.1
+```
 
 ---
 ### Casting ###
@@ -335,20 +359,19 @@ let y: u32 = x as u32;
     - There are unsafe mechanisms to overcome this, if you know what you're doing.
 
 ---
-## `Vec<T>` ###
+### `Vec<T>` ###
 
-- A standard library type: you don't need to import anything to use it.
-- A `Vec` (pronounced "vector") is a growable array allocated on the heap.
-    - (cf. Java ArrayList, C++ std::vector, etc.)
+- A standard library type: you don't need to import anything.
+- A `Vec` (read "vector") is a heap-allocated growable array.
+    - (cf. Java's `ArrayList`, C++'s `std::vector`, etc.)
 - `<T>` denotes a generic type.
     - The type of a `Vec` of `i32`s is `Vec<i32>`.
-    - Type inference is only possible if you add elements to the `Vec`.
-- Vectors can be created with `Vec::new()` or with the `vec!` macro.
+- Create `Vec`s with `Vec::new()` or the `vec!` macro.
     - `Vec::new()` is an example of namespacing. `new` is a function defined for
       the `Vec` struct.
 
 ---
-## `Vec<T>` ###
+### `Vec<T>` ###
 ```rust
 // Explicit typing
 let v0: Vec<i32> = Vec::new();
@@ -369,7 +392,7 @@ let v4 = vec![0, 0, 0, 0];
 ```
 
 ---
-## `Vec<T>` ###
+### `Vec<T>` ###
 
 ```rust
 let v2 = vec![1, 2, 3];
@@ -384,7 +407,7 @@ let i = v2[2]; // 3
   [offical Rust documentation](https://doc.rust-lang.org/stable/std/vec/).
 
 ---
-## References ###
+### References ###
 
 - Reference *types* are written with an `&`: `&i32`.
 - References can be taken with `&` (like C/C++).
@@ -437,8 +460,8 @@ while x < 100 {
 
 ---
 ### Loops ###
-- `loop` is equivalent to `while true`, but the compiler can take advantage of
-  knowing that it's infinite
+- `loop` is equivalent to `while true`, a common pattern.
+    - Plus, the compiler can make optimizations knowing that it's infinite.
 
 ```rust
 let mut x = 0;
@@ -483,13 +506,13 @@ fn foo(x: T, y: U, z: V) -> T {
     - `z` of type `V`
 - `foo` returns a `T`.
 
-- Must explicitly define the types of function arguments and return value.
+- Must explicitly define argument and return types.
     - The compiler is actually smart enough to figure this out for you, but
       Rust's designers decided it was better practice to force explicit function
       typing.
 
 ---
-## Functions ##
+### Functions
 
 - The final expression in a function is its return value.
     - Use `return` for _early_ returns from a function.
@@ -499,20 +522,18 @@ fn square(n: i32) -> i32 {
     n * n
 }
 
-fn square(n: i32) -> i32 {
-    if n < 5 {
-        return n;
-    }
+fn squareish(n: i32) -> i32 {
+    if n < 5 { return n; }
     n * n
 }
 
-fn square(n: i32) -> i32 {
+fn square_bad(n: i32) -> i32 {
     n * n;
 }
 ```
 
 - The last one won't even compile!
-- Why? Its last statement ends in a semicolon, so it evaluates to `()`.
+  - Why? It ends in a semicolon, so it evaluates to `()`.
 
 ---
 ### Function Objects ###
@@ -567,8 +588,8 @@ println!("{:?}, {:?}", "foo", [1, 2, 3]);
 - Uses `println!`-style string interpolation to create formatted `String`s.
 
 ```rust
-let formatted = format!("{}, {:x}, {:?}", 12, 15, Some("Hello"));
-// formatted == "12, f, Some("Hello")"
+let fmted = format!("{}, {:x}, {:?}", 12, 155, Some("Hello"));
+// fmted == "12, 9b, Some("Hello")"
 ```
 
 ---
@@ -630,21 +651,19 @@ fn sum(x: Vec<i32>) -> i32 {
 let x = 3;
 
 match x {
-    1 => println!("one fish"),
+    1 => println!("one fish"),  // <- comma required
     2 => {
-        println!("two fish")
-        println!("two fish")
-    },
-    _ => println!("no fish for you"),
+        println!("two fish");
+        println!("two fish");
+    },  // <- comma optional when using braces
+    _ => println!("no fish for you"), // "otherwise" case
 }
 ```
-*Notes:*
+
 - `match` takes an expression (`x`) and branches on a list of `value => expression` statements.
 - The entire match evaluates to one expression.
-    - Like if statements, all arms must evaluate to an expression of the same type.
-- A single expression should end with a comma.
-- Multiple lines need braces (comma optional).
-- `_` represents the wildcard pattern (similar to Haskell, OCaml).
+    - Like `if`, all arms must evaluate to the same type.
+- `_` is commonly used as a catch-all (cf. Haskell, OCaml).
 
 ---
 ## Match statements ###
@@ -654,17 +673,18 @@ let y = -3;
 
 match (x, y) {
     (1, 1) => println!("one"),
-    (2, _) => println!("two"),
+    (2, j) => println!("two, {}", j),
     (_, 3) => println!("three"),
     (i, j) if i > 5 && j < 0 => println!("On guard!"),
     (_, _) => println!(":<"),
 }
 ```
 
-- The matched expression can be any expression, including tuples and function calls.
-- You _must_ have an exhaustive match; the compiler will complain if you don't.
-- Use `if`-guards to match on certain conditions instead of specific values.
-- Patterns are very complex, as we'll see later.
+- The matched expression can be any expression (l-value), including tuples and function calls.
+    - Matches can bind variables. `_` is a throw-away variable name.
+- You _must_ write an exhaustive match in order to compile.
+- Use `if`-guards to constrain a match to certain conditions.
+- Patterns can get very complex, as we'll see later.
 
 ---
 # Rust Environment & Tools
@@ -676,7 +696,10 @@ match (x, y) {
 - Run `rustc your_program.rs` to compile into an executable `your_program`.
     - Things like warnings are enabled by default.
     - Read all of the output! It may be verbose but it is *very* useful.
-- Typically, you'll use `cargo`, Rust's package manager, to build instead.
+- `rustc` doesn't need to be called once for each file like in C.
+    - The build dependency tree is inferred from module declarations in the
+      Rust code (starting at `main.rs` or `lib.rs`).
+- Typically, you'll instead use `cargo`, Rust's package manager and build system.
 
 ---
 ## Cargo ##
@@ -687,17 +710,17 @@ match (x, y) {
     - `cargo new project_name --bin` (executable)
 - Build your project: `cargo build`
 - Run your tests: `cargo test`
-    - These get tedious to type, so shell alias to your heart's content: `cargob`/`cb` and `cargot`/`ct`
+    - These get tedious to type, so shell alias to your heart's content,
+      e.g., `cargob`/`cb` and `cargot`/`ct`
 - Magic, right? How does this work?
 
 ---
 ### Cargo.toml ###
 
-- Cargo uses a TOML ("Tom's Obvious, Minimal Language") file named
-  Cargo.toml to declare and manage dependencies and project metadata.
-- Build targets are determined by module declarations in `main.rs`/`lib.rs`.
-
-- More in your first homework.
+- Cargo uses the `Cargo.toml` file to declare and manage dependencies and
+  project metadata.
+    - TOML is a simple format similar to INI.
+- More in your first homework assignments.
 
 ```toml
 [package]
@@ -717,11 +740,11 @@ debug = false
 ---
 ### `cargo test`
 
-- A test is any function which has been annotated with `#[test]`.
+- A test is any function annotated with `#[test]`.
 - `cargo test` will run all annotated functions in your project.
 - Any function which executes without crashing (`panic!`ing) succeeds.
 - Use `assert!` (or `assert_eq!`) to check conditions (and `panic!` on failure)
-- You'll use this in your first homework.
+- You'll use this in HW01.
 
 ```rust
 #[test]
@@ -746,7 +769,7 @@ fn it_works() {
     - Similar to `rvm`, `virtualenv`.
     - Linux, OS X, Windows (MSYS2)
 - Install 1.5 now if you want (updating is easy: `multirust update stable`).
-    - 1.6 comes out tomorrow!
+    - 1.6 comes out tomorrow! (1/21)
 - Submitting with Classroom for GitHub is as easy as ~~pie~~ pushing to your private repo.
 
 ---
