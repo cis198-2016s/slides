@@ -291,7 +291,7 @@ fn foo() {
 ### Arrays ###
 - Arrays are generically of type `[T; N]`.
     - N is a compile-time _constant_. Arrays cannot be resized.
-    - Array access is bounds-checked at _compile time_.
+    - Array access is bounds-checked at runtime.
 - Arrays are indexed with `[]` like most other languages:
     - `arr[3]` gives you the 4th element of `arr`
 
