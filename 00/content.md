@@ -562,7 +562,7 @@ let y = apply_twice(&square, 5);
 ---
 ## Macros!
 
-- Macros are like functions, but they're named with an `!` at the end.
+- Macros are like functions, but they're named with `!` at the end.
 - Can do generally very powerful stuff.
     - They actually generate code at compile time!
 - Call and use macros like functions.
