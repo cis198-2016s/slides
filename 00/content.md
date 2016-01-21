@@ -391,7 +391,7 @@ let v2 = vec![1, 2, 3];
 ```
 
 ```rust
-// v3 and v3 are equal
+// v3 and v4 are equal
 let v3 = vec![0; 4];
 let v4 = vec![0, 0, 0, 0];
 ```
