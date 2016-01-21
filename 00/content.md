@@ -140,7 +140,7 @@ Date | Stable | Beta | Nightly
 ### Administrivia: Office Hours
 
 - David - Mon 4:30-6:00pm
-- Terry - Tues 3:00-4:30pm
+- Terry - TBA
 - Kai   - Weds 6:00-7:00pm
 
 Office hours held in the Levine 6th floor lounge.
@@ -155,8 +155,10 @@ Check the website or Google calendar for the up-to-date schedule.
 - Released on Wednesdays and (usually) due the following Wednesday night at midnight.
 - We will be using Classroom for GitHub.
     - Click the link to make a private repo for every homework, which will be your submission.
-- 5 24-hour late days for the semester.
-    - Use up to 2 late days on an assigment.
+- Students start the semester with a total of 5 late days, which provide an
+  extra 24 hours each. You may use up to 2 late days on an assignment.
+  - If (and only if) you submit an assignment more than 2 days late or are out
+    of late days, there is a 20% penalty per day beyond the late day extension. 
 
 ---
 ### Helpful Links ##
