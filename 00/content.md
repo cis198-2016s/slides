@@ -274,7 +274,7 @@ fn foo() {
 ### Primitive Types ###
 
 - `bool`: spelled `true` and `false`.
-- `char`: spelled like `'c'` or `'😺'` (`chars` are Unicode!).
+- `char`: spelled like `'c'` or `'😺'` (`char`s are Unicode!).
 
 - Numerics: specify the signedness and size.
     - `i8`, `i16`, `i32`, `i64`, `isize`
@@ -485,8 +485,8 @@ for x in 0..10 {
 }
 
 let xs = [0, 1, 2, 3, 4];
-// Loop through elements in `xs`.
-for x in xs {
+// Loop through elements in a slice of `xs`.
+for x in &xs {
     println!("{}", x);
 }
 ```
