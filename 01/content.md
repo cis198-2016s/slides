@@ -1,9 +1,9 @@
-# Ownership & Lifetimes #
+# Ownership & Lifetimes
 
 ### CIS 198 Lecture 1
 
 ---
-## Ownership & Borrowing ##
+## Ownership & Borrowing
 
 - Explicit ownership is the biggest new feature that Rust brings to the table!
 - Ownership is all&sup1; checked at compile time!
@@ -13,7 +13,7 @@
 &sup1;*mostly*
 
 ---
-## Ownership ##
+## Ownership
 
 - When a variable binding is introduced, it _takes ownership_ of its data.
     - Data can only have one owner at a time.
@@ -36,7 +36,7 @@ fn foo() {
 ```
 
 ---
-## Move Semantics ##
+## Move Semantics
 
 ```rust
 let v1 = vec![1, 2, 3];
@@ -98,7 +98,6 @@ fn foo() {
 ```
 
 ---
-
 ## Borrowing
 
 ```rust
@@ -114,14 +113,13 @@ fn main() {
     println!("{:?}", *vector);
 }
 ```
-
 - Note the type of `length`: `vec_ref` is passed by reference, so it's now an `&Vec<i32>`.
 - References, like bindings, are *immutable* by default.
 - When you take a variable by reference, you must dereference it with `*` before
   you use it (just like your old friend C).
 
 ---
-## Borrowing ##
+## Borrowing
 
 ```rust
 /// `push` needs to modify `vector` so it is borrowed mutably.
@@ -132,14 +130,14 @@ fn push(vec_ref: &mut Vec<i32>, x: i32) {
 
 fn main() {
     let vector = vec![];
-    length(&mut v, 4);
+    push(&mut v, 4);
 }
 ```
 - Variables can be borrowed by _mutable_ reference: `&mut vec_ref`.
     - `vec_ref` is a reference to a mutable `Vec`.
 
 ---
-### `Copy` Types ###
+### `Copy` Types
 
 - Rust defines a trait&sup1; named `Copy` that signifies that a type may be
     copied instead whenever it would be moved.
@@ -154,18 +152,20 @@ println!("x still works: {}, and so does y: {}", x, y);
 &sup1;for now, think Java interface or Haskell typeclass
 
 ---
-## Borrowing Rules ##
-### _The Holy Grail of Rust_ ###
+## Borrowing Rules
+### _The Holy Grail of Rust_
 Learn these rules, and they will serve you well.
 
 - Any borrow must last for a scope no greater than that of the owner of the data
 - You may have as many immutable references to a resource at once as you want (`&T`)
 - OR you may have _exactly one_ mutable reference to a resource (`&mut T`)
 
+- That's it!
+
 ![](img/holy-grail.jpg)
 
 ---
-### Borrowing Prevents... ###
+### Borrowing Prevents...
 
 - Iterator invalidation due to mutating a collection you're iterating over.
     ```rust
@@ -179,7 +179,7 @@ Learn these rules, and they will serve you well.
 - This pattern is valid in C, C++, Java, Python, Javascript...
 
 ---
-### Borrowing Prevents... ###
+### Borrowing Prevents...
 
 - Use-after-free
     ```rust
@@ -200,14 +200,14 @@ note: reference must be valid for the block suffix following statement 0 at 1:16
 - This eliminates a _huge_ number of memory safety bugs _at compile time_
 
 ---
-## Lifetimes ##
+## Lifetimes
 
 - There's one more piece to the ownership puzzle: Lifetimes
 - However, these are quite complicated and deserve more time than we'll give
    them today, so we'll leave them out for the time being
 
 ---
-## Example: Vectors ##
+## Example: Vectors
 
 You can iterate over `Vec`s in three different ways:
 
