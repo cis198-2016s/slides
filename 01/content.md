@@ -25,7 +25,7 @@
 fn foo() {
     // Creates a Vec object.
     // Gives ownership of the Vec object to v1.
-    let v1 = vec![1, 2, 3];
+    let mut v1 = vec![1, 2, 3];
 
     v1.pop();
     v1.push(4);
@@ -50,7 +50,7 @@ println!("{}", v1[2]); // error: use of moved value `v1`
 - `let v2 = v1;`
     - We don't want to copy the data, since that's expensive.
     - The data cannot have multiple owners.
-    - So: move the Vec's ownership into `v2`, and declare `v1` invalid.
+    - Solution: move the Vec's ownership into `v2`, and declare `v1` invalid.
 - `println!("{}", v1[2]);`
     - We know that `v1` is no longer a valid variable binding, so this is an error.
 - Rust can reason about this at compile time, so it throws a compiler error.
@@ -71,8 +71,8 @@ fn vector_length(v: Vec<i32>) -> Vec<i32> {
         // Do whatever here, and then hand `v` back to the caller
 }
 ```
-- You could imagine that this does not scale well either; the more variables
-    you had to hand back, the longer your return type would be!
+- You could imagine that this does not scale well either.
+    - The more variables you had to hand back, the longer your return type would be!
     - Imagine having to pass ownership around for 5+ variables at a time :(
 
 ---
@@ -202,14 +202,14 @@ note: reference must be valid for the block suffix following statement 0 at 1:16
 ---
 ## Lifetimes
 
-- There's one more piece to the ownership puzzle: Lifetimes
+- There's one more piece to the ownership puzzle: Lifetimes.
 - However, these are quite complicated and deserve more time than we'll give
-   them today, so we'll leave them out for the time being
+   them today, so we'll leave them out for the time being.
 
 ---
 ## Example: Vectors
 
-You can iterate over `Vec`s in three different ways:
+- You can iterate over `Vec`s in three different ways:
 
 ```rust
 let mut vs = vec![0,1,2,3,4,5,6];
