@@ -247,9 +247,10 @@ fn qux()       { 5; }
 ```rust
 let x = -5;
 let y = if x > 0 { "greater" } else { "less" };
+println!("x = {} is {} than zero", x, y);
 ```
 
-- Aside: `"{}"` is Rust's string interpolation operator
+- Aside: `"{}"` is Rust's (most basic) string interpolation operator
     - Similar to Python, Ruby, C#, and others; like `printf`'s `"%s"` in C/C++.
 
 ---
@@ -284,7 +285,9 @@ fn foo() {
     - `f32`, `f64`
     - `isize` & `usize` are the size of pointers (and therefore have
         machine-dependent size)
-    - Type inference for numeric literals default to `i32` or `f64`.
+    - Literals are spelled like `10i8`, `10u16`, `10.0f32`, `10usize`.
+    - Type inference for non-specific literals default to `i32` or `f64`:
+      - e.g. `10` defaults to `i32`, `10.0` defaults to `f64`.
 
 - Arrays, slices, `str`, tuples.
 - Functions.
@@ -398,12 +401,17 @@ let v4 = vec![0, 0, 0, 0];
 
 ```rust
 let v2 = vec![1, 2, 3];
-let i = v2[2]; // 3
+let x = v2[2]; // 3
 ```
 
 - Like arrays, vectors can be indexed with `[]`.
     - You can't index a vector with an i32/i64/etc.
-    - You must use a `usize` because `usize` is guaranteed to be the same size as a pointer
+    - You must use a `usize` because `usize` is guaranteed to be the same size as a pointer.
+    - Other integers can be cast to `usize`:
+      ```rust
+      let i: i8 = 2;
+      let y = v2[i as usize];
+      ```
 
 - Vectors has an extensive stdlib method list, which can be found at the
   [offical Rust documentation](https://doc.rust-lang.org/stable/std/vec/).
