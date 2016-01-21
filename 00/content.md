@@ -27,7 +27,7 @@ PROCEDURE DIVISION.
 ![](img/ferris.png)
 
 ##### This lecture online:
-###### [One-Page View](https://github.com/cis198-2016s/slides/blob/gh-pages/00/content.md) &bull; [Slide View](http://cis198-2016s.github.io/slides/00/)
+###### [GitHub One-Page View](https://github.com/cis198-2016s/slides/blob/gh-pages/00/content.md) &bull; [Slide View](http://cis198-2016s.github.io/slides/00/)
 
 ---
 ## Overview ##
@@ -277,8 +277,8 @@ fn foo() {
 - `char`: spelled like `'c'` or `'😺'` (`chars` are Unicode!).
 
 - Numerics: specify the signedness and size.
-    - `i8`, `i16`, `132`, `i64`, `isize`
-    - `u8`, `u16`, `132`, `u64`, `usize`
+    - `i8`, `i16`, `i32`, `i64`, `isize`
+    - `u8`, `u16`, `u32`, `u64`, `usize`
     - `f32`, `f64`
     - `isize` & `usize` are the size of pointers (and therefore have
         machine-dependent size)
