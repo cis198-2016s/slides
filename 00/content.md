@@ -489,7 +489,7 @@ loop {
      - Some data structures can be used as iterators, like arrays and `Vec`s.
 
 ```rust
-// Loops from 0 to 10.
+// Loops from 0 to 9.
 for x in 0..10 {
     println!("{}", x);
 }
