@@ -68,7 +68,8 @@ println!("{}", v1[2]); // error: use of moved value `v1`
 - What would happen if it did? Rust would get very tedious to write:
 ```rust
 fn vector_length(v: Vec<i32>) -> Vec<i32> {
-        // Do whatever here, and then hand `v` back to the caller
+        // Do whatever here,
+        // then return ownership of `v` back to the caller
 }
 ```
 - You could imagine that this does not scale well either.
@@ -78,8 +79,8 @@ fn vector_length(v: Vec<i32>) -> Vec<i32> {
 ---
 ## Borrowing
 
-- Instead of constantly transferring ownership, we can _borrow_ data.
-- A variable's data can be borrowed by taking references to the variable;
+- Instead of transferring ownership, we can _borrow_ data.
+- A variable's data can be borrowed by taking a reference to the variable;
   ownership doesn't change.
 - Ownership cannot be transferred from a variable while references to the data
   exist.
@@ -124,32 +125,79 @@ fn main() {
 ```rust
 /// `push` needs to modify `vector` so it is borrowed mutably.
 fn push(vec_ref: &mut Vec<i32>, x: i32) {
-    let vector = *vec_ref;
-    vector.push(x);
+    (*vec_ref).push(x);
 }
 
 fn main() {
-    let vector = vec![];
-    push(&mut v, 4);
+    let mut vector = vec![];
+    push(&mut vector, 4);
 }
 ```
 - Variables can be borrowed by _mutable_ reference: `&mut vec_ref`.
     - `vec_ref` is a reference to a mutable `Vec`.
 
 ---
-### `Copy` Types
+## Borrowing
+
+```rust
+/// `push` needs to modify `vector` so it is borrowed mutably.
+fn push2(vec_ref: &mut Vec<i32>, x: i32) {
+    // error: cannot move out of borrowed content.
+    let vector = *vec_ref;
+    vector.push(x);
+}
+
+fn main() {
+    let mut vector = vec![];
+    push(&mut vector, 4);
+}
+```
+- Error! You can't dereference `vec_ref` into a variable binding because that
+  would change the ownership of the data.
+
+---
+## `ref`
+
+```rust
+let mut vector = vec![0];
+let ref1 = &vector;
+let ref ref2 = vector;
+assert_eq!(ref1, ref2);
+
+let ref mut ref3 = vector;
+(*ref3).push(1);
+```
+- `ref` is a keyword that takes a reference to the lvalue.
+    - Take a mutable reference with `ref mut`.
+- This is most useful in `match` statements when destructuring patterns.
+    - Otherwise, it's more clear to use `&`.
+
+---
+## `ref`
+```rust
+let mut vectors = (vec![0], vec![1]);
+match vectors {
+    (ref v1, ref mut v2) => {
+        v1.len();
+        v2.push(2);
+    }
+}
+```
+
+---
+## `Copy` Types
 
 - Rust defines a trait&sup1; named `Copy` that signifies that a type may be
     copied instead whenever it would be moved.
-- Most primitive types are `Copy` (`i32`, `f64`, `char`, `bool`, etc.)
-- Types that contain references may not be `Copy` (e.g. `Vec`)
+- Most primitive types are `Copy` (`i32`, `f64`, `char`, `bool`, etc.).
+- Types that contain references may not be `Copy` (e.g. `Vec`).
 ```rust
 let x: i32 = 12;
 let y = x; // `i32` is `Copy`, so it's not moved :D
 println!("x still works: {}, and so does y: {}", x, y);
 ```
 
-&sup1;for now, think Java interface or Haskell typeclass
+&sup1;cf. Java interface or Haskell typeclass
 
 ---
 ## Borrowing Rules
