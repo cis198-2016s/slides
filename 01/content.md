@@ -15,11 +15,11 @@
 ---
 ## Ownership
 
-- When a variable binding is introduced, it _takes ownership_ of its data.
-    - Data can only have one owner at a time.
-- When a binding goes out of scope, the bound data will be released automatically.
+- A variable binding _takes ownership_ of its data.
+    - A piece of data can only have one owner at a time.
+- When a binding goes out of scope, the bound data is released automatically.
     - For heap-allocated data, this means de-allocation.
-- Data _must be guaranteed_ to live at least as long as its references.
+- Data _must be guaranteed_ to outlive its references.
 
 ```rust
 fn foo() {
@@ -59,7 +59,7 @@ println!("{}", v1[2]); // error: use of moved value `v1`
 ## Move Semantics
 
 - Moving ownership is semantic; it doesn't involve moving data.
-- idk.
+- TODO: other thoughts?
 
 ---
 ## Ownership
@@ -104,20 +104,42 @@ fn foo() {
 ```rust
 /// `length` only needs `vector` temporarily, so it is borrowed.
 fn length(vec_ref: &Vec<i32>) {
-    // Dereference vec_ref to call methods on it.
+    // vec_ref is auto-dereferenced when you call methods on it.
+    vec_ref.len();
+    // you can also explicitly dereference.
     (*vec_ref).len();
 }
 
 fn main() {
     let vector = vec![];
     length(&vector);
-    println!("{:?}", *vector);
+    println!("{:?}", vector); // this is fine
 }
 ```
 - Note the type of `length`: `vec_ref` is passed by reference, so it's now an `&Vec<i32>`.
 - References, like bindings, are *immutable* by default.
-- When you take a variable by reference, you must dereference it with `*` before
-  you use it (just like your old friend C).
+- The borrow is over after the reference goes out of scope (the function `length`).
+
+---
+## Borrowing
+
+```rust
+/// `length` only needs `vector` temporarily, so it is borrowed.
+fn length(vec_ref: &&Vec<i32>) {
+    // vec_ref is auto-dereferenced when you call methods on it.
+    vec_ref.len();
+    // you can also explicitly dereference.
+    (*vec_ref).len();
+}
+
+fn main() {
+    let vector = vec![];
+    length(&&&&&&&&&&&&vector);
+}
+```
+- Rust will auto-dereference variables...
+    - When making method calls on a reference.
+    - When passing a reference as a function argument.
 
 ---
 ## Borrowing
@@ -125,16 +147,18 @@ fn main() {
 ```rust
 /// `push` needs to modify `vector` so it is borrowed mutably.
 fn push(vec_ref: &mut Vec<i32>, x: i32) {
-    (*vec_ref).push(x);
+    vec_ref.push(x);
 }
 
 fn main() {
-    let mut vector = vec![];
-    push(&mut vector, 4);
+    let mut vector: Vec<i32> = vec![];
+    let vector_ref: &mut Vec<i32> = &mut vector;
+    push(vector_ref, 4);
 }
 ```
 - Variables can be borrowed by _mutable_ reference: `&mut vec_ref`.
     - `vec_ref` is a reference to a mutable `Vec`.
+    - The type is `&mut Vec<i32>`, not `&Vec<i32>`.
 
 ---
 ## Borrowing
@@ -165,8 +189,9 @@ let ref ref2 = vector;
 assert_eq!(ref1, ref2);
 
 let ref mut ref3 = vector;
-(*ref3).push(1);
+ref3.push(1);
 ```
+
 - `ref` is a keyword that takes a reference to the lvalue.
     - Take a mutable reference with `ref mut`.
 - This is most useful in `match` statements when destructuring patterns.
@@ -174,6 +199,7 @@ let ref mut ref3 = vector;
 
 ---
 ## `ref`
+
 ```rust
 let mut vectors = (vec![0], vec![1]);
 match vectors {
@@ -183,6 +209,7 @@ match vectors {
     }
 }
 ```
+- Use `ref` and `ref mut` while binding variables inside match statements.
 
 ---
 ## `Copy` Types
@@ -197,7 +224,7 @@ let y = x; // `i32` is `Copy`, so it's not moved :D
 println!("x still works: {}, and so does y: {}", x, y);
 ```
 
-&sup1;cf. Java interface or Haskell typeclass
+&sup1;Java interface or Haskell typeclass
 
 ---
 ## Borrowing Rules
@@ -242,17 +269,19 @@ Learn these rules, and they will serve you well.
 - The full error message:
 ```
 error: `x` does not live long enough
-note: reference must be valid for the block suffix following statement 0 at 1:16
-...but borrowed value is only valid for the block suffix following statement 0 at 4:18
+note: reference must be valid for the block suffix following statement
+    0 at 1:16
+...but borrowed value is only valid for the block suffix
+    following statement 0 at 4:18
 ```
-- This eliminates a _huge_ number of memory safety bugs _at compile time_
+- This eliminates a _huge_ number of memory safety bugs _at compile time_.
 
 ---
 ## Lifetimes
 
 - There's one more piece to the ownership puzzle: Lifetimes.
-- However, these are quite complicated and deserve more time than we'll give
-   them today, so we'll leave them out for the time being.
+- We'll visit these again later in the course, when we have covered more
+  prerequisite topics.
 
 ---
 ## Example: Vectors
@@ -265,13 +294,11 @@ let mut vs = vec![0,1,2,3,4,5,6];
 // Borrow immutably
 for v in &vs { // Can also write `for v in vs.iter()`
     println!("I'm borrowing {}.", v);
-    println!("You have to dereference `v` to use it (sometimes):"
-    println!("{}", *v + 1);
 }
 
 // Borrow mutably
 for v in &mut vs { // Can also write `for v in vs.iter_mut()`
-    *v = *v + 1;
+    v = v + 1;
     println!("I'm mutably borrowing {}.", v);
 }
 
@@ -280,8 +307,3 @@ for v in vs { // Can also write `for v in vs.into_iter()`
     println!("I now own {}! AHAHAHAHA!", v);
 }
 ```
-
----
-## Example: Linked Lists ##
-
-- Who likes linked lists?
