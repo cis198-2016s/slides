@@ -179,6 +179,7 @@ fn main() {
     println!("Hello, CIS 198!");
 }
 ```
+- All code blocks have links to the Rust playpen so you can run them!
 
 ---
 # Basic Rust Syntax #
