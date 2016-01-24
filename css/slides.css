@@ -39,6 +39,7 @@ img {
   font-size: 16pt;
 }
 .remark-inline-code {
+  font-size: 110%;
   color: #8D1A38;
 }
 .remark-slide-content {
