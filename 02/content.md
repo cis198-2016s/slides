@@ -246,6 +246,42 @@ match make_request() {
     iterators.
 
 ---
+## Recursive Types
+
+- Structs & enums exist on the stack by default, so they may not be recursive.
+    - Such a definition would have infinite size at compile time!
+- The compiler tells us how to fix this, but what's a `box`?
+
+```rust
+struct Node {
+    x: i32,
+    next: Node,
+}
+// error: invalid recursive struct type
+// help: wrap the inner value in a box to make it representable
+```
+
+---
+## Boxes, Briefly
+
+- A `box` (lowercase) is a general term for one of Rust's ways of allocating data on the heap.
+- A `Box<T>` (uppercase) is a heap pointer with exactly one owner.
+    - A `Box` its data (the `T`) uniquely-- it can't be aliased.
+- `Box`es are automatically destructed when they go out of scope.
+- Create a `Box` with `Box::new()`:
+
+```rust
+let boxed_five = Box::new(5);
+
+struct Node {
+    x: i32,
+    next: Box<Node>, // OK!
+}
+```
+
+- We'll cover these in greater detail when we talk more about pointers.
+
+---
 ## Methods
 
 ```rust
