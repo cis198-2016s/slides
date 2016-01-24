@@ -278,7 +278,6 @@ struct Node {
     next: Box<Node>, // OK!
 }
 ```
-
 - We'll cover these in greater detail when we talk more about pointers.
 
 ---
