@@ -212,7 +212,7 @@ let u = Unit;
     - named data (struct)
 
 ```rust
-enum Result {
+enum Resultish {
     Ok,
     Warning { code: i32, message: String },
     Err(String)
@@ -222,17 +222,17 @@ enum Result {
 ---
 ## Enums
 
-- Enum variants are namespaced by their enum type: `Result::Ok`.
-    - You can import all variants with `use Result::*`.
+- Enum variants are namespaced by their enum type: `Resultish::Ok`.
+    - You can import all variants with `use Resultish::*`.
 - Enums, much as you'd expect, can be matched on like any other data type.
 
 ```rust
 match make_request() {
-    Result::Ok =>
+    Resultish::Ok =>
         println!("Success!"),
-    Result::Warning { code, message } =>
+    Resultish::Warning { code, message } =>
         println!("Warning: {}!", message),
-    Result::Err(s) =>
+    Resultish::Err(s) =>
         println!("Failed with error: {}", s),
 }
 ```
@@ -240,7 +240,7 @@ match make_request() {
 ---
 ## Enums
 
-- Enum constructors like `Result::Ok` and the like can be used as functions.
+- Enum constructors like `Resultish::Ok` and the like can be used as functions.
 - This is not currently very useful, but will become so when we cover closures &
     iterators.
 
@@ -375,18 +375,19 @@ match x {
     ref mut r => *r = 5
 }
 ```
+- Similar to `let ref`.
 
 ---
 ### `if-let` Statements
 
 - If you only need a single match arm, it often makes more sense to use Rust's `if-let` construct.
-- For example, given `Result` type we defined last week:
+- For example, given `Resultish` type we defined last week:
 
 ```rust
-enum Result {
+enum Resultish {
     Ok,
     Warning { code: i32, message: String },
-    Err(String)
+    Err(String),
 }
 ```
 
