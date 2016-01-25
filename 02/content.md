@@ -303,7 +303,7 @@ impl Point {
 
 - `distance` needs to access but not modify fields.
 - `translate` modifies the struct fields.
-- `mirror_y` returns an entirely new struct.
+- `mirror_y` returns an entirely new struct, consuming the old one.
 
 ---
 ## Associated Functions
