@@ -346,7 +346,7 @@ fn main() {
 let x = 17;
 
 match x {
-    0 ... 5 => println!("zero through five (inclusive)", x),
+    0 ... 5 => println!("zero through five (inclusive)"),
     _ => println!("You still lose the game."),
 }
 ```
