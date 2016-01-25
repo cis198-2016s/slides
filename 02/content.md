@@ -64,6 +64,8 @@ struct Point {
 ---
 ## Structs
 
+- Structs are namespaced with the module name.
+    - The fully qualified name of `Point` is `foo::Point`.
 - Struct fields are private by default.
     - They may be made public with the `pub` keyword.
 - Private fields may only be accessed from within the module where the struct is
@@ -95,8 +97,8 @@ mod foo {
     }
 
     // Creates and returns a new point
-    pub fn new(_x: i32, _y: i32) -> Point {
-        Point { x: _x, y: _y }
+    pub fn new(x: i32, y: i32) -> Point {
+        Point { x: x, y: y }
     }
 }
 ```
@@ -104,7 +106,9 @@ mod foo {
 - `new` is inside the same module, so this is fine.
 
 ---
-### Struct `match` Statement
+### Struct `match`ing
+
+- Destructure structs with `match` statements.
 
 ```rust
 pub struct Point {
@@ -112,18 +116,29 @@ pub struct Point {
     y: i32,
 }
 
-let p = Point { x: 1, y: 2 };
 match p {
     Point { x, y } => println!("({}, {})", x, y)
 }
-
-match p {
-    Point { x: x1, y: y1 } => println!("({}, {})", x1, y1)
-}
 ```
 
-- Destructure structs with `match` statements.
-- You can rename struct fields inside arms.
+---
+### Struct `match`ing
+
+- Some other tricks for struct `match`es:
+
+```rust
+match p {
+    Point { y: y1, x: x1 } => println!("({}, {})", x1, y1)
+}
+
+match p {
+    Point { y, .. } => println!("{}", y)
+}
+```
+- Fields do not need to be in order.
+- List fields inside braces to bind struct members to those variable names.
+    - Use `struct_field: new_var_binding` to change the variable it's bound to.
+- Omit fields: use `..` to ignore all unnamed fields.
 
 ---
 ### Struct Update Syntax
@@ -148,7 +163,7 @@ x = Foo { a: 2, b: 2, e: 2, .. x };
 
 - Variant on structs that has a name, but no named fields.
 - You can't access them on a per-field level.
-- You can destructure these with a `match` statement.
+- Can also `match` these.
 
 ```rust
 struct Color(i32, i32, i32);
@@ -190,7 +205,7 @@ let u = Unit;
 ## Enums
 
 - An enum, or "sum type", is a way to express some data that may be one of several things.
-- Rust enums are much more powerful than in Java/C/C++/Python...
+- Much more powerful than in Java, C, C++, C#...
 - Enum variants can have:
     - no data (unit struct)
     - unnamed ordered data (tuple struct)
@@ -213,10 +228,13 @@ enum Result {
 
 ```rust
 match make_request() {
-    Result::Ok => println!("Success!"),
-    Result::Warning { code, message } => println!("Warning: {}!", message),
-    Result::Err(s) => println!("Failed with error: {}", s),
-};
+    Result::Ok =>
+        println!("Success!"),
+    Result::Warning { code, message } =>
+        println!("Warning: {}!", message),
+    Result::Err(s) =>
+        println!("Failed with error: {}", s),
+}
 ```
 
 ---
@@ -256,8 +274,9 @@ fn main() {
   requires.
 
 - `&self`: the method *borrows* the struct.
-    - Favor this by default unless you need a different ownership model.
+    - Use this unless you need a different ownership model.
 - `&mut self`: the method *mutably borrows* the struct.
+    - The function needs to modify the struct it's called on.
 - `self`: the method takes ownership.
     - e.g. consumes the struct and returns something else.
 
@@ -315,3 +334,112 @@ fn main() {
 - Methods may not be inherited.
     - Rust structs & enums must be composed instead.
     - However, traits (coming soon) have basic inheritance.
+
+---
+## Patterns
+
+- Use `...` to specify a range of values. Useful for numerics and `char`s.
+- Use `_` to bind against any value (like any variable binding) and discard the
+  binding.
+
+```rust
+let x = 17;
+
+match x {
+    0 ... 5 => println!("zero through five (inclusive)", x),
+    _ => println!("You still lose the game."),
+}
+```
+
+---
+### `match`: References
+
+- Get a reference to a variable by asking for it with `ref`.
+
+```rust
+let x = 17;
+
+match x {
+    ref r => println!("Of type &i32: {}", r),
+}
+```
+
+- And get a mutable reference with `ref mut`.
+    - Only if the variable was declared `mut`.
+
+```rust
+let mut x = 17;
+
+match x {
+    ref r if x == 5 => println!("{}", r),
+    ref mut r => *r = 5
+}
+```
+
+---
+### `if-let` Statements
+
+- If you only need a single match arm, it often makes more sense to use Rust's `if-let` construct.
+- For example, given `Result` type we defined last week:
+
+```rust
+enum Result {
+    Ok,
+    Warning { code: i32, message: String },
+    Err(String)
+}
+```
+
+---
+### `if-let` Statement
+- Suppose we want to report an error but do nothing on `Warning`s and `Ok`s.
+
+```rust
+match make_request() {
+    Err(_) => println!("Total and utter failure."),
+    _ => println!("ok."),
+}
+```
+
+- We can simplify this statement with an `if-let` binding:
+
+```rust
+let result = make_request();
+
+if let Err(s) = result {
+    println!("Total and utter failure: {}", s);
+} else {
+    println!("ok.");
+}
+```
+
+---
+### `while-let` Statement
+
+- There's also a similar `while-let` statement, which works like an `if-let`,
+   but iterates until its condition evaluates to false
+
+```rust
+while let Err(s) = make_request() {
+    println!("Total and utter failure: {}", s);
+}
+```
+
+---
+### Inner Bindings
+
+- With more complicated data structures, use `@` to create variable bindings for
+    inner elements.
+
+```rust
+enum Result {
+    Ok,
+    Warning { code: i32, message: String },
+    Err(String),
+}
+
+match make_request() {
+    Ok(ref s @ _) => println!("Succeeded with value: {}!", value),
+    Err(_)    => println!("An error occurred."),
+}
+```
