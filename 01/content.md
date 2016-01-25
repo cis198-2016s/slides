@@ -58,8 +58,11 @@ println!("{}", v1[2]); // error: use of moved value `v1`
 ---
 ## Move Semantics
 
-- Moving ownership is semantic; it doesn't involve moving data.
-- TODO: other thoughts?
+- Moving ownership is semantic; it doesn't involve moving data under the hood.
+    - Again, since moves are computed at compile time, data does not need to be
+        invalidated at runtime, since it's guaranteed not to be used. // TODO Reword
+        this.
+- Moves are implicit; no need to use something like C++'s `std::move`.
 
 ---
 ## Ownership
@@ -103,11 +106,11 @@ fn foo() {
 
 ```rust
 /// `length` only needs `vector` temporarily, so it is borrowed.
-fn length(vec_ref: &Vec<i32>) {
+fn length(vec_ref: &Vec<i32>) -> usize {
     // vec_ref is auto-dereferenced when you call methods on it.
-    vec_ref.len();
+    vec_ref.len()
     // you can also explicitly dereference.
-    (*vec_ref).len();
+    // (*vec_ref).len()
 }
 
 fn main() {
@@ -125,11 +128,9 @@ fn main() {
 
 ```rust
 /// `length` only needs `vector` temporarily, so it is borrowed.
-fn length(vec_ref: &&Vec<i32>) {
+fn length(vec_ref: &&Vec<i32>) -> usize {
     // vec_ref is auto-dereferenced when you call methods on it.
-    vec_ref.len();
-    // you can also explicitly dereference.
-    (*vec_ref).len();
+    vec_ref.len()
 }
 
 fn main() {
@@ -209,7 +210,7 @@ match vectors {
     }
 }
 ```
-- Use `ref` and `ref mut` while binding variables inside match statements.
+- Use `ref` and `ref mut` when binding variables inside match statements.
 
 ---
 ## `Copy` Types
@@ -217,7 +218,7 @@ match vectors {
 - Rust defines a trait&sup1; named `Copy` that signifies that a type may be
     copied instead whenever it would be moved.
 - Most primitive types are `Copy` (`i32`, `f64`, `char`, `bool`, etc.).
-- Types that contain references may not be `Copy` (e.g. `Vec`).
+- Types that contain references may not be `Copy` (e.g. `Vec`, `String`).
 ```rust
 let x: i32 = 12;
 let y = x; // `i32` is `Copy`, so it's not moved :D
@@ -234,7 +235,6 @@ Learn these rules, and they will serve you well.
 - Any borrow must last for a scope no greater than that of the owner of the data
 - You may have as many immutable references to a resource at once as you want (`&T`)
 - OR you may have _exactly one_ mutable reference to a resource (`&mut T`)
-
 - That's it!
 
 ![](img/holy-grail.jpg)
@@ -243,29 +243,29 @@ Learn these rules, and they will serve you well.
 ### Borrowing Prevents...
 
 - Iterator invalidation due to mutating a collection you're iterating over.
-    ```rust
-    let mut vs = vec![1,2,3,4];
-    for v in &vs {
-        vs.pop();
-        // ERROR: cannot borrow `vs` as mutable because
-        // it is also borrowed as immutable
-    }
-    ```
 - This pattern is valid in C, C++, Java, Python, Javascript...
+```rust
+let mut vs = vec![1,2,3,4];
+for v in &vs {
+    vs.pop();
+    // ERROR: cannot borrow `vs` as mutable because
+    // it is also borrowed as immutable
+}
+```
 
 ---
 ### Borrowing Prevents...
 
 - Use-after-free
-    ```rust
-    let y: &i32;
-    {
-        let x = 5;
-        y = &x; // error: `x` does not live long enough
-    }
-    println!("{}", *y);
-    ```
 - Valid in C, C++...
+```rust
+let y: &i32;
+{
+    let x = 5;
+    y = &x; // error: `x` does not live long enough
+}
+println!("{}", *y);
+```
 - The full error message:
 ```
 error: `x` does not live long enough
