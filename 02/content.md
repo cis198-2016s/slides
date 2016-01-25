@@ -103,7 +103,8 @@ mod foo {
 }
 ```
 
-- `new` is inside the same module, so this is fine.
+- `new` is inside the same module as `Point`, so accessing private fields is
+  allowed.
 
 ---
 ### Struct `match`ing
@@ -272,13 +273,12 @@ fn main() {
 
 - The first argument to a method determines what kind of ownership the method
   requires.
-
 - `&self`: the method *borrows* the struct.
     - Use this unless you need a different ownership model.
 - `&mut self`: the method *mutably borrows* the struct.
     - The function needs to modify the struct it's called on.
 - `self`: the method takes ownership.
-    - e.g. consumes the struct and returns something else.
+    - e.g. the function consumes the struct and returns something else.
 
 ---
 ## Methods
@@ -328,7 +328,7 @@ fn main() {
 
 ---
 ## Implementations
-- Methods (and associated functions) may not be overloaded.
+- Methods, associated functions, and functions in general may not be overloaded.
     - e.g. `Vec::new()` and `Vec::with_capacity(capacity: usize)` are both
       constructors for `Vec`
 - Methods may not be inherited.
@@ -381,7 +381,7 @@ match x {
 ### `if-let` Statements
 
 - If you only need a single match arm, it often makes more sense to use Rust's `if-let` construct.
-- For example, given `Resultish` type we defined last week:
+- For example, given the `Resultish` type we defined earlier:
 
 ```rust
 enum Resultish {
@@ -397,7 +397,7 @@ enum Resultish {
 
 ```rust
 match make_request() {
-    Err(_) => println!("Total and utter failure."),
+    Resultish::Err(_) => println!("Total and utter failure."),
     _ => println!("ok."),
 }
 ```
@@ -407,7 +407,7 @@ match make_request() {
 ```rust
 let result = make_request();
 
-if let Err(s) = result {
+if let Resultish::Err(s) = result {
     println!("Total and utter failure: {}", s);
 } else {
     println!("ok.");
@@ -421,7 +421,7 @@ if let Err(s) = result {
    but iterates until its condition evaluates to false
 
 ```rust
-while let Err(s) = make_request() {
+while let Resultish::Err(s) = make_request() {
     println!("Total and utter failure: {}", s);
 }
 ```
@@ -440,7 +440,7 @@ enum Result {
 }
 
 match make_request() {
-    Ok(ref s @ _) => println!("Succeeded with value: {}!", value),
-    Err(_)    => println!("An error occurred."),
+    Resultish::Ok(ref s @ _) => println!("Succeeded with value: {}!", value),
+    Resultish::Err(_)        => println!("An error occurred."),
 }
 ```
