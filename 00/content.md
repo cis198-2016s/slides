@@ -453,6 +453,13 @@ if x > 0 {
 - No parens necessary.
 - Entire if statement evaluates to one expression, so every arm must end with
   an expression of the same type.
+    - That type can be unit `()`:
+
+```rust
+if x <= 0 {
+    println!("Too small!");
+}
+```
 
 ---
 ### Loops ###
