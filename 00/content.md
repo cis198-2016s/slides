@@ -140,7 +140,7 @@ Date | Stable | Beta | Nightly
 ### Administrivia: Office Hours
 
 - David - Mon 4:30-6:00pm
-- Terry - TBA
+- Terry - Tues 6:00-7:30pm
 - Kai   - Weds 6:00-7:00pm
 
 Office hours held in the Levine 6th floor lounge.
