@@ -265,8 +265,8 @@ enum List {
 ---
 ## Recursive Types
 
+- Such a definition would have infinite size at compile time!
 - Structs & enums exist on the stack by default, so they may not be recursive.
-    - Such a definition would have infinite size at compile time!
 - The compiler tells us how to fix this, but what's a `box`?
 
 ```rust
@@ -290,9 +290,9 @@ enum List {
 ```rust
 let boxed_five = Box::new(5);
 
-struct Node {
-    x: i32,
-    next: Box<Node>, // OK!
+enum List {
+    Nil,
+    Cons(i32, Box<List>), // OK!
 }
 ```
 - We'll cover these in greater detail when we talk more about pointers.
@@ -317,13 +317,13 @@ fn main() {
 - Methods can be implemented for structs and enums in an `impl` block.
 - Like fields, methods may be accessed via dot notation.
 - Can be made public with `pub`.
-    - `impl` blocks themselves cannot be made `pub`.
+    - `impl` blocks themselves don't need to be made `pub`.
 - Work for enums in exactly the same way they do for structs.
 
 ---
 ## Methods
 
-- The first argument to a method determines what kind of ownership the method
+- The first argument to a method, named `self`, determines what kind of ownership the method
   requires.
 - `&self`: the method *borrows* the struct.
     - Use this unless you need a different ownership model.
@@ -444,7 +444,7 @@ enum Resultish {
 ```
 
 ---
-### `if-let` Statement
+### `if-let` Statements
 - Suppose we want to report an error but do nothing on `Warning`s and `Ok`s.
 
 ```rust
@@ -578,7 +578,7 @@ fn p_or_q<'a, 'b>(p: &'a str, q: &'b str) -> &'a str {
 
 - Okay, great, but what does this all mean?
   - If a reference `R` has a lifetime `'a`, it is _guaranteed_ that it will not
-      outlive the owner of its underlying data (the value at `*R`
+      outlive the owner of its underlying data (the value at `*R`)
   - If a reference `R` has a lifetime of `'a`, anything else with the lifetime
     `'a` is _guaranteed_ to live as long `R`.
 - This will probably become more clear the more you use lifetimes yourself.
