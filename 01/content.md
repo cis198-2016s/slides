@@ -298,10 +298,12 @@ for v in &mut vs { // Can also write `for v in vs.iter_mut()`
     println!("I'm mutably borrowing {}.", v);
 }
 
-// Take ownership
+// Take ownership of the whole vector
 for v in vs { // Can also write `for v in vs.into_iter()`
     println!("I now own {}! AHAHAHAHA!", v);
 }
+
+// `vs` is no longer valid
 ```
 
 ---
@@ -339,12 +341,12 @@ for v in vs { // Can also write `for v in vs.into_iter()`
 ```rust
 // implicit
 fn foo(x: &i32) {
-  // ...
+    // ...
 }
 
 // explicit
 fn bar<'a>(x: &'a i32) {
-  // ...
+    // ...
 }
 ```
 
@@ -360,26 +362,76 @@ fn bar<'a>(x: &'a i32) {
 ---
 ## Lifetimes - Multiple Lifetimes
 
-- Functions that use multiple references may use the same lifetime for all
-    references.
-- However, sometimes it's useful to give the references different lifetimes.
-- In `x_or_y`, both input references and the output reference have the same
-    lifetime
+- Functions that use multiple references may use the same
+  lifetime for all references.
+- But sometimes it's useful to give references different lifetimes.
+- In `x_or_y`, input/output references all have the same lifetime.
 - In `p_or_q`, `p` and the output reference have the same lifetime.
-  - `q` has an unrelated lifetime
+  - `q` has a separate lifetime.
 
 ```rust
 fn x_or_y<'a>(x: &'a str, y: &'a str) -> &'a str {
-  // ...
+    // ...
 }
 
 fn p_or_q<'a, 'b>(p: &'a str, q: &'b str) -> &'a str {
-  // ...
+    // ...
 }
 ```
 
 ---
-## Lifetimes - 'static
+## Lifetimes - `struct`s
+
+- Lifetimes can be used to annotate `struct` members. (DEMO)
+
+```rust
+struct Pizza(Vec<i32>);
+struct PizzaSlice<'a> {
+    pizza: &'a Pizza,  // <- references in structs must
+    index: u32,        //    ALWAYS have explicit lifetimes
+}
+
+let p1 = Pizza(vec![1, 2, 3, 4]);
+{
+    let s1 = PizzaSlice { pizza: &p1, index: 2 }; // this is okay
+}
+
+let s2;
+{
+    let p2 = Pizza(vec![1, 2, 3, 4]);
+    s2 = PizzaSlice { pizza: &p2, index: 2 };
+    // no good - why?
+}
+```
+
+---
+## Lifetimes - `struct`s
+
+- Lifetimes can be constrained to "outlive" others.
+    - Looks like a type constraint.
+
+```rust
+struct Pizza(Vec<i32>);
+struct PizzaSlice<'a> { pizza: &'a Pizza, index: u32 }
+struct PizzaConsumer<'a, 'b: 'a> { // says "b outlives a"
+    slice: PizzaSlice<'a>, //< current eating this one
+    pizza: &'b Pizza,      //< so we can get more pizza
+}
+
+fn get_another_slice(c: &mut PizzaConsumer, index: u32) {
+    c.slice = PizzaSlice { pizza: c.pizza, index: index };
+}
+
+let p = Pizza(vec![1, 2, 3, 4]);
+{
+    let s = PizzaSlice { pizza: &p, index: 1 };
+    let mut c = PizzaConsumer { slice: s, pizza: &p };
+    get_another_slice(&mut c, 2);
+}
+```
+
+---
+## Lifetimes - `'static`
 
 - There is one reserved, special lifetime, named `'static`.
 - `'static` indicates to the compiler that something has the lifetime of the

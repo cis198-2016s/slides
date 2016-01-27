@@ -39,10 +39,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             code = code.trim();
 
-            if (!code.match(/^\s*(pub\s+)?\b(fn|struct|enum|type|mod|use|impl|trait)\b/m)) {
-                // If the code doesn't seem to be toplevel, add `fn main()`
+            if (!code.match(/^fn main\b/m)) {
+                // If the code doesn't have `fn main()`, add it
                 code = "fn main() {\n" + code.replace(/^/gm, "    ") + "\n}";
             }
+            code = "#![allow(dead_code)]\n" + code;
 
             var channel = '';
             if (featureRegexp.test(code)) {
