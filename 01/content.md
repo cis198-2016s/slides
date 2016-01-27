@@ -174,7 +174,7 @@ fn push2(vec_ref: &mut Vec<i32>, x: i32) {
 
 fn main() {
     let mut vector = vec![];
-    push(&mut vector, 4);
+    push2(&mut vector, 4);
 }
 ```
 - Error! You can't dereference `vec_ref` into a variable binding because that
@@ -185,15 +185,17 @@ fn main() {
 
 ```rust
 let mut vector = vec![0];
-let ref1 = &vector;
-let ref ref2 = vector;
-assert_eq!(ref1, ref2);
+{ // These are equivalent
+    let ref1 = &vector;
+    let ref ref2 = vector;
+    assert_eq!(ref1, ref2);
+}
 
 let ref mut ref3 = vector;
 ref3.push(1);
 ```
 
-- `ref` is a keyword that takes a reference to the lvalue.
+- When binding a variable, `ref` can be applied to make the variable a reference to the assigned value.
     - Take a mutable reference with `ref mut`.
 - This is most useful in `match` statements when destructuring patterns.
     - Otherwise, it's more clear to use `&`.
@@ -225,16 +227,16 @@ let y = x; // `i32` is `Copy`, so it's not moved :D
 println!("x still works: {}, and so does y: {}", x, y);
 ```
 
-&sup1;Java interface or Haskell typeclass
+&sup1; Like a Java interface or Haskell typeclass
 
 ---
 ## Borrowing Rules
-### _The Holy Grail of Rust_
+##### _The Holy Grail of Rust_
 Learn these rules, and they will serve you well.
 
-- Any borrow must last for a scope no greater than that of the owner of the data
-- You may have as many immutable references to a resource at once as you want (`&T`)
-- OR you may have _exactly one_ mutable reference to a resource (`&mut T`)
+- You can't keep borrowing something after it stops existing.
+- One object may have many immutable references to it (`&T`).
+- **OR** _exactly one_ mutable reference (`&mut T`) (not both).
 - That's it!
 
 ![](img/holy-grail.jpg)
@@ -243,7 +245,8 @@ Learn these rules, and they will serve you well.
 ### Borrowing Prevents...
 
 - Iterator invalidation due to mutating a collection you're iterating over.
-- This pattern is valid in C, C++, Java, Python, Javascript...
+- This pattern can be written in C, C++, Java, Python, Javascript...
+    - But may result in, e.g, `ConcurrentModificationException` (at runtime!)
 ```rust
 let mut vs = vec![1,2,3,4];
 for v in &vs {
