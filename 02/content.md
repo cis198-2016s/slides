@@ -183,8 +183,13 @@ match c {
 - These two types are structurally identical, but not equatable.
 
 ```rust
+// Not equatable
 struct Meters(i32);
 struct Yards(i32);
+
+// May be compared using `==`, added with `+`, etc.
+type MetersAlias = i32;
+type YardsAlias  = i32;
 ```
 
 ---
@@ -248,16 +253,28 @@ match make_request() {
 ---
 ## Recursive Types
 
+- You might think to create a nice functional-style `List` type:
+
+```rust
+enum List {
+    Nil,
+    Cons(i32, List),
+}
+```
+
+---
+## Recursive Types
+
 - Structs & enums exist on the stack by default, so they may not be recursive.
     - Such a definition would have infinite size at compile time!
 - The compiler tells us how to fix this, but what's a `box`?
 
 ```rust
-struct Node {
-    x: i32,
-    next: Node,
+enum List {
+    Nil,
+    Cons(i32, List),
 }
-// error: invalid recursive struct type
+// error: invalid recursive enum type
 // help: wrap the inner value in a box to make it representable
 ```
 
@@ -266,7 +283,7 @@ struct Node {
 
 - A `box` (lowercase) is a general term for one of Rust's ways of allocating data on the heap.
 - A `Box<T>` (uppercase) is a heap pointer with exactly one owner.
-    - A `Box` its data (the `T`) uniquely-- it can't be aliased.
+    - A `Box` owns its data (the `T`) uniquely-- it can't be aliased.
 - `Box`es are automatically destructed when they go out of scope.
 - Create a `Box` with `Box::new()`:
 
