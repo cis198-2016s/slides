@@ -506,23 +506,26 @@ match make_request() {
 ## Lifetimes
 
 - Ordinarily, references have an implicit lifetime that we don't need to care
-    about.
-- However, we can explicitly provide one like so.
-- `'a`, pronounced "tick-a" or "the lifetime 'a'" is an explicit lifetime
-    annotating `x`.
-- `<'a>` is a list of all lifetimes used in `bar`.
+    about:
+    ```rust
+    fn foo(x: &i32) {
+        // ...
+    }
+    ```
+- However, we can explicitly provide one instead:
+    ```rust
+    fn bar<'a>(x: &'a i32) {
+        // ...
+    }
+    ```
+- `'a`, pronounced "tick-a" or "the lifetime *a*" is a *named* lifetime.
+    - `<'a>` declares all lifetimes used in `bar` (looks like a generic).
+    - `x: &'a i32` constrains `'a` to the lifetime of `x`.
+        - **Discuss:** what is the constraint? `'a` [`≥` or `=` or `≤`] lifetime of `x`?
 
-```rust
-// implicit
-fn foo(x: &i32) {
-  // ...
-}
+???
 
-// explicit
-fn bar<'a>(x: &'a i32) {
-  // ...
-}
-```
+## Stop here briefly to discuss
 
 ---
 ## Lifetimes
@@ -566,7 +569,7 @@ fn p_or_q<'a, 'b>(p: &'a str, q: &'b str) -> &'a str {
 ---
 ## Lifetimes - `struct`s
 
-- Lifetimes can also be used to annotate `struct` members. (DEMO)
+- Lifetimes can also be used to annotate `struct` members.
 
 ```rust
 struct Pizza(Vec<i32>);
@@ -587,6 +590,10 @@ let s2;
     // no good - why?
 }
 ```
+
+???
+
+## Live demo!
 
 ---
 ## Lifetimes - `struct`s
