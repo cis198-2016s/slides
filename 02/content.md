@@ -536,13 +536,12 @@ fn bar<'a>(x: &'a i32) {
 ---
 ## Lifetimes - Multiple Lifetimes
 
-- Functions that use multiple references may use the same lifetime for all
-    references.
-- However, sometimes it's useful to give the references different lifetimes.
-- In `x_or_y`, both input references and the output reference have the same
-    lifetime
+- Functions that use multiple references may use the same
+  lifetime for all references.
+- But sometimes it's useful to give references different lifetimes.
+- In `x_or_y`, input/output references all have the same lifetime.
 - In `p_or_q`, `p` and the output reference have the same lifetime.
-  - `q` has an unrelated lifetime
+  - `q` has a separate lifetime with no constrained relationship to `p`.
 
 ```rust
 fn x_or_y<'a>(x: &'a str, y: &'a str) -> &'a str {
@@ -560,9 +559,60 @@ fn p_or_q<'a, 'b>(p: &'a str, q: &'b str) -> &'a str {
 - Okay, great, but what does this all mean?
   - If a reference `R` has a lifetime `'a`, it is _guaranteed_ that it will not
       outlive the owner of its underlying data (the value at `*R`
-  - If a reference `R` has a lifetime of `'a`, anything else with the lifetime `'a`
-      is _guaranteed_ to live as long `R`.
+  - If a reference `R` has a lifetime of `'a`, anything else with the lifetime
+    `'a` is _guaranteed_ to live as long `R`.
 - This will probably become more clear the more you use lifetimes yourself.
+
+---
+## Lifetimes - `struct`s
+
+- Lifetimes can also be used to annotate `struct` members. (DEMO)
+
+```rust
+struct Pizza(Vec<i32>);
+struct PizzaSlice<'a> {
+    pizza: &'a Pizza,  // <- references in structs must
+    index: u32,        //    ALWAYS have explicit lifetimes
+}
+
+let p1 = Pizza(vec![1, 2, 3, 4]);
+{
+    let s1 = PizzaSlice { pizza: &p1, index: 2 }; // this is okay
+}
+
+let s2;
+{
+    let p2 = Pizza(vec![1, 2, 3, 4]);
+    s2 = PizzaSlice { pizza: &p2, index: 2 };
+    // no good - why?
+}
+```
+
+---
+## Lifetimes - `struct`s
+
+- Lifetimes can be constrained to "outlive" others.
+    - Looks like a type constraint.
+
+```rust
+struct Pizza(Vec<i32>);
+struct PizzaSlice<'a> { pizza: &'a Pizza, index: u32 }
+struct PizzaConsumer<'a, 'b: 'a> { // says "b outlives a"
+    slice: PizzaSlice<'a>, //< current eating this one
+    pizza: &'b Pizza,      //< so we can get more pizza
+}
+
+fn get_another_slice(c: &mut PizzaConsumer, index: u32) {
+    c.slice = PizzaSlice { pizza: c.pizza, index: index };
+}
+
+let p = Pizza(vec![1, 2, 3, 4]);
+{
+    let s = PizzaSlice { pizza: &p, index: 1 };
+    let mut c = PizzaConsumer { slice: s, pizza: &p };
+    get_another_slice(&mut c, 2);
+}
+```
 
 ---
 ## Lifetimes - 'static
