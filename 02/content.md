@@ -1,6 +1,6 @@
 # Structured Data
 
-### CIS 198 Lecture 1.
+### CIS 198 Lecture 2
 
 ---
 ## Structured Data
@@ -9,7 +9,7 @@
     - Structs: C-like structs to hold data.
     - Enums: OCaML-like; data that can be one of several types.
 
-- Struts and enums may have one or more implementation blocks (`impl`s) which
+- Structs and enums may have one or more implementation blocks (`impl`s) which
   define methods for the data type.
 
 ---
@@ -50,8 +50,8 @@ p.y -= 1;
 ## Structs
 
 - Structs do not have field-level mutability.
-- Mutability is a property of the variable binding, not of the datatype.
-- Field-level mutability (interior mutability) can be achieved via `Cell` types
+- Mutability is a property of the **variable binding**, not the type.
+- Field-level mutability (interior mutability) can be achieved via `Cell` types.
     - More on these very soon.
 
 ```rust
@@ -213,9 +213,9 @@ let u = Unit;
 - An enum, or "sum type", is a way to express some data that may be one of several things.
 - Much more powerful than in Java, C, C++, C#...
 - Enum variants can have:
-    - no data (unit struct)
-    - unnamed ordered data (tuple struct)
-    - named data (struct)
+    - no data (unit variant)
+    - named data (struct variant)
+    - unnamed ordered data (tuple variant)
 
 ```rust
 enum Resultish {
@@ -325,12 +325,12 @@ fn main() {
 
 - The first argument to a method, named `self`, determines what kind of ownership the method
   requires.
-- `&self`: the method *borrows* the struct.
+- `&self`: the method *borrows* the value.
     - Use this unless you need a different ownership model.
-- `&mut self`: the method *mutably borrows* the struct.
+- `&mut self`: the method *mutably borrows* the value.
     - The function needs to modify the struct it's called on.
 - `self`: the method takes ownership.
-    - e.g. the function consumes the struct and returns something else.
+    - The function consumes the value and may return something else.
 
 ---
 ## Methods
@@ -368,15 +368,16 @@ impl Point {
 }
 
 fn main() {
-    Point::new(1, 2);
+    let p = Point::new(1, 2);
 }
 ```
 
-- Associated function: a function for a type which does not take `self`.
-    - This is called with namespacing syntax (`Point::new`) not member syntax.
-    - Similar to "static methods".
+- Associated function: like a method, but does not take `self`.
+    - This is called with namespacing syntax: `Point::new()`.
+        - Not `Point.new()`.
+    - Like a "static" method in Java.
 - A constructor-like function is usually named `new`.
-    - Rust does not have a notion of actual / automatic constructors.
+    - No inherent notion of constructors, no automatic construction.
 
 ---
 ## Implementations
@@ -492,7 +493,7 @@ enum Result {
 }
 
 match make_request() {
-    Resultish::Ok(ref s @ _) => println!("Succeeded with value: {}!", value),
+    Resultish::Ok(ref s @ _) => println!("Success: {}!", value),
     Resultish::Err(_)        => println!("An error occurred."),
 }
 ```
