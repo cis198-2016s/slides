@@ -444,3 +444,131 @@ match make_request() {
     Resultish::Err(_)        => println!("An error occurred."),
 }
 ```
+
+---
+## Lifetimes
+
+- There's one more piece to the ownership puzzle: Lifetimes.
+- Lifetimes generally have a pretty steep learning curve.
+  - We may cover them again later on in the course under a broader scope if
+      necessary.
+- Don't worry if you don't understand these right away.
+
+---
+## Lifetimes
+
+- Imagine This:
+  1. I acquire a resource.
+  2. I lend you a reference to my resource.
+  3. I decide that I'm done with the resource, so I deallocate it.
+  4. You still hold a reference to the resource, and decide to use it.
+  5. You crash 😿.
+- We've already said that Rust makes this scenario impossible, but glossed over
+    how.
+- We need to prove to the compiler that _step 3_ will never happen before _step 4_.
+
+---
+## Lifetimes
+
+- Ordinarily, references have an implicit lifetime that we don't need to care
+    about.
+- However, we can explicitly provide one like so.
+- `'a`, pronounced "tick-a" or "the lifetime 'a'" is an explicit lifetime
+    annotating `x`.
+- `<'a>` is a list of all lifetimes used in `bar`.
+
+```rust
+// implicit
+fn foo(x: &i32) {
+  // ...
+}
+
+// explicit
+fn bar<'a>(x: &'a i32) {
+  // ...
+}
+```
+
+---
+## Lifetimes
+
+- The compiler is smart enough not to need `'a` above, but this isn't always the
+    case
+- Scenarios that involve multiple references or returning references often
+    require explicit lifetimes.
+  - Speaking of which...
+
+---
+## Lifetimes - Multiple Lifetimes
+
+- Functions that use multiple references may use the same lifetime for all
+    references.
+- However, sometimes it's useful to give the references different lifetimes.
+- In `x_or_y`, both input references and the output reference have the same
+    lifetime
+- In `p_or_q`, `p` and the output reference have the same lifetime.
+  - `q` has an unrelated lifetime
+
+```rust
+fn x_or_y<'a>(x: &'a str, y: &'a str) -> &'a str {
+  // ...
+}
+
+fn p_or_q<'a, 'b>(p: &'a str, q: &'b str) -> &'a str {
+  // ...
+}
+```
+
+---
+## Lifetimes
+
+- Okay, great, but what does this all mean?
+  - If a reference `R` has a lifetime `'a`, it is _guaranteed_ that it will not
+      outlive the owner of its underlying data (the value at `*R`
+  - If a reference `R` has a lifetime of `'a`, anything else with the lifetime `'a`
+      is _guaranteed_ to live as long `R`.
+- This will probably become more clear the more you use lifetimes yourself.
+
+---
+## Lifetimes - 'static
+
+- There is one reserved, special lifetime, named `'static`.
+- `'static` indicates to the compiler that something has the lifetime of the
+    entire program
+- All `&str` literals have the `'static` lifetime.
+
+```rust
+let s1: &str = "Hello";
+let s2: &'static str = "World";
+```
+
+---
+### Structured Data With Lifetimes
+
+- Any struct or enum that contains a reference must have an explicit lifetime.
+- Normal lifetime rules otherwise apply.
+
+```rust
+struct Foo<'a, 'b> {
+  v: &'a Vec<i32>,
+  s: &'b str,
+}
+```
+
+---
+### Lifetimes in `impl` Blocks
+
+- Implementing methods on `Foo` struct requires lifetime annotations too!
+- You can read this block as "the implementation using the lifetimes `'a` and
+    `'b` for the struct `Foo` using the lifetimes `'a` and `'b`."
+
+```rust
+impl<'a, 'b> Foo<'a, 'b> {
+  fn new(v: &'a Vec<i32>, s: &'b str) -> Foo<'a, 'b> {
+    Foo {
+      v: v,
+      s: s,
+    }
+  }
+}
+```

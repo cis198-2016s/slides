@@ -277,13 +277,6 @@ note: reference must be valid for the block suffix following statement
 - This eliminates a _huge_ number of memory safety bugs _at compile time_.
 
 ---
-## Lifetimes
-
-- There's one more piece to the ownership puzzle: Lifetimes.
-- We'll visit these again later in the course, when we have covered more
-  prerequisite topics.
-
----
 ## Example: Vectors
 
 - You can iterate over `Vec`s in three different ways:
@@ -306,4 +299,91 @@ for v in &mut vs { // Can also write `for v in vs.iter_mut()`
 for v in vs { // Can also write `for v in vs.into_iter()`
     println!("I now own {}! AHAHAHAHA!", v);
 }
+```
+
+---
+## Lifetimes
+
+- There's one more piece to the ownership puzzle: Lifetimes.
+- Lifetimes generally have a pretty steep learning curve.
+  - We may cover them again later on in the course under a broader scope if
+      necessary.
+- Don't worry if you don't understand these right away.
+
+---
+## Lifetimes
+
+- Imagine This:
+  1. I acquire a resource.
+  2. I lend you a reference to my resource.
+  3. I decide that I'm done with the resource, so I deallocate it.
+  4. You still hold a reference to the resource, and decide to use it.
+  5. You crash 😿.
+- We've already said that Rust makes this scenario impossible, but glossed over
+    how.
+- We need to prove to the compiler that _step 3_ will never happen before _step 4_.
+
+---
+## Lifetimes
+
+- Ordinarily, references have an implicit lifetime that we don't need to care
+    about.
+- However, we can explicitly provide one like so.
+- `'a`, pronounced "tick-a" or "the lifetime 'a'" is an explicit lifetime
+    annotating `x`.
+- `<'a>` is a list of all lifetimes used in `bar`.
+
+```rust
+// implicit
+fn foo(x: &i32) {
+  // ...
+}
+
+// explicit
+fn bar<'a>(x: &'a i32) {
+  // ...
+}
+```
+
+---
+## Lifetimes
+
+- The compiler is smart enough not to need `'a` above, but this isn't always the
+    case
+- Scenarios that involve multiple references or returning references often
+    require explicit lifetimes.
+  - Speaking of which...
+
+---
+## Lifetimes - Multiple Lifetimes
+
+- Functions that use multiple references may use the same lifetime for all
+    references.
+- However, sometimes it's useful to give the references different lifetimes.
+- In `x_or_y`, both input references and the output reference have the same
+    lifetime
+- In `p_or_q`, `p` and the output reference have the same lifetime.
+  - `q` has an unrelated lifetime
+
+```rust
+fn x_or_y<'a>(x: &'a str, y: &'a str) -> &'a str {
+  // ...
+}
+
+fn p_or_q<'a, 'b>(p: &'a str, q: &'b str) -> &'a str {
+  // ...
+}
+```
+
+---
+## Lifetimes - 'static
+
+- There is one reserved, special lifetime, named `'static`.
+- `'static` indicates to the compiler that something has the lifetime of the
+    entire program
+- All `&str` literals have the `'static` lifetime.
+
+```rust
+let s1: &str = "Hello";
+let s2: &'static str = "World";
 ```
