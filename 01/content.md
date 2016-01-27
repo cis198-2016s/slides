@@ -291,7 +291,7 @@ for v in &vs { // Can also write `for v in vs.iter()`
 
 // Borrow mutably
 for v in &mut vs { // Can also write `for v in vs.iter_mut()`
-    v = v + 1;
+    *v = *v + 1;
     println!("I'm mutably borrowing {}.", v);
 }
 
