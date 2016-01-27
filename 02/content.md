@@ -64,7 +64,7 @@ struct Point {
 ---
 ## Structs
 
-- Structs are namespaced with the module name.
+- Structs are namespaced with their module name.
     - The fully qualified name of `Point` is `foo::Point`.
 - Struct fields are private by default.
     - They may be made public with the `pub` keyword.
