@@ -7,7 +7,7 @@
 
 - Rust has two simple ways of creating structured data types:
     - Structs: C-like structs to hold data.
-    - Enums: OCaML-like; data that can be one of several types.
+    - Enums: OCaml-like; data that can be one of several types.
 
 - Structs and enums may have one or more implementation blocks (`impl`s) which
   define methods for the data type.
