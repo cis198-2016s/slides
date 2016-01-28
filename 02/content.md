@@ -212,7 +212,7 @@ let u = Unit;
 
 - An enum, or "sum type", is a way to express some data that may be one of several things.
 - Much more powerful than in Java, C, C++, C#...
-- Enum variants can have:
+- Each enum variant can have:
     - no data (unit variant)
     - named data (struct variant)
     - unnamed ordered data (tuple variant)
@@ -486,16 +486,22 @@ while let Resultish::Err(s) = make_request() {
     inner elements.
 
 ```rust
-enum Result {
-    Ok,
-    Warning { code: i32, message: String },
-    Err(String),
+#[derive(Debug)]
+enum A { None, Some(B) }
+#[derive(Debug)]
+enum B { None, Some(i32) }
+
+fn foo(x: A) {
+    match x {
+        a @ A::None              => println!("x is A::{:?}", a),
+        ref a @ A::Some(B::None) => println!("a is A::{:?}", *a),
+        A::Some(b @ B::Some(_))  => println!("b is B::{:?}", b),
+    }
 }
 
-match make_request() {
-    Resultish::Ok(ref s @ _) => println!("Success: {}!", value),
-    Resultish::Err(_)        => println!("An error occurred."),
-}
+foo(A::None);             // ==> x is A::None
+foo(A::Some(B::None));    // ==> a is A::Some(None)
+foo(A::Some(B::Some(5))); // ==> b is B::Some(5)
 ```
 
 ---
@@ -623,8 +629,8 @@ let s2;
 struct Pizza(Vec<i32>);
 struct PizzaSlice<'a> { pizza: &'a Pizza, index: u32 }
 struct PizzaConsumer<'a, 'b: 'a> { // says "b outlives a"
-    slice: PizzaSlice<'a>, //< current eating this one
-    pizza: &'b Pizza,      //< so we can get more pizza
+    slice: PizzaSlice<'a>, // <- current eating this one
+    pizza: &'b Pizza,      // <- so we can get more pizza
 }
 
 fn get_another_slice(c: &mut PizzaConsumer, index: u32) {

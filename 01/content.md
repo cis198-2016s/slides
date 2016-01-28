@@ -280,7 +280,7 @@ let mut a = 5;
 let ref_a = &mut a;
 *ref_a = 4;
 println!("{}", *ref_a + 4);
-// ==> 4
+// ==> 8
 ```
 
 ---
