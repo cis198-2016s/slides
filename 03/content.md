@@ -237,36 +237,6 @@ impl<T: Equals, E: Equals> Equals for Result<T, E> {
 - `Self` is a special type which refers to the type of the variable `self`.
 
 ---
-## Deriving
-
-- Many traits are so straightforward that the compiler can often implement them
-  for you.
-- A `#[derive(...)]` attribute tells the compiler to insert a default
-  implementation for whatever traits you tell it to.
-- This removes the tedium of repeatedly manually implementing traits like `Clone` yourself!
-
-```rust
-#[derive(Eq, PartialEq, Debug)]
-enum Result<T, E> {
-   Ok(T),
-   Err(E)
-}
-```
-
----
-## Deriving
-
-- You can only do this for the following core traits:
-    - `Clone`, `Copy`, `Debug`, `Default`, `Eq`,
-    - `Hash`, `Ord`, `PartialEq`, `PartialOrd`.
-- Deriving custom traits is an unstable feature as of Rust 1.6.
-- Careful: deriving a trait won't always work.
-    - Can only derive a trait on a data type when all of its components can
-      have derived the trait.
-    - e.g., `Eq` can't be derived on a struct containing only `f32`s, since
-      `f32` is not `Eq`.
-
----
 ## Inheritance
 
 - Implementing some traits may require other traits to be implemented first.
@@ -318,6 +288,35 @@ trait Eq: PartialEq<Self> {}
       `eq` and `ne`.
 
 ---
+## Deriving
+
+- Many traits are so straightforward that the compiler can often implement them
+  for you.
+- A `#[derive(...)]` attribute tells the compiler to insert a default
+  implementation for whatever traits you tell it to.
+- This removes the tedium of repeatedly manually implementing traits like `Clone` yourself!
+
+```rust
+#[derive(Eq, PartialEq, Debug)]
+enum Result<T, E> {
+   Ok(T),
+   Err(E)
+}
+```
+
+---
+## Deriving
+
+- You can only do this for the following core traits:
+    - `Clone`, `Copy`, `Debug`, `Default`, `Eq`,
+    - `Hash`, `Ord`, `PartialEq`, `PartialOrd`.
+- Deriving custom traits is an unstable feature as of Rust 1.6.
+- Careful: deriving a trait won't always work.
+    - Can only derive a trait on a data type when all of its members can have derived the trait.
+    - e.g., `Eq` can't be derived on a struct containing only `f32`s, since
+      `f32` is not `Eq`.
+
+---
 ## Core traits
 
 - It's good to be familiar with the core traits.
@@ -344,8 +343,6 @@ pub trait Clone: Sized {
 
 ---
 ### Clone
-
-- You can `derive` this trait for a type if all types referenced also implement `Clone`.
 
 ```rust
 #[derive(Clone)] // without this, Bar cannot derive Clone.
@@ -408,7 +405,6 @@ pub trait Default: Sized {
 }
 ```
 - Defines a default value for a type.
-- As with `Clone`, you can only derive this trait if referenced types also implement `Default`.
 
 ---
 ### Eq vs. PartialEq
@@ -455,7 +451,6 @@ pub trait Hash {
 ```rust
 k1 == k2 -> hash(k1) == hash(k2)
 ```
-- Like `Clone` & `Default`, you can only derive this trait if referenced types also implement `Hash`.
 
 &sup1;taken from Rustdocs
 
