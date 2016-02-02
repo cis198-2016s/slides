@@ -714,8 +714,7 @@ use_foo(&198i32);
 *taken from the Rustdocs
 
 ---
-## Addendum: Generics With Lifetime Bounds
-
+### Addendum: Generics With Lifetime Bounds
 
 - Some generics may have lifetime bounds like `T: 'a`.
 - Semantically, this reads as "Type `T` must live at least as long as the
@@ -723,8 +722,7 @@ use_foo(&198i32);
 - Why is this useful?
 
 ---
-## Addendum: Generics With Lifetime Bounds
-
+### Addendum: Generics With Lifetime Bounds
 
 - Imagine you have some collection of type `T`.
 - If you iterate over this collection, you should be able to guarantee that
