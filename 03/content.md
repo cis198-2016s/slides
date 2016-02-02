@@ -190,6 +190,9 @@ fn clone_and_compare<T: Clone + Ord>(t1: T, t2: T) -> bool {
     - This is useful if you want to have multiple impls for a struct each with
       different trait bounds
 
+---
+## Generic Types With Trait Bounds
+
 ```rust
 enum Result<T, E> {
    Ok(T),
@@ -239,14 +242,14 @@ impl<T: Equals, E: Equals> Equals for Result<T, E> {
 ---
 ## Deriving
 
-- Many traits are so straightforward that the compiler can often write them
+- Many traits are so straightforward that the compiler can often implement them
   for you.
 - A `#[derive(...)]` attribute tells the compiler to insert a default
   implementation for whatever traits you tell it to.
 - This removes the tedium of repeatedly manually implementing traits like `Clone` yourself!
 
 ```rust
-#[derive(Eq, Debug)]
+#[derive(Eq, PartialEq, Debug)]
 enum Result<T, E> {
    Ok(T),
    Err(E)
@@ -257,7 +260,8 @@ enum Result<T, E> {
 ## Deriving
 
 - You can only do this for the following core traits:
-    - `Clone`, `Copy`, `Debug`, `Default`, `Eq`, `Hash`, `Ord`, `PartialEq`, `PartialOrd`
+    - `Clone`, `Copy`, `Debug`, `Default`, `Eq`,
+    - `Hash`, `Ord`, `PartialEq`, and `PartialOrd`
 - Deriving custom traits is an unstable feature as of Rust 1.6.
 - Careful: deriving a trait won't always work.
     - e.g., `Eq` can't be derived on a struct containing only `f32`s, since `f32` is not `Eq`.
@@ -312,6 +316,7 @@ pub trait Clone: Sized {
 ## Clone
 
 - You can `derive` this trait for a type if all types referenced also implement `Clone`.
+
 ```rust
 #[derive(Clone)] // without this, Bar cannot derive Clone.
 struct Foo {
