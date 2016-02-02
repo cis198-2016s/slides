@@ -357,6 +357,7 @@ pub trait Debug {
 ## Debug
 
 - Outputs in the format:
+
 ```rust
 #[derive(Debug)]
 struct Point {
@@ -393,6 +394,10 @@ pub trait PartialEq<Rhs: ?Sized = Self> {
 pub trait Eq: PartialEq<Self> {}
 ```
 - Traits for defining equality via the `==` operator.
+
+---
+## Eq vs. PartialEq
+
 - `PartialEq` represents a _partial equivalence relation_.
     - Symmetric: if a == b then b == a
     - Transitive: if a == b and b == c then a == c
@@ -409,20 +414,19 @@ pub trait Eq: PartialEq<Self> {}
 pub trait Hash {
     fn hash<H: Hasher>(&self, state: &mut H);
 
-    fn hash_slice<H: Hasher>(data: &[Self], state: &mut H) where Self: Sized { ... }
+    fn hash_slice<H: Hasher>(data: &[Self], state: &mut H)
+        where Self: Sized { ... }
 }
 ```
 - A hashable type.
 - The `H` type parameter is an abstract hash state used to compute the hash.
 - If you also implement `Eq`, there is an additional, important property:
-
-```
+```rust
 k1 == k2 -> hash(k1) == hash(k2)
 ```
-
-* taken from Rustdocs
-
 - Like `Clone` & `Default`, you can only derive this trait if referenced types also implement `Hash`.
+
+*taken from Rustdocs
 
 ---
 ## Ord vs. PartialOrd
@@ -438,17 +442,21 @@ pub trait PartialOrd<Rhs: ?Sized = Self>: PartialEq<Rhs> {
     fn ge(&self, other: &Rhs) -> bool { ... }
 }
 ```
-
 - Traits for values that can be compared for a sort-order.
+
+---
+## Ord vs. PartialOrd
+
 - The comparison must satisfy, for all `a`, `b` and `c`:
   - Antisymmetry: if `a < b` then `!(a > b)`, as well as `a > b` implying `!(a < b)`; and
   - Transitivity: `a < b` and `b < c` implies `a < c`. The same must hold for both `==` and `>`.
 - `lt`, `le`, `gt`, `ge` have default implementations based on `partial_cmp`.
 
-* taken from Rustdocs
+*taken from Rustdocs
 
 ---
 ## Ord vs. PartialOrd
+
 ```rust
 pub trait Ord: Eq + PartialOrd<Self> {
     fn cmp(&self, other: &Self) -> Ordering;
@@ -460,7 +468,7 @@ pub trait Ord: Eq + PartialOrd<Self> {
   - transitive, `a < b` and `b < c` implies `a < c`. The same must hold for both `==` and `>`.
 - When this trait is derived, it produces a lexicographic ordering.
 
-* taken from Rustdocs
+*taken from Rustdocs
 
 ---
 ## Default Methods
@@ -470,6 +478,7 @@ pub trait Ord: Eq + PartialOrd<Self> {
 - When a default implementation is provided, the implementor of the trait doesn't need to define that method.
 - Define default implementations of trait methods by simply writing the body in
     the `trait` block.
+
 ```rust
 trait PartialEq<Rhs: ?Sized = Self> {
     fn eq(&self, other: &Rhs) -> bool;
@@ -507,6 +516,10 @@ trait Graph<N, E> {
     association to `Graph`
 - Also, any function that takes a `Graph` must also be generic over `N` and `E`!
 
+```rust
+fn distance<N, E, G: Graph<N,E>>(graph: &G, start: &N, end: &N) -> u32 {/*...*/}
+```
+
 ---
 ## Associated Types
 
@@ -528,7 +541,7 @@ impl Graph for MyGraph {
   type N = MyNode;
   type E = MyEdge;
 
-  fn edges(&self, n: &MyNode) -> Vec<MyEdge> { // ...  }
+  fn edges(&self, n: &MyNode) -> Vec<MyEdge> { /*...*/  }
 }
 ```
 
@@ -560,6 +573,10 @@ impl Foo for i32 {
 ```
 
 - But this is really bad practice. Avoid if you can!
+
+---
+## Trait Scope
+
 - The scope rules for implementing traits:
     - You need to `use` a trait in order to access its methods on types, even if
       you have access to the type.
@@ -577,7 +594,7 @@ pub trait Drop {
 
 - A trait for types that are destructable (which is all types).
 - `Drop` requires one method, `drop`, but you should never call this method yourself.
-    - It's inserted automatically by the compiler when necesary.
+    - It's inserted automatically by the compiler when necessary.
 
 ---
 ## Addendum: Drop
@@ -602,7 +619,7 @@ pub trait Drop {
 - Its evil twin, `?Sized`, indicates that a type _might_ be sized.
 - By default, all types are implicitly `Sized`, and `?Sized` undoes this.
     - Types like `[T]` and `str` (no `&`) are `?Sized`.
-- For example, `Box<T>` allows `T: ?Sized`
+- For example, `Box<T>` allows `T: ?Sized`.
 - You rarely interact with these traits directly, but they show up a lot in trait bounds.
 
 ---
@@ -614,11 +631,11 @@ pub trait Drop {
 trait Foo { fn bar(&self); }
 
 impl Foo for String {
-    fn bar(&self) { // ...  }
+    fn bar(&self) { /*...*/ }
 }
 
 impl Foo for usize {
-    fn bar(&self) { // ...  }
+    fn bar(&self) { /*...*/  }
 }
 ```
 
@@ -661,10 +678,12 @@ impl Foo for char { /*...*/ }
 impl Foo for i32  { /*...*/ }
 
 fn use_foo(f: &Foo) {
-  // No way to figure out if we got a `char` or an `i32` or anything else!
+  // No way to figure out if we got a `char` or an `i32`
+  // or anything else!
   match *f {
     // What type do we have? I dunno...
-    198 => println!("CIS 198!"), // error: mismatched types: expected `Foo`, found `_`
+    // error: mismatched types: expected `Foo`, found `_`
+    198 => println!("CIS 198!"),
     'c' => println!("See?"),
     _ => println!("Something else...),
   }
@@ -692,10 +711,11 @@ use_foo(&198i32);
     - Its methods must not have any type parameters
     - Its methods do not require that `Self: Sized`
 
-* taken from the Rustdocs
+*taken from the Rustdocs
 
 ---
 ## Addendum: Generics With Lifetime Bounds
+
 
 - Some generics may have lifetime bounds like `T: 'a`.
 - Semantically, this reads as "Type `T` must live at least as long as the
@@ -704,6 +724,7 @@ use_foo(&198i32);
 
 ---
 ## Addendum: Generics With Lifetime Bounds
+
 
 - Imagine you have some collection of type `T`.
 - If you iterate over this collection, you should be able to guarantee that
