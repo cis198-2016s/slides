@@ -153,7 +153,7 @@ impl PrettyPrint for Point {
 ## Generics with Trait Bounds
 
 - Instead of allowing _literally any_ type, you can constrain generic types by
-    _trait bounds_
+    _trait bounds_.
 - This gives more power to generic functions & types.
 - Trait bounds can be specified with `T: SomeTrait` or via a `where` clause
 
@@ -175,7 +175,7 @@ fn cloning_machine_2<T>(t: T) -> (T, T) where T: Clone {
   - e.g. you can't stipulate that a `T` must not be `Clone`.
 
 ```rust
-fn clone_and_compare<T: Clone + Ord>(t1: T, t2: T) -> Ordering {
+fn clone_and_compare<T: Clone + Ord>(t1: T, t2: T) -> bool {
    t1.clone() > t2.clone()
 }
 ```
@@ -189,6 +189,7 @@ fn clone_and_compare<T: Clone + Ord>(t1: T, t2: T) -> Ordering {
 - Only the impl block header needs to specify trait bounds.
     - This is useful if you want to have multiple impls for a struct each with
       different trait bounds
+
 ```rust
 enum Result<T, E> {
    Ok(T),
