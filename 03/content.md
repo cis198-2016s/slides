@@ -133,6 +133,9 @@ trait PrettyPrint {
 - You must specify trait name in the header for the `impl` block.
 - You can use `&self` (and variants) inside the trait `impl` block as usual.
 
+---
+## Traits
+
 ```rust
 struct Point {
     x: i32,
