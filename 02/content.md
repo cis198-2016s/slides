@@ -629,7 +629,7 @@ let s2;
 struct Pizza(Vec<i32>);
 struct PizzaSlice<'a> { pizza: &'a Pizza, index: u32 }
 struct PizzaConsumer<'a, 'b: 'a> { // says "b outlives a"
-    slice: PizzaSlice<'a>, // <- current eating this one
+    slice: PizzaSlice<'a>, // <- currently eating this one
     pizza: &'b Pizza,      // <- so we can get more pizza
 }
 
