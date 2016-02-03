@@ -48,20 +48,6 @@ enum List<T> {
 ```
 
 ---
-## Generic Functions
-
-- You can make a function generic over types as well.
-- `<T, U>` declares the type parameters for `foo`, then used in `x: T, y: U`.
-- You can read this as "the function `foo` which uses generic types `T` and `U`,
-    and takes two arguments: `x` of type `T` and `y` of type `U`."
-
-```rust
-fn foo<T, U>(x: T, y: U) {
-    // ...
-}
-```
-
----
 ## Generic Implementations
 
 - To define implementations for structs & enums with generic types, declare the generics at the
@@ -119,7 +105,7 @@ impl Point {
 
 ```rust
 trait PrettyPrint {
-   fn format(&self) -> String;
+    fn format(&self) -> String;
 }
 ```
 
@@ -146,13 +132,26 @@ impl PrettyPrint for Point {
 ```
 
 ---
+## Generic Functions
+
+- You can make a function generic over types as well.
+- `<T, U>` declares the type parameters for `foo`, then used in `x: T, y: U`.
+- You can read this as "the function `foo` which uses generic types `T` and `U`,
+    and takes two arguments: `x` of type `T` and `y` of type `U`."
+
+```rust
+fn foo<T, U>(x: T, y: U) {
+    // ...
+}
+```
+
+---
 ## Generics with Trait Bounds
 
-TODO: introduce functions
 - Instead of allowing _literally any_ type, you can constrain generic types by
     _trait bounds_.
 - This gives more power to generic functions & types.
-- Trait bounds can be specified with `T: SomeTrait` or via a `where` clause.
+- Trait bounds can be specified with `T: SomeTrait` or with a `where` clause.
 
 ```rust
 fn cloning_machine<T: Clone>(t: T) -> (T, T) {
