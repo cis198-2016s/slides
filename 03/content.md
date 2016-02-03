@@ -581,11 +581,18 @@ impl Foo for i32 {
 pub trait Display {
     fn fmt(&self, &mut Formatter) -> Result<(), Error>;
 }
+
+impl Display for Point {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Point {}, {})", self.x, self.y)
+    }
+}
 ```
 
-- Defines output for the `{:?}` formatting option.
+- Defines output for the `{}` formatting option.
 - Like Debug, but should be pretty printed.
     - No standard output and cannot be derived!
+- You can use `write!` macro to implement this without using Formatter.
 
 ---
 ## Addendum: Drop
