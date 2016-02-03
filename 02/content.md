@@ -493,7 +493,7 @@ enum B { None, Some(i32) }
 
 fn foo(x: A) {
     match x {
-        a @ A::None              => println!("x is A::{:?}", a),
+        a @ A::None              => println!("a is A::{:?}", a),
         ref a @ A::Some(B::None) => println!("a is A::{:?}", *a),
         A::Some(b @ B::Some(_))  => println!("b is B::{:?}", b),
     }
