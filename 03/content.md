@@ -10,7 +10,7 @@
 ```rust
 enum Result {
     Ok(String),
-    Err(String)
+    Err(String),
 }
 ```
 - Better, but it's still limited to passing two values which are both `String`s.
@@ -23,11 +23,11 @@ enum Result {
 ```rust
 enum Result<T, E> {
     Ok(T),
-    Err(E)
+    Err(E),
 }
 ```
 - `T` and `E` stand in for any generic type, not only `String`s.
-- You can use any capital letters to stand in for generic types.
+- You can use any CamelCase identifier for generic types.
 
 ---
 ## Generic Structs
@@ -101,7 +101,7 @@ impl Point {
 - To define a trait, use a `trait` block, which gives function definitions for
   the required methods.
     - This is not the same as an `impl` block.
-    - It only contains function signatures, not definitions.
+    - Mostly only contains method signatures without definitions.
 
 ```rust
 trait PrettyPrint {
@@ -112,11 +112,10 @@ trait PrettyPrint {
 ---
 ## Traits
 
-- To implement a trait on a datatype, use an `impl Trait for Type` block.
-    - All functions specified by the trait must have an implementation.
-- Every type will have a separate `impl` block for a given Trait.
-    - Every trait implemented by a type will also have a separate `impl`.
-- You can use `&self` (and variants) inside the trait `impl` block as usual.
+- To implement a trait, use an `impl Trait for Type` block.
+    - All methods specified by the trait must be implemented.
+- One impl block per type per trait.
+- You can use `self`/`&self` inside the trait `impl` block as usual.
 
 ```rust
 struct Point {
@@ -135,9 +134,10 @@ impl PrettyPrint for Point {
 ## Generic Functions
 
 - You can make a function generic over types as well.
-- `<T, U>` declares the type parameters for `foo`, then used in `x: T, y: U`.
-- You can read this as "the function `foo` which uses generic types `T` and `U`,
-    and takes two arguments: `x` of type `T` and `y` of type `U`."
+- `<T, U>` declares the type parameters for `foo`.
+    - `x: T, y: U` uses those type parameters.
+- You can read this as "the function `foo`, for all types `T` and `U`,
+    of two arguments: `x` of type `T` and `y` of type `U`."
 
 ```rust
 fn foo<T, U>(x: T, y: U) {
@@ -152,13 +152,15 @@ fn foo<T, U>(x: T, y: U) {
     _trait bounds_.
 - This gives more power to generic functions & types.
 - Trait bounds can be specified with `T: SomeTrait` or with a `where` clause.
+    - "where `T` is `Clone`"
 
 ```rust
 fn cloning_machine<T: Clone>(t: T) -> (T, T) {
     (t.clone(), t.clone())
 }
 
-fn cloning_machine_2<T>(t: T) -> (T, T) where T: Clone {
+fn cloning_machine_2<T>(t: T) -> (T, T)
+        where T: Clone {
     (t.clone(), t.clone())
 }
 ```
@@ -166,7 +168,7 @@ fn cloning_machine_2<T>(t: T) -> (T, T) where T: Clone {
 ---
 ## Generics with Trait Bounds
 
-- Multiple trait bounds on a type are specified like `T: Clone + Ord`
+- Multiple trait bounds are specified like `T: Clone + Ord`.
 - There's no way (yet) to specify [negative trait bounds](https://internals.rust-lang.org/t/pre-rfc-mutually-exclusive-traits/2126).
   - e.g. you can't stipulate that a `T` must not be `Clone`.
 
@@ -192,7 +194,7 @@ fn clone_and_compare<T: Clone + Ord>(t1: T, t2: T) -> bool {
 ```rust
 enum Result<T, E> {
    Ok(T),
-   Err(E)
+   Err(E),
 }
 
 trait PrettyPrint {
@@ -213,10 +215,7 @@ impl<T: PrettyPrint, E: PrettyPrint> PrettyPrint for Result<T, E> {
 ## Examples: Equality
 
 ```rust
-enum Result<T, E> {
-   Ok(T),
-   Err(E)
-}
+enum Result<T, E> { Ok(T), Err(E), }
 
 // This is not the trait Rust actually uses for equality
 trait Equals {
@@ -233,12 +232,12 @@ impl<T: Equals, E: Equals> Equals for Result<T, E> {
    }
 }
 ```
-- `Self` is a special type which refers to the type of the variable `self`.
+- `Self` is a special type which refers to the type of `self`.
 
 ---
 ## Inheritance
 
-- Implementing some traits may require other traits to be implemented first.
+- Some traits may require other traits to be implemented first.
     - e.g., `Eq` requires that `PartialEq` be implemented, and `Copy` requires `Clone`.
 - Implementing the `Child` trait below requires you to also implement `Parent`.
 
@@ -260,7 +259,7 @@ trait Child: Parent {
 ---
 ## Default Methods
 
-- Conveniently, traits can have default implementations for methods!
+- Traits can have default implementations for methods!
    - Useful if you have an idea of how an implementor will commonly define a trait method.
 - When a default implementation is provided, the implementor of the trait doesn't need to define that method.
 - Define default implementations of trait methods by simply writing the body in
