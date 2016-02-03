@@ -722,8 +722,7 @@ use_foo(&198i32);
 ### Addendum: Generics With Lifetime Bounds
 
 - Some generics may have lifetime bounds like `T: 'a`.
-- Semantically, this reads as "Type `T` must live at least as long as the
-    lifetime `'a`.
+- Semantically, this reads as "Type `T` must live at least as long as the lifetime `'a`."
 - Why is this useful?
 
 ---
@@ -733,4 +732,4 @@ use_foo(&198i32);
 - If you iterate over this collection, you should be able to guarantee that
     everything in it lives as long as the collection.
     - If you couldn't, Rust wouldn't be safe!
-- stdlib `Iter` structs usually contain these sorts of constraints.
+- `std::Iterator` structs usually contain these sorts of constraints.
