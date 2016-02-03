@@ -43,7 +43,7 @@ struct Point<T> {
 
 enum List<T> {
     Nil,
-    Cons(T, Box<List<T>>)
+    Cons(T, Box<List<T>>),
 }
 ```
 
@@ -374,14 +374,10 @@ pub trait Debug {
     fn fmt(&self, &mut Formatter) -> Result;
 }
 ```
-- Defines formatting for the `{:?}` formatting option.
-- Should generate debug output, not pretty printed.
-- Generally speaking, you should derive this trait.
 
----
-### Debug
-
-- Outputs in the format:
+- Defines output for the `{:?}` formatting option.
+- Generates debug output, not pretty printed.
+- Generally speaking, you should always derive this trait.
 
 ```rust
 #[derive(Debug)]
@@ -429,7 +425,7 @@ pub trait Eq: PartialEq<Self> {}
 - `Eq` represents a _total equivalence relation_.
     - Symmetric: if a == b then b == a
     - Transitive: if a == b and b == c then a == c
-    - Reflexive: a == a
+    - **Reflexive: a == a**
 - `Eq` does not define any additional methods.
     - (It is also a Marker trait.)
 
@@ -456,7 +452,6 @@ k1 == k2 -> hash(k1) == hash(k2)
 ---
 ### Ord vs. PartialOrd
 
-
 ```rust
 pub trait PartialOrd<Rhs: ?Sized = Self>: PartialEq<Rhs> {
     // Ordering is one of Less, Equal, Greater
@@ -473,7 +468,6 @@ pub trait PartialOrd<Rhs: ?Sized = Self>: PartialEq<Rhs> {
 ---
 ### Ord vs. PartialOrd
 
-
 - The comparison must satisfy, for all `a`, `b` and `c`:
   - Antisymmetry: if `a < b` then `!(a > b)`, as well as `a > b` implying `!(a < b)`; and
   - Transitivity: `a < b` and `b < c` implies `a < c`. The same must hold for both `==` and `>`.
@@ -483,7 +477,6 @@ pub trait PartialOrd<Rhs: ?Sized = Self>: PartialEq<Rhs> {
 
 ---
 ### Ord vs. PartialOrd
-
 
 ```rust
 pub trait Ord: Eq + PartialOrd<Self> {
@@ -581,6 +574,19 @@ impl Foo for i32 {
       you have access to the type.
     - In order to write an `impl`, you need to own (i.e. have yourself defined)
       either the trait or the type.
+
+---
+### Display
+
+```rust
+pub trait Display {
+    fn fmt(&self, &mut Formatter) -> Result<(), Error>;
+}
+```
+
+- Defines output for the `{:?}` formatting option.
+- Like Debug, but should be pretty printed.
+    - No standard output and cannot be derived!
 
 ---
 ## Addendum: Drop
