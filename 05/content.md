@@ -29,7 +29,7 @@
 
 - `String`s are heap-allocated, and are dynamically growable.
     - Like `Vec`s in that regard.
-    - In fact, `String` is just a wraper over `Vec<u8>`!
+    - In fact, `String` is just a wrapper over `Vec<u8>`!
 - Cannot be indexed either.
     - You can select characters with `s.nth(i)`.
 - May be coerced into an `&str` by taking a reference to the `String`.
