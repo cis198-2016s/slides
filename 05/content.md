@@ -28,8 +28,8 @@
 
 - `String`s are heap-allocated, and are dynamically growable.
     - Like `Vec`s in that regard.
-    - In fact, `String` is just a wraper over `Vec<u8>`!
-- Cannot be indexed either!
+    - In fact, `String` is just a wrapper over `Vec<u8>`!
+- Just like `&str`, also cannot be indexed.
 - May be created with `String::new()`, `"foo".to_string()`, or
     `String::from("bar")`.
 - May be coerced into an `&str` by taking a reference to the `String`.
@@ -53,6 +53,11 @@ let course_name = course_code + &course_num;
 ```
 
 ---
+## `String` & `&str`: Why?
+
+// TODO
+
+---
 ## Option<T>
 
 ```rust
@@ -65,6 +70,9 @@ enum Option<T> {
 - Provides a concrete type to the concept of nothingness.
 - Use this instead of returning `NaN`, `-1`, `null`, etc. from a function.
 - No restrictions on what `T` may be.
+
+---
+## Option<T>
 
 ```rust
 fn sqrt(x: f64) -> Option<f64> {
@@ -87,13 +95,13 @@ match sqrt(x) {
 
 - Often, you'll interact with `Option` by destructuring it using
     `if-let`/`match`.
-- `Option<T>`s may be converted to `T`s using the `unwrap()` method
+- `Option<T>`s may be converted to `T`s using the `unwrap()` method 🎁.
     - However, this may `panic!` at runtime, so don't do this lightly!
-    - Better, though still dangerous: use `expect(message)` to provide a helpful
+    - Better, though still dangerous: `expect(message)` unwraps or provides a helpful
         panic message.
 - `Option`s can also be unwrapped safely using `unwrap_or`/`unwrap_or_else`,
     which allow you to provide a default value in case of failure.
-- `Option`s can be swapped out for `None` using `take`.
+- Any `Option` can be swapped out for `None` using `take`.
 - Can be combined with other `Option`s using `and` and `or`.
     - Logically, `Some(_)` works like `true`, `None` like `false`.
 
@@ -112,8 +120,8 @@ enum Result<T, E> {
 - Rust's stdlib often defines aliases over `Result` for error handling:
 
 ```rust
-fn std::io::read_line(&self, buf: &mut String) -> Result<usize>
 // Actually returns a `Result<usize, std::io::Error>`
+fn std::io::read_line(&self, buf: &mut String) -> std::io::Result<usize>
 ```
 
 ---
@@ -124,13 +132,15 @@ fn std::io::read_line(&self, buf: &mut String) -> Result<usize>
 - Can be converted to an `Option` using `ok()` or `err()`.
 - Can be operated on in almost all the same ways as `Option`
     - `and`, `or`, `unwrap`, etc.
-- Unlike `Option`, a `Result` should always be _consumed_.
+- Unlike `Option`, a `Result` should _always_ be consumed.
     - If a function returns a `Result`, you should be sure to `unwrap`/`expect`
         it, or otherwise handle the `Ok`/`Err` in a meaningful way.
     - The compiler warns you if you don't.
 
 ---
 ## [Collections](https://doc.rust-lang.org/stable/std/collections/)
+
+![](img/collector.jpg)
 
 ---
 ## `Vec<T>`
