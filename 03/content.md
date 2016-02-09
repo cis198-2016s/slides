@@ -10,7 +10,7 @@
 ```rust
 enum Result {
     Ok(String),
-    Err(String)
+    Err(String),
 }
 ```
 - Better, but it's still limited to passing two values which are both `String`s.
@@ -23,11 +23,11 @@ enum Result {
 ```rust
 enum Result<T, E> {
     Ok(T),
-    Err(E)
+    Err(E),
 }
 ```
 - `T` and `E` stand in for any generic type, not only `String`s.
-- You can use any capital letters to stand in for generic types.
+- You can use any CamelCase identifier for generic types.
 
 ---
 ## Generic Structs
@@ -42,22 +42,8 @@ struct Point<T> {
 }
 
 enum List<T> {
-  Nil,
-  Cons(T, Box<List<T>>)
-}
-```
-
----
-## Generic Functions
-
-- You can make a function generic over types as well.
-- `<T, U>` declares the type parameters for `foo`, then used in `x: T, y: U`.
-- You can read this as "the function `foo` which uses generic types `T` and `U`,
-    and takes two arguments: `x` which is a `T` and `y` which is a `U`.
-
-```rust
-fn foo<T, U>(x: T, y: U) {
-    // ...
+    Nil,
+    Cons(T, Box<List<T>>),
 }
 ```
 
@@ -115,26 +101,21 @@ impl Point {
 - To define a trait, use a `trait` block, which gives function definitions for
   the required methods.
     - This is not the same as an `impl` block.
-    - It only contains function signatures, not definitions.
+    - Mostly only contains method signatures without definitions.
 
 ```rust
 trait PrettyPrint {
-   fn format(&self) -> String;
+    fn format(&self) -> String;
 }
 ```
 
 ---
 ## Traits
 
-- To implement a trait on a datatype, use an `impl Trait for Type` block.
-    - You must implement all functions a trait specifies.
-- Every type which implements that trait will have a separate `impl` block.
-    - Every trait implemented by a type will also have a separate `impl` block.
-- You must specify trait name in the header for the `impl` block.
-- You can use `&self` (and variants) inside the trait `impl` block as usual.
-
----
-## Traits
+- To implement a trait, use an `impl Trait for Type` block.
+    - All methods specified by the trait must be implemented.
+- One impl block per type per trait.
+- You can use `self`/`&self` inside the trait `impl` block as usual.
 
 ```rust
 struct Point {
@@ -143,9 +124,24 @@ struct Point {
 }
 
 impl PrettyPrint for Point {
-    fn fmt(&self) -> String {
+    fn format(&self) -> String {
         format!("({}, {})", self.x, self.y)
     }
+}
+```
+
+---
+## Generic Functions
+
+- You can make a function generic over types as well.
+- `<T, U>` declares the type parameters for `foo`.
+    - `x: T, y: U` uses those type parameters.
+- You can read this as "the function `foo`, for all types `T` and `U`,
+    of two arguments: `x` of type `T` and `y` of type `U`."
+
+```rust
+fn foo<T, U>(x: T, y: U) {
+    // ...
 }
 ```
 
@@ -155,14 +151,16 @@ impl PrettyPrint for Point {
 - Instead of allowing _literally any_ type, you can constrain generic types by
     _trait bounds_.
 - This gives more power to generic functions & types.
-- Trait bounds can be specified with `T: SomeTrait` or via a `where` clause
+- Trait bounds can be specified with `T: SomeTrait` or with a `where` clause.
+    - "where `T` is `Clone`"
 
 ```rust
 fn cloning_machine<T: Clone>(t: T) -> (T, T) {
     (t.clone(), t.clone())
 }
 
-fn cloning_machine_2<T>(t: T) -> (T, T) where T: Clone {
+fn cloning_machine_2<T>(t: T) -> (T, T)
+        where T: Clone {
     (t.clone(), t.clone())
 }
 ```
@@ -170,8 +168,8 @@ fn cloning_machine_2<T>(t: T) -> (T, T) where T: Clone {
 ---
 ## Generics with Trait Bounds
 
-- Multiple trait bounds on a type are specified like `T: Clone + Ord`
-- There's no way (yet) to specify [negative trait bounds.](https://internals.rust-lang.org/t/pre-rfc-mutually-exclusive-traits/2126)
+- Multiple trait bounds are specified like `T: Clone + Ord`.
+- There's no way (yet) to specify [negative trait bounds](https://internals.rust-lang.org/t/pre-rfc-mutually-exclusive-traits/2126).
   - e.g. you can't stipulate that a `T` must not be `Clone`.
 
 ```rust
@@ -196,7 +194,7 @@ fn clone_and_compare<T: Clone + Ord>(t1: T, t2: T) -> bool {
 ```rust
 enum Result<T, E> {
    Ok(T),
-   Err(E)
+   Err(E),
 }
 
 trait PrettyPrint {
@@ -204,7 +202,7 @@ trait PrettyPrint {
 }
 
 impl<T: PrettyPrint, E: PrettyPrint> PrettyPrint for Result<T, E> {
-   fn fmt(&self) -> String {
+   fn format(&self) -> String {
       match *self {
          Ok(t) => format!("Ok({})", t.format()),
          Err(e) => format!("Err({})", e.format()),
@@ -217,10 +215,7 @@ impl<T: PrettyPrint, E: PrettyPrint> PrettyPrint for Result<T, E> {
 ## Examples: Equality
 
 ```rust
-enum Result<T, E> {
-   Ok(T),
-   Err(E)
-}
+enum Result<T, E> { Ok(T), Err(E), }
 
 // This is not the trait Rust actually uses for equality
 trait Equals {
@@ -237,243 +232,34 @@ impl<T: Equals, E: Equals> Equals for Result<T, E> {
    }
 }
 ```
-- `Self` is a special type which refers to the type of the variable `self`.
-
----
-## Deriving
-
-- Many traits are so straightforward that the compiler can often implement them
-  for you.
-- A `#[derive(...)]` attribute tells the compiler to insert a default
-  implementation for whatever traits you tell it to.
-- This removes the tedium of repeatedly manually implementing traits like `Clone` yourself!
-
-```rust
-#[derive(Eq, PartialEq, Debug)]
-enum Result<T, E> {
-   Ok(T),
-   Err(E)
-}
-```
-
----
-## Deriving
-
-- You can only do this for the following core traits:
-    - `Clone`, `Copy`, `Debug`, `Default`, `Eq`,
-    - `Hash`, `Ord`, `PartialEq`, and `PartialOrd`
-- Deriving custom traits is an unstable feature as of Rust 1.6.
-- Careful: deriving a trait won't always work.
-    - e.g., `Eq` can't be derived on a struct containing only `f32`s, since `f32` is not `Eq`.
+- `Self` is a special type which refers to the type of `self`.
 
 ---
 ## Inheritance
 
-- Implementing some traits may require other traits to be implemented first.
-- For example, `Eq` requires that `PartialEq` be implemented, and `Copy` requires `Clone`.
+- Some traits may require other traits to be implemented first.
+    - e.g., `Eq` requires that `PartialEq` be implemented, and `Copy` requires `Clone`.
 - Implementing the `Child` trait below requires you to also implement `Parent`.
 
 ```rust
 trait Parent {
     fn foo(&self) {
-      // ...
+        // ...
     }
 }
 
 trait Child: Parent {
     fn bar(&self) {
-      // ...
+        self.foo();
+        // ...
     }
 }
 ```
 
 ---
-## Core traits
-
-- It's good to be familiar with the core traits.
-    - `Clone`, `Copy`
-    - `Debug`
-    - `Default`
-    - `Eq`, `PartialEq`
-    - `Hash`
-    - `Ord`, `PartialOrd`
-
----
-## Clone
-
-```rust
-pub trait Clone: Sized {
-    fn clone(&self) -> Self;
-
-    fn clone_from(&mut self, source: &Self) { ... }
-}
-```
-- A trait which defines how to duplicate a type.
-- This can solve ownership problems.
-    - You can clone an object rather than taking ownership or borrowing!
-
----
-## Clone
-
-- You can `derive` this trait for a type if all types referenced also implement `Clone`.
-
-```rust
-#[derive(Clone)] // without this, Bar cannot derive Clone.
-struct Foo {
-    x: i32,
-}
-
-#[derive(Clone)]
-struct Bar {
-    x: Foo,
-}
-```
-
----
-## Copy
-```rust
-pub trait Copy: Clone { }
-```
-- `Copy` denotes that a type has "copy semantics" instead of "move semantics."
-- Type must be able to be copied by copying bits (`memcpy`).
-    - Types that contain references _cannot_ be `Copy`
-- Semantic / behavior-defining trait only; does not implement any methods.
-    - Also known as a "marker" trait.
-- In general, if a type _can_ be `Copy`, it _should_ be `Copy`.
-
----
-## Debug
-
-```rust
-pub trait Debug {
-    fn fmt(&self, &mut Formatter) -> Result;
-}
-```
-- Defines formatting for the `{:?}` formatting option.
-- Should be debug output, not pretty printed.
-- Generally speaking, you should derive this trait.
-
----
-## Debug
-
-- Outputs in the format:
-
-```rust
-#[derive(Debug)]
-struct Point {
-    x: i32,
-    y: i32,
-}
-
-let origin = Point { x: 0, y: 0 };
-println!("The origin is: {:?}", origin);
-// The origin is: Point { x: 0, y: 0 }
-```
-
----
-## Default
-
-```rust
-pub trait Default: Sized {
-    fn default() -> Self;
-}
-```
-- Defines a default value for a type.
-- As with `Clone`, you can only derive this trait if referenced types also implement `Default`.
-
----
-## Eq vs. PartialEq
-
-```rust
-pub trait PartialEq<Rhs: ?Sized = Self> {
-    fn eq(&self, other: &Rhs) -> bool;
-
-    fn ne(&self, other: &Rhs) -> bool { ... }
-}
-
-pub trait Eq: PartialEq<Self> {}
-```
-- Traits for defining equality via the `==` operator.
-
----
-## Eq vs. PartialEq
-
-- `PartialEq` represents a _partial equivalence relation_.
-    - Symmetric: if a == b then b == a
-    - Transitive: if a == b and b == c then a == c
-- `ne` has a default implementation in terms of `eq`.
-- `Eq` represents a _total equivalence relation_.
-    - Symmetric: if a == b then b == a
-    - Transitive: if a == b and b == c then a == c
-    - Reflexive: a == a
-- `Eq` does not define any additional methods.
-
----
-## Hash
-```rust
-pub trait Hash {
-    fn hash<H: Hasher>(&self, state: &mut H);
-
-    fn hash_slice<H: Hasher>(data: &[Self], state: &mut H)
-        where Self: Sized { ... }
-}
-```
-- A hashable type.
-- The `H` type parameter is an abstract hash state used to compute the hash.
-- If you also implement `Eq`, there is an additional, important property:
-```rust
-k1 == k2 -> hash(k1) == hash(k2)
-```
-- Like `Clone` & `Default`, you can only derive this trait if referenced types also implement `Hash`.
-
-*taken from Rustdocs
-
----
-## Ord vs. PartialOrd
-
-```rust
-pub trait PartialOrd<Rhs: ?Sized = Self>: PartialEq<Rhs> {
-    // Ordering is one of Less, Equal, Greater
-    fn partial_cmp(&self, other: &Rhs) -> Option<Ordering>;
-
-    fn lt(&self, other: &Rhs) -> bool { ... }
-    fn le(&self, other: &Rhs) -> bool { ... }
-    fn gt(&self, other: &Rhs) -> bool { ... }
-    fn ge(&self, other: &Rhs) -> bool { ... }
-}
-```
-- Traits for values that can be compared for a sort-order.
-
----
-## Ord vs. PartialOrd
-
-- The comparison must satisfy, for all `a`, `b` and `c`:
-  - Antisymmetry: if `a < b` then `!(a > b)`, as well as `a > b` implying `!(a < b)`; and
-  - Transitivity: `a < b` and `b < c` implies `a < c`. The same must hold for both `==` and `>`.
-- `lt`, `le`, `gt`, `ge` have default implementations based on `partial_cmp`.
-
-*taken from Rustdocs
-
----
-## Ord vs. PartialOrd
-
-```rust
-pub trait Ord: Eq + PartialOrd<Self> {
-    fn cmp(&self, other: &Self) -> Ordering;
-}
-```
-- Trait for types that form a total order.
-- An order is a total order if it is (for all `a`, `b` and `c`):
-  - total and antisymmetric: exactly one of `a < b`, `a == b` or `a > b` is true; and
-  - transitive, `a < b` and `b < c` implies `a < c`. The same must hold for both `==` and `>`.
-- When this trait is derived, it produces a lexicographic ordering.
-
-*taken from Rustdocs
-
----
 ## Default Methods
 
-- Conveniently, traits can have default implementations for methods!
+- Traits can have default implementations for methods!
    - Useful if you have an idea of how an implementor will commonly define a trait method.
 - When a default implementation is provided, the implementor of the trait doesn't need to define that method.
 - Define default implementations of trait methods by simply writing the body in
@@ -499,6 +285,210 @@ trait Eq: PartialEq<Self> {}
     - e.g., _never_ define `ne` so that it violates the relationship between
       `eq` and `ne`.
 
+---
+## Deriving
+
+- Many traits are so straightforward that the compiler can often implement them
+  for you.
+- A `#[derive(...)]` attribute tells the compiler to insert a default
+  implementation for whatever traits you tell it to.
+- This removes the tedium of repeatedly manually implementing traits like `Clone` yourself!
+
+```rust
+#[derive(Eq, PartialEq, Debug)]
+enum Result<T, E> {
+   Ok(T),
+   Err(E)
+}
+```
+
+---
+## Deriving
+
+- You can only do this for the following core traits:
+    - `Clone`, `Copy`, `Debug`, `Default`, `Eq`,
+    - `Hash`, `Ord`, `PartialEq`, `PartialOrd`.
+- Deriving custom traits is an unstable feature as of Rust 1.6.
+- Careful: deriving a trait won't always work.
+    - Can only derive a trait on a data type when all of its members can have derived the trait.
+    - e.g., `Eq` can't be derived on a struct containing only `f32`s, since
+      `f32` is not `Eq`.
+
+---
+## Core traits
+
+- It's good to be familiar with the core traits.
+    - `Clone`, `Copy`
+    - `Debug`
+    - `Default`
+    - `Eq`, `PartialEq`
+    - `Hash`
+    - `Ord`, `PartialOrd`
+
+---
+### Clone
+
+```rust
+pub trait Clone: Sized {
+    fn clone(&self) -> Self;
+
+    fn clone_from(&mut self, source: &Self) { ... }
+}
+```
+- A trait which defines how to duplicate a value of type `T`.
+- This can solve ownership problems.
+    - You can clone an object rather than taking ownership or borrowing!
+
+---
+### Clone
+
+```rust
+#[derive(Clone)] // without this, Bar cannot derive Clone.
+struct Foo {
+    x: i32,
+}
+
+#[derive(Clone)]
+struct Bar {
+    x: Foo,
+}
+```
+
+---
+### Copy
+```rust
+pub trait Copy: Clone { }
+```
+- `Copy` denotes that a type has "copy semantics" instead of "move semantics."
+- Type must be able to be copied by copying bits (`memcpy`).
+    - Types that contain references _cannot_ be `Copy`.
+- Marker trait: does not implement any methods, but defines behavior instead.
+- In general, if a type _can_ be `Copy`, it _should_ be `Copy`.
+
+---
+### Debug
+
+```rust
+pub trait Debug {
+    fn fmt(&self, &mut Formatter) -> Result;
+}
+```
+
+- Defines output for the `{:?}` formatting option.
+- Generates debug output, not pretty printed.
+- Generally speaking, you should always derive this trait.
+
+```rust
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let origin = Point { x: 0, y: 0 };
+println!("The origin is: {:?}", origin);
+// The origin is: Point { x: 0, y: 0 }
+```
+
+---
+### Default
+
+```rust
+pub trait Default: Sized {
+    fn default() -> Self;
+}
+```
+- Defines a default value for a type.
+
+---
+### Eq vs. PartialEq
+
+```rust
+pub trait PartialEq<Rhs: ?Sized = Self> {
+    fn eq(&self, other: &Rhs) -> bool;
+
+    fn ne(&self, other: &Rhs) -> bool { ... }
+}
+
+pub trait Eq: PartialEq<Self> {}
+```
+- Traits for defining equality via the `==` operator.
+
+---
+### Eq vs. PartialEq
+
+- `PartialEq` represents a _partial equivalence relation_.
+    - Symmetric: if a == b then b == a
+    - Transitive: if a == b and b == c then a == c
+- `ne` has a default implementation in terms of `eq`.
+- `Eq` represents a _total equivalence relation_.
+    - Symmetric: if a == b then b == a
+    - Transitive: if a == b and b == c then a == c
+    - **Reflexive: a == a**
+- `Eq` does not define any additional methods.
+    - (It is also a Marker trait.)
+
+---
+### Hash
+
+```rust
+pub trait Hash {
+    fn hash<H: Hasher>(&self, state: &mut H);
+
+    fn hash_slice<H: Hasher>(data: &[Self], state: &mut H)
+        where Self: Sized { ... }
+}
+```
+- A hashable type.
+- The `H` type parameter is an abstract hash state used to compute the hash.
+- If you also implement `Eq`, there is an additional, important property:
+```rust
+k1 == k2 -> hash(k1) == hash(k2)
+```
+
+&sup1;taken from Rustdocs
+
+---
+### Ord vs. PartialOrd
+
+```rust
+pub trait PartialOrd<Rhs: ?Sized = Self>: PartialEq<Rhs> {
+    // Ordering is one of Less, Equal, Greater
+    fn partial_cmp(&self, other: &Rhs) -> Option<Ordering>;
+
+    fn lt(&self, other: &Rhs) -> bool { ... }
+    fn le(&self, other: &Rhs) -> bool { ... }
+    fn gt(&self, other: &Rhs) -> bool { ... }
+    fn ge(&self, other: &Rhs) -> bool { ... }
+}
+```
+- Traits for values that can be compared for a sort-order.
+
+---
+### Ord vs. PartialOrd
+
+- The comparison must satisfy, for all `a`, `b` and `c`:
+  - Antisymmetry: if `a < b` then `!(a > b)`, as well as `a > b` implying `!(a < b)`; and
+  - Transitivity: `a < b` and `b < c` implies `a < c`. The same must hold for both `==` and `>`.
+- `lt`, `le`, `gt`, `ge` have default implementations based on `partial_cmp`.
+
+&sup1;taken from Rustdocs
+
+---
+### Ord vs. PartialOrd
+
+```rust
+pub trait Ord: Eq + PartialOrd<Self> {
+    fn cmp(&self, other: &Self) -> Ordering;
+}
+```
+- Trait for types that form a total order.
+- An order is a total order if it is (for all `a`, `b` and `c`):
+  - total and antisymmetric: exactly one of `a < b`, `a == b` or `a > b` is true; and
+  - transitive, `a < b` and `b < c` implies `a < c`. The same must hold for both `==` and `>`.
+- When this trait is derived, it produces a lexicographic ordering.
+
+&sup1;taken from Rustdocs
 
 ---
 ## Associated Types
@@ -517,7 +507,8 @@ trait Graph<N, E> {
 - Also, any function that takes a `Graph` must also be generic over `N` and `E`!
 
 ```rust
-fn distance<N, E, G: Graph<N,E>>(graph: &G, start: &N, end: &N) -> u32 {/*...*/}
+fn distance<N, E, G: Graph<N,E>>(graph: &G, start: &N, end: &N)
+    -> u32 { /*...*/ }
 ```
 
 ---
@@ -541,7 +532,7 @@ impl Graph for MyGraph {
   type N = MyNode;
   type E = MyEdge;
 
-  fn edges(&self, n: &MyNode) -> Vec<MyEdge> { /*...*/  }
+  fn edges(&self, n: &MyNode) -> Vec<MyEdge> { /*...*/ }
 }
 ```
 
@@ -584,6 +575,26 @@ impl Foo for i32 {
       either the trait or the type.
 
 ---
+### Display
+
+```rust
+pub trait Display {
+    fn fmt(&self, &mut Formatter) -> Result<(), Error>;
+}
+
+impl Display for Point {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Point {}, {})", self.x, self.y)
+    }
+}
+```
+
+- Defines output for the `{}` formatting option.
+- Like Debug, but should be pretty printed.
+    - No standard output and cannot be derived!
+- You can use `write!` macro to implement this without using Formatter.
+
+---
 ## Addendum: Drop
 
 ```rust
@@ -610,7 +621,7 @@ pub trait Drop {
 
 - Example: Rust's reference-counted pointer type `Rc<T>` has special `Drop` rules:
     - If the number of references to an `Rc` pointer is greater than 1, `drop` decrements the ref count.
-    - The `Rc` is only actually deleted when the reference count drops to 0.
+    - The `Rc` is actually deleted when the reference count drops to 0.
 
 ---
 ## Addendum: `Sized` vs. `?Sized`
@@ -663,10 +674,10 @@ fn main() {
 ---
 ## Trait Objects
 
-- It is also possible to have Rust perform _dynamic_ dispatch through the use of *Trait Objects*.
+- It is also possible to have Rust perform _dynamic_ dispatch through the use of *trait objects*.
 - A trait object is something like `Box<Foo>` or `&Foo`
 - The data behind the reference/box must implement the trait `Foo`.
-- The concrete type underlying the trait is erased-- it can't be determined.
+- The concrete type underlying the trait is erased; it can't be determined.
 
 ---
 ## Trait Objects
@@ -678,15 +689,15 @@ impl Foo for char { /*...*/ }
 impl Foo for i32  { /*...*/ }
 
 fn use_foo(f: &Foo) {
-  // No way to figure out if we got a `char` or an `i32`
-  // or anything else!
-  match *f {
-    // What type do we have? I dunno...
-    // error: mismatched types: expected `Foo`, found `_`
-    198 => println!("CIS 198!"),
-    'c' => println!("See?"),
-    _ => println!("Something else...),
-  }
+    // No way to figure out if we got a `char` or an `i32`
+    // or anything else!
+    match *f {
+        // What type do we have? I dunno...
+        // error: mismatched types: expected `Foo`, found `_`
+        198 => println!("CIS 198!"),
+        'c' => println!("See?"),
+        _ => println!("Something else..."),
+    }
 }
 
 use_foo(&'c'); // These coerce into `&Foo`s
@@ -711,14 +722,13 @@ use_foo(&198i32);
     - Its methods must not have any type parameters
     - Its methods do not require that `Self: Sized`
 
-*taken from the Rustdocs
+&sup1;taken from Rustdocs
 
 ---
 ### Addendum: Generics With Lifetime Bounds
 
 - Some generics may have lifetime bounds like `T: 'a`.
-- Semantically, this reads as "Type `T` must live at least as long as the
-    lifetime `'a`.
+- Semantically, this reads as "Type `T` must live at least as long as the lifetime `'a`."
 - Why is this useful?
 
 ---
@@ -728,4 +738,4 @@ use_foo(&198i32);
 - If you iterate over this collection, you should be able to guarantee that
     everything in it lives as long as the collection.
     - If you couldn't, Rust wouldn't be safe!
-- stdlib `Iter` structs usually contain these sorts of constraints.
+- `std::Iterator` structs usually contain these sorts of constraints.

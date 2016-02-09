@@ -163,13 +163,14 @@ x = Foo { a: 2, b: 2, e: 2, .. x };
 ### Tuple Structs
 
 - Variant on structs that has a name, but no named fields.
-- You can't access them on a per-field level.
+- Have numbered field accessors, like tuples (e.g. `x.0`, `x.1`, etc).
 - Can also `match` these.
 
 ```rust
 struct Color(i32, i32, i32);
 
-let c = Color(0, 255, 255);
+let mut c = Color(0, 255, 255);
+c.0 = 255;
 match c {
     Color(r, g, b) => println!("({}, {}, {})", r, g, b)
 }
@@ -266,7 +267,8 @@ enum List {
 ## Recursive Types
 
 - Such a definition would have infinite size at compile time!
-- Structs & enums exist on the stack by default, so they may not be recursive.
+- Structs & enums are stored inline by default, so they may not be recursive.
+    - i.e. elements are not stored by reference, unless explicitly specified.
 - The compiler tells us how to fix this, but what's a `box`?
 
 ```rust
@@ -471,7 +473,7 @@ if let Resultish::Err(s) = result {
 ### `while-let` Statement
 
 - There's also a similar `while-let` statement, which works like an `if-let`,
-   but iterates until its condition evaluates to false
+   but iterates until the condition fails to match.
 
 ```rust
 while let Resultish::Err(s) = make_request() {
@@ -493,7 +495,7 @@ enum B { None, Some(i32) }
 
 fn foo(x: A) {
     match x {
-        a @ A::None              => println!("x is A::{:?}", a),
+        a @ A::None              => println!("a is A::{:?}", a),
         ref a @ A::Some(B::None) => println!("a is A::{:?}", *a),
         A::Some(b @ B::Some(_))  => println!("b is B::{:?}", b),
     }
@@ -531,21 +533,23 @@ foo(A::Some(B::Some(5))); // ==> b is B::Some(5)
 
 - Ordinarily, references have an implicit lifetime that we don't need to care
     about:
-    ```rust
-    fn foo(x: &i32) {
-        // ...
-    }
-    ```
+```rust
+fn foo(x: &i32) {
+    // ...
+}
+```
 - However, we can explicitly provide one instead:
-    ```rust
-    fn bar<'a>(x: &'a i32) {
-        // ...
-    }
-    ```
-- `'a`, pronounced "tick-a" or "the lifetime *a*" is a *named* lifetime.
-    - `<'a>` declares all lifetimes used in `bar` (looks like a generic).
-    - `x: &'a i32` constrains `'a` to the lifetime of `x`.
-        - **Discuss:** what is the constraint? `'a` [`≥` or `=` or `≤`] lifetime of `x`?
+```rust
+fn bar<'a>(x: &'a i32) {
+    // ...
+}
+```
+
+- `'a`, pronounced "tick-a" or "the lifetime *a*" is a *named* lifetime
+  parameter.
+    - `<'a>` declares generic parameters, including lifetime parameters.
+    - The type `&'a i32` is a reference to an `i32` that lives at least as
+      long as the lifetime `'a`.
 
 ???
 
@@ -555,45 +559,44 @@ foo(A::Some(B::Some(5))); // ==> b is B::Some(5)
 ## Lifetimes
 
 - The compiler is smart enough not to need `'a` above, but this isn't always the
-    case
+  case.
 - Scenarios that involve multiple references or returning references often
-    require explicit lifetimes.
+  require explicit lifetimes.
   - Speaking of which...
 
 ---
-## Lifetimes - Multiple Lifetimes
-
-- Functions that use multiple references may use the same
-  lifetime for all references.
-- But sometimes it's useful to give references different lifetimes.
-- In `x_or_y`, input/output references all have the same lifetime.
-- In `p_or_q`, `p` and the output reference have the same lifetime.
-  - `q` has a separate lifetime with no constrained relationship to `p`.
+## Multiple Lifetime Parameters
 
 ```rust
-fn x_or_y<'a>(x: &'a str, y: &'a str) -> &'a str {
-  // ...
-}
-
-fn p_or_q<'a, 'b>(p: &'a str, q: &'b str) -> &'a str {
-  // ...
-}
+fn borrow_x_or_y<'a>(x: &'a str, y: &'a str) -> &'a str;
 ```
+
+- In `borrow_x_or_y`, all input/output references all have the same lifetime.
+    - `x` and `y` are borrowed (the reference is alive) as long as the returned
+      reference exists.
+
+```rust
+fn borrow_p<'a, 'b>(p: &'a str, q: &'b str) -> &'a str;
+```
+
+- In `borrow_p`, the output reference has the same lifetime as `p`.
+    - `q` has a separate lifetime with no constrained relationship to `p`.
+    - `p` is borrowed as long as the returned reference exists.
 
 ---
 ## Lifetimes
 
 - Okay, great, but what does this all mean?
-  - If a reference `R` has a lifetime `'a`, it is _guaranteed_ that it will not
-      outlive the owner of its underlying data (the value at `*R`)
-  - If a reference `R` has a lifetime of `'a`, anything else with the lifetime
-    `'a` is _guaranteed_ to live as long `R`.
+    - If a reference `R` has a lifetime `'a`, it is _guaranteed_ that it will not
+        outlive the owner of its underlying data (the value at `*R`)
+    - If a reference `R` has a lifetime of `'a`, anything else with the lifetime
+      `'a` is _guaranteed_ to live as long `R`.
 - This will probably become more clear the more you use lifetimes yourself.
 
 ---
 ## Lifetimes - `struct`s
 
-- Lifetimes can also be used to annotate `struct` members.
+- Structs (and struct members) can have lifetime parameters.
 
 ```rust
 struct Pizza(Vec<i32>);
@@ -623,7 +626,7 @@ let s2;
 ## Lifetimes - `struct`s
 
 - Lifetimes can be constrained to "outlive" others.
-    - Looks like a type constraint.
+    - Same syntax as type constraint: `<'b: 'a>`.
 
 ```rust
 struct Pizza(Vec<i32>);
@@ -646,11 +649,12 @@ let p = Pizza(vec![1, 2, 3, 4]);
 ```
 
 ---
-## Lifetimes - 'static
+## Lifetimes - `'static`
 
 - There is one reserved, special lifetime, named `'static`.
-- `'static` indicates to the compiler that something has the lifetime of the
-    entire program
+- `'static` means that a reference may be kept (and will be valid) for the
+  lifetime of the entire program.
+    - i.e. the data referred to will never go out of scope.
 - All `&str` literals have the `'static` lifetime.
 
 ```rust
