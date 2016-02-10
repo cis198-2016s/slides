@@ -15,6 +15,11 @@ println!("{}", square(3));
 // => 6
 ```
 
+???
+
+Inline function definitions which can be bound to variables. The function block
+is executed when the closure is called.
+
 ---
 ## Closure Syntax
 
@@ -34,6 +39,12 @@ let foo_v4 = |x: i32| if x == 0 { 0 } else { 1 };
 - Specify arguments in `||`, followed by the return expression.
     - The return expression can be a series of expressions in `{}`.
 
+???
+
+- `let` instead of `fn`
+- Arguments in pipes
+- Braces are optional
+
 ---
 ## Type Inference
 
@@ -51,7 +62,7 @@ let square_v4 = |x|        { x * x }; // ← type information!
 
 ???
 
-Function types are useful for type inference and self-documentation. For
+Having concrete function types for type inference and self-documentation. For
 closures, ease of use is more important.
 
 ---
@@ -111,54 +122,6 @@ let mut magic_num = 5;
 let more_magic = &mut magic_num; // Ok!
 println!("magic_num: {}", more_magic);
 ```
-
----
-## Closure Ownership
-
-- Sometimes, a closure _must_ take ownership of an environment variable to be
-  valid. This happens automatically:
-
-    - If the value is moved into the return value.
-        ```rust
-        let lottery_numbers = vec![11, 39, 51, 57, 75];
-        {
-            let ticket = || { lottery_numbers };
-        }
-        // The braces do no good here.
-        println!("{:?}", lottery_numbers); // use of moved value
-        ```
-
-    - Or anywhere else.
-        ```rust
-        let numbers = vec![2, 5, 32768];
-        let alphabet_soup = || { numbers; vec!['a', 'b'] };
-                              // ^ throw away unneeded ingredients
-        println!("{:?}", numbers); // use of moved value
-        ```
-
-- If the type is not `Copy`, the original variable is invalidated.
-
----
-## Closure Ownership
-
-- A closure can take some values by reference and others by moving ownership.
-- Generally determined by behavior.
-
----
-## Closure Ownership
-
-```rust
-let numbers = vec![2, 5, 32768];
-let alphabet_soup = || { numbers; vec!['a', 'b'] };
-                      // ^ throw away unneeded ingredients
-alphabet_soup();
-alphabet_soup(); // use of moved value
-```
-
-- A closure which owns data that is not `Copy` is itself not `Copy`.
-- Normally calling a closure creates and runs a `Copy` of it.
-- But! If the closure cannot be Copied, then it can only be called once.
-
 ---
 ## Move Closures
 
@@ -170,9 +133,7 @@ alphabet_soup(); // use of moved value
 
 ```rust
 let mut magic_num = 5;
-{
-    let own_the_magic = move |x: i32| x + magic_num;
-}
+let own_the_magic = move |x: i32| x + magic_num;
 let more_magic = &mut magic_num;
 ```
 
@@ -193,6 +154,63 @@ fn make_closure(x: i32) -> Box<Fn(i32) -> i32> {
 let f = make_closure(2);
 println!("{}", f(3));
 ```
+
+---
+## Closure Ownership
+
+- Sometimes, a closure _must_ take ownership of an environment variable to be
+  valid. This happens automatically (without `move`):
+
+    - If the value is moved into the return value.
+        ```rust
+        let lottery_numbers = vec![11, 39, 51, 57, 75];
+        {
+            let ticket = || { lottery_numbers };
+        }
+        // The braces do no good here.
+        println!("{:?}", lottery_numbers); // use of moved value
+        ```
+
+    - Or moved anywhere else.
+        ```rust
+        let numbers = vec![2, 5, 32768];
+        let alphabet_soup = || { numbers; vec!['a', 'b'] };
+                              // ^ throw away unneeded ingredients
+        println!("{:?}", numbers); // use of moved value
+        ```
+
+- If the type is not `Copy`, the original variable is invalidated.
+
+---
+## Closure Ownership
+
+```rust
+let numbers = vec![2, 5, 32768];
+let alphabet_soup = || { numbers; vec!['a', 'b'] };
+                      // ^ throw away unneeded ingredients
+alphabet_soup();
+alphabet_soup(); // use of moved value
+```
+
+- Closures which own data and then move it can only be called once.
+    - `move` behavior is implicit because `alphabet_soup` must own `numbers` to
+      move it.
+
+```rust
+let numbers = vec![2, 5, 32768];
+let alphabet_soup = move || { println!("{:?}", numbers) };
+alphabet_soup();
+alphabet_soup(); // Delicious soup
+```
+
+- Closures which own data but don't move it can be called multiple times.
+
+---
+## Closure Ownership
+
+- The same closure can take some values by reference and others by moving
+  ownership, determined by behavior.
+
 
 ---
 ## Closure Traits
@@ -227,6 +245,7 @@ pub trait FnOnce<Args> {
     - `FnMut` borrows `self` mutably as `&mut self`
     - `FnOnce` takes ownership of `self`
 - `Fn` is a superset of `FnMut`, which is a superset of `FnOnce`.
+- Functions also implement these traits.
 
 "The `|| {}` syntax for closures is sugar for these three traits. Rust will
 generate a struct for the environment, impl the appropriate trait, and then use
@@ -246,7 +265,7 @@ fn map<B, F>(self, f: F) -> Map<Self, F>
 ```
 
 - `map` takes an argument `f: F`, where `F` is an `FnMut` trait object.
-- You can pass regular function in as well, since the traits line up!
+- You can pass regular functions in, since the traits line up!
 
 &sup1;A function which takes `Container<A>` and a function `f: A -> B` and
 returns `Container<B>` by calling `f` on elements in the container.
@@ -320,7 +339,7 @@ borrows `local`, which is owned by the current function [E0373]
 ```rust
 fn box_up_your_closure_and_move_out() -> Box<Fn(i32) -> i32> {
     let local = 2;
-    Box::new(move |x| x * 2)
+    Box::new(move |x| x * local)
 }
 ```
 
