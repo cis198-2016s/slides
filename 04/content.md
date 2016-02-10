@@ -261,18 +261,18 @@ it."&sup1;
 ## Closures As Arguments
 
 - Passing closures works like function pointers.
-- Let's take a look at Rust's definition for `map`&sup1;.
+- Let's take a (simplified) look at Rust's definition for `map`&sup1;.
 
 ```rust
-fn map<B, F>(self, f: F) -> Map<Self, F>
-    where F: FnMut(Self::Item) -> B;
+// self = Vec<A>
+fn map<A, B, F>(self, f: F) -> Vec<B>
+    where F: FnMut(A) -> B;
 ```
 
 - `map` takes an argument `f: F`, where `F` is an `FnMut` trait object.
 - You can pass regular functions in, since the traits line up!
 
-&sup1;A function which takes `Container<A>` and a function `f: A -> B` and
-returns `Container<B>` by calling `f` on elements in the container.
+&sup1;Real `map` coming in next lecture.
 
 ---
 ## Returning Closures
