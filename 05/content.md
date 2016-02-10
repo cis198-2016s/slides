@@ -3,6 +3,330 @@
 ### CIS 198 Lecture 5
 
 ---
+## String Types
+
+- Rust strings are complicated.
+    - Sequences of Unicode values encoded in UTF-8.
+    - Not null-terminated and may contain null bytes.
+- There are two kinds: `&str` and `String`.
+
+---
+## `&str`
+
+- `&str` is a string slice (like array slice).
+- `"string literals"` are of type `&str`. *
+- `&str`s are statically-allocated & fixed-size.
+- May not be indexed like `some_str[i]`, as each character may be multiple bytes
+    due to Unicode.
+    - However, may be iterated with `chars()` or indexed by bytes.
+- As with all Rust references, they have an associated lifetime.
+
+*More specifically, they have the type `&'static str`.
+
+---
+## `String`
+
+- `String`s are heap-allocated, and are dynamically growable.
+    - Like `Vec`s in that regard.
+    - In fact, `String` is just a wrapper over `Vec<u8>`!
+- Just like `&str`, also cannot be indexed.
+- May be created with `String::new()`, `"foo".to_string()`, or
+    `String::from("bar")`.
+- May be coerced into an `&str` by taking a reference to the `String`.
+
+---
+## String Conversion
+
+- A `String` and an `&str` may be concatenated with `+`:
+
+```rust
+let course_code = "CIS".to_string();
+let course_name = course_code + " 198";
+```
+
+- Concatenating two `String`s requires coercing one to `&str`:
+
+```rust
+let course_code = "CIS".to_string();
+let course_num = " 198".to_string();
+let course_name = course_code + &course_num;
+```
+
+---
+## `String` & `&str`: Why?
+
+// TODO
+
+---
+## Option
+
+```rust
+enum Option<T> {
+    None,
+    Some(T),
+}
+```
+
+- Provides a concrete type to the concept of _nothingness_.
+- Use this instead of returning `NaN`, `-1`, `null`, etc. from a function.
+- No restrictions on what `T` may be.
+
+---
+### Option - `unwrap`
+
+- The pattern where None values are ignored is pretty common:
+
+```rust
+// fn foo() -> Option<i32>
+
+match foo() {
+    None => None,
+    Some(value) => {
+        bar(value)
+        // ...
+    },
+}
+```
+
+---
+### Option - `unwrap`
+
+- What if we extracted the pattern match into a separate function to simplify it?
+
+```rust
+fn unwrap<T>(&self) -> T { // 🎁!
+    match *self {
+        None => panic!("Called `Option::unwrap()` on a `None` value"),
+        Some(value) => value,
+    }
+}
+
+let x = foo().unwrap();
+let y = bar(x);
+// ...
+```
+
+- Unfortunately, `panic!`ing on `None` values makes this abstraction inflexible.
+- Slightly better: use `expect(&self, msg: String) -> T` instead.
+    - `panic!`s with a custom error message if a `None` value is found.
+
+---
+### Option - `map`
+
+- Let's make the pattern a little more flexible.
+- We'll take an `Option`, change the value if it exists, and return an `Option`.
+    - Instead of failing on `None`, we'll keep it as `None`.
+
+```rust
+fn map<U, F>(self, f: F) -> Option<U>
+        where F: FnOnce(T) -> U {
+    None => None,
+    Some(value) => Some(f(value))
+}
+
+// fn foo() -> Option<i32>
+
+let x = foo().map(|x| bar(x));
+```
+
+---
+### `and_then`
+
+- There's a similar function `and_then`:
+
+```rust
+fn and_then<U, F>(self, f: F) -> Option<U>
+    where F: FnOnce(T) -> Option<U>
+
+// fn foo() -> Option<i32>
+
+let x = foo().map(|x| Some(bar(x)));
+```
+
+---
+### `unwrap_or`
+
+- If we don't want to operate on an `Option` value, but it has a sensible
+  default value, there's `unwrap_or`.
+
+```rust
+impl<T> Option<T> {
+    fn unwrap_or<T>(&self, default: T) -> T {
+      match *self {
+          None => default,
+          Some(value) => value,
+      }
+    }
+}
+```
+
+---
+### `unwrap_or_else`
+
+- If you don't have a static default value, but you can write a closure to
+  compute one:
+
+```rust
+impl<T> Option<T> {
+    fn unwrap_or<T>(&self, f: F) -> T
+            where F: FnOnce() -> T {
+        match *self {
+            None => f(),
+            Some(value) => value,
+        }
+    }
+}
+```
+
+---
+### Other
+
+- Some other methods provided by Option:
+- `fn is_some(&self) -> bool`
+- `fn is_none(&self) -> bool`
+- `fn map_or(self, default: T) -> T`
+- `fn map_or_else(self, default: T) -> T`
+    - Similar to `map`, but with a default value or closure.
+- `fn ok_or(self, err: E) -> Result<T, E>`
+- `fn ok_or_else(self, default: F) -> Result<T, E> where F: FnOnce() -> E`
+    - Similar to `unwrap_or` but returns a `Result` with a default `Err` or closure.
+- `fn and<U>(self, optb: Option<U>) -> Option<U>`
+    - Returns `None` if `self` is `None`, else `optb`
+- `fn or(self, optb: Option<T>) -> Option<T>`
+    - returns `self` if `Some(_)`, else `optb`
+
+---
+## Result<T, E>
+
+```rust
+enum Result<T, E> {
+    Ok(T),
+    Err(E)
+}
+```
+
+- `Result` is like `Option`, but it also encodes an `Err` type.
+- Also defines `unwrap` and `expect` methods.
+- Can be converted to an `Option` using `ok()` or `err()`.
+- Can be operated on in almost all the same ways as `Option`
+    - `and`, `or`, `unwrap`, etc.
+
+---
+## Result<T, E>
+
+- Unlike `Option`, a `Result` should _always_ be consumed.
+    - If a function returns a `Result`, you should be sure to `unwrap`/`expect`
+        it, or otherwise handle the `Ok`/`Err` in a meaningful way.
+    - The compiler warns you if you don't.
+    - Not using a result could result (ha) in your program unintentionally
+        crashing!
+
+---
+### Custom Result Alias
+
+- A common pattern is to define a type alias for Result which uses your libary's
+  custom Error type.
+
+```rust
+use std::io::Error;
+
+type Result<T> = Result<T, Error>;
+```
+
+- Typically a convenience alias; other than fixing `E = Error`, this is
+  identical to `std::Result`.
+- Users of this type should namespace it:
+
+```rust
+use std::io;
+
+fn foo() -> io::Result {
+    // ...
+}
+```
+
+---
+## Result - `try!`
+
+- `try!` is a macro, which means it generates Rust's code at compile-time.
+    - This means it can actually expand to pattern matching syntax patterns.
+- The code that `try!` generates looks roughly like this:
+
+```rust
+macro_rules! try {
+    ($e:expr) => (match $e {
+        Ok(val) => val,
+        Err(err) => return Err(err),
+    });
+}
+```
+
+---
+## `try!`
+
+- `try!` is a concise way to implement early returns when encountering errors.
+
+```rust
+let socket1: TcpStream = try!(TcpStream::connect("127.0.0.1:8000"));
+
+// Is equivalent to...
+let maybe_socket: Result<TcpStream> = TcpStream::connect("127.0.0.1:8000");
+let socket2: TcpStream =
+    match maybe_socket {
+        Ok(val) => val,
+        Err(err) => { return Err(err) }
+    };
+```
+
+- This is actually a _slight_ simplification.
+    - Actual `try!` has some associated trait logic.
+
+---
+## [Collections](https://doc.rust-lang.org/stable/std/collections/)
+
+<img src="img/collector.jpg" style="width: 400px;"/>
+
+---
+## `Vec<T>`
+
+- Nothing new here.
+
+---
+## `VecDeque<T>`
+
+- An efficient double-ended `Vec`.
+- Implemented as a ring buffer.
+
+---
+## `LinkedList<T>`
+
+- A doubly-linked list.
+- Even if you want this, you probably don't want this.
+
+---
+## `HashMap<K,V>`/`BTreeMap<K,V>`
+
+- Map/dictionary types
+- `HashMap<K, V>` is useful when you want a basic map
+    - Requires that `K` is `Hash + Eq`
+    - Uses "linear probing with Robin Hood bucket stealing"
+- `BTreeMap<K, V>` is useful when you want a sorted map (with slightly worse performance)
+    - Requires that `K` is `Ord`
+    - Uses a B-tree under the hood (surprise surprise)
+
+---
+## `HashSet<T>`/`BTreeSet<T>`
+
+- Sets for storing unique values.
+- `HashSet<T>` and `BTreeSet<T>` are literally struct wrappers for `HashMap<T, ()>` and `BTreeMap<T, ()>`.
+- Same tradeoffs and requirements as their Map variants.
+
+---
+## `BinaryHeap<T>`
+
+- A priority queue implemented with a binary max-heap.
+
+---
 ## Iterators
 
 - Seen in homework 3!
@@ -18,7 +342,7 @@
 - Consumers operate on an iterator & return one or more values.
 - There are like a billion of these, so let's look at a few.
 
-<img src="img/consume.png" style="width: 400px;"/>
+<img src="img/consume.png" style="width: 350px;"/>
 
 ###### Photo credit: [Hal Hefner](http://halhefner.com/)
 
@@ -193,187 +517,3 @@ for i in (0..).take(5) {
 ## Alternative Iterators
 // Drain etc.
 
----
-## String Types
-
-- Rust strings are complicated.
-    - Sequences of Unicode values encoded in UTF-8.
-    - Not null-terminated and may contain null bytes.
-- There are two kinds: `&str` and `String`.
-
----
-## `&str`
-
-- `&str` is a string slice (like array slice).
-- `"string literals"` are of type `&str`. *
-- `&str`s are statically-allocated & fixed-size.
-- May not be indexed like `some_str[i]`, as each character may be multiple bytes
-    due to Unicode.
-    - However, may be iterated with `chars()` or indexed by bytes.
-- As with all Rust references, they have an associated lifetime.
-
-*More specifically, they have the type `&'static str`.
-
----
-## `String`
-
-- `String`s are heap-allocated, and are dynamically growable.
-    - Like `Vec`s in that regard.
-    - In fact, `String` is just a wrapper over `Vec<u8>`!
-- Just like `&str`, also cannot be indexed.
-- May be created with `String::new()`, `"foo".to_string()`, or
-    `String::from("bar")`.
-- May be coerced into an `&str` by taking a reference to the `String`.
-
----
-## String Conversion
-
-- A `String` and an `&str` may be concatenated with `+`:
-
-```rust
-let course_code = "CIS".to_string();
-let course_name = course_code + " 198";
-```
-
-- Concatenating two `String`s requires coercing one to `&str`:
-
-```rust
-let course_code = "CIS".to_string();
-let course_num = " 198".to_string();
-let course_name = course_code + &course_num;
-```
-
----
-## `String` & `&str`: Why?
-
-// TODO
-
----
-## Option<T>
-
-```rust
-enum Option<T> {
-    None,
-    Some(T),
-}
-```
-
-- Provides a concrete type to the concept of nothingness.
-- Use this instead of returning `NaN`, `-1`, `null`, etc. from a function.
-- No restrictions on what `T` may be.
-
----
-## Option<T>
-
-```rust
-fn sqrt(x: f64) -> Option<f64> {
-    if x < 0 {
-        None
-    } else {
-        Some(std::f64::sqrt(x))
-    }
-}
-
-let x = 100.0;
-match sqrt(x) {
-    None => println!("Invalid sqrt."),
-    Some(root) => println!("sqrt: {}.", root),
-}
-```
-
----
-## Option<T>
-
-- Often, you'll interact with `Option` by destructuring it using
-    `if-let`/`match`.
-- `Option<T>`s may be converted to `T`s using the `unwrap()` method 🎁.
-    - However, this may `panic!` at runtime, so don't do this lightly!
-    - Better, though still dangerous: `expect(message)` unwraps or provides a helpful
-        panic message.
-- `Option`s can also be unwrapped safely using `unwrap_or`/`unwrap_or_else`,
-    which allow you to provide a default value in case of failure.
-- Any `Option` can be swapped out for `None` using `take`.
-- Can be combined with other `Option`s using `and` and `or`.
-    - Logically, `Some(_)` works like `true`, `None` like `false`.
-
----
-## Result<T, E>
-
-```rust
-enum Result<T, E> {
-    Ok(T),
-    Err(E)
-}
-```
-
-- `Result` is like `Option`, but it also encodes an `Err` type.
-- The type contained by `Ok` and `Err` do not have to be the same!
-- Rust's stdlib often defines aliases over `Result` for error handling:
-
-```rust
-// Actually returns a `Result<usize, std::io::Error>`
-fn std::io::read_line(&self, buf: &mut String)
-    -> std::io::Result<usize>
-```
-
----
-## Result<T, E>
-
-- Also often interacted with via `if-let`!
-- Also define `unwrap` and `expect` methods.
-- Can be converted to an `Option` using `ok()` or `err()`.
-- Can be operated on in almost all the same ways as `Option`
-    - `and`, `or`, `unwrap`, etc.
-- Unlike `Option`, a `Result` should _always_ be consumed.
-    - If a function returns a `Result`, you should be sure to `unwrap`/`expect`
-        it, or otherwise handle the `Ok`/`Err` in a meaningful way.
-    - The compiler warns you if you don't.
-    - Not using a result could result (ha) in your program unintentionally
-        crashing!
-
----
-## [Collections](https://doc.rust-lang.org/stable/std/collections/)
-
-<img src="img/collector.jpg" style="width: 400px;"/>
-
----
-## `Vec<T>`
-
-- Nothing new here.
-
----
-## `VecDeque<T>`
-
-- An efficient double-ended `Vec`.
-- Implemented as a ring buffer.
-
----
-## `LinkedList<T>`
-
-- A doubly-linked list.
-- Even if you want this, you probably don't want this.
-
----
-## `HashMap<K,V>`/`BTreeMap<K,V>`
-
-- Map/dictionary types
-- `HashMap<K, V>` is useful when you want a basic map
-    - Requires that `K` is `Hash + Eq`
-    - Uses "linear probing with Robin Hood bucket stealing"
-- `BTreeMap<K, V>` is useful when you want a sorted map (with slightly worse performance)
-    - Requires that `K` is `Ord`
-    - Uses a B-tree under the hood (surprise surprise)
-
----
-## `HashSet<T>`/`BTreeSet<T>`
-
-- Sets for storing unique values.
-- `HashSet<T>` and `BTreeSet<T>` are literally struct wrappers for `HashMap<T, ()>` and `BTreeMap<T, ()>`.
-- Same tradeoffs and requirements as their Map variants.
-
----
-## `BinaryHeap<T>`
-
-- A priority queue implemented with a binary max-heap.
-
----
