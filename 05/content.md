@@ -14,28 +14,42 @@
 ## `&str`
 
 - `&str` is a string slice (like array slice).
-- `"string literals"` are of type `&str`. *
+- `"string literals"` are of type `&str`.&sup1;
 - `&str`s are statically-allocated & fixed-size.
-- May not be indexed like `some_str[i]`, as each character may be multiple bytes
+- May not be indexed with `some_str[i]`, as each character may be multiple bytes
     due to Unicode.
-    - However, may be iterated with `chars()`
+- Instead, iterate with `chars()`:
+    - `for c in "1234".chars() { ... }`
 - As with all Rust references, they have an associated lifetime.
 
-*More specifically, they have the type `&'static str`.
+&sup1;More specifically, they have the type `&'static str`.
 
 ---
 ## `String`
 
 - `String`s are heap-allocated, and are dynamically growable.
     - Like `Vec`s in that regard.
-    - In fact, `String` is just a wrapper over `Vec<u8>`!
-- Just like `&str`, also cannot be indexed.
-- May be created with `String::new()`, `"foo".to_string()`, or
-    `String::from("bar")`.
+    - In fact, `String` is just a wraper over `Vec<u8>`!
+- Cannot be indexed either.
+    - You can select characters with `s.nth(i)`.
 - May be coerced into an `&str` by taking a reference to the `String`.
 
+```rust
+let s0: String = String::new();
+let s1: String = "foo".to_string();
+let s2: String = String::from("bar");
+let and_s: &str = &s0;
+```
+
 ---
-## String Conversion
+## `str`
+
+- If `&str` is the second string type, what exactly is `str`?
+- An `Unsized` type, meaning the size is unknown at compile time.
+    - You can't have bindings to `str`s directly, only references.
+
+---
+## String Concatenation
 
 - A `String` and an `&str` may be concatenated with `+`:
 
@@ -47,15 +61,22 @@ let course_name = course_code + " 198";
 - Concatenating two `String`s requires coercing one to `&str`:
 
 ```rust
-let course_code = "CIS".to_string();
-let course_num = " 198".to_string();
+let course_code = String::from("CIS");
+let course_num  = String::from(" 198");
 let course_name = course_code + &course_num;
+```
+
+- You can't concatenate two `&str`s.
+
+```rust
+let course_name = "CIS " + "198"; // Err!
 ```
 
 ---
 ## String Conversion
 
-- However, converting a `String` into an `&str` requires a dereference:
+- However, *actually* converting a `String` into an `&str` requires a
+  dereference:
 
 ```rust
 use std::net::TcpStream;
@@ -65,23 +86,40 @@ let addr = "192.168.0.1:3000".to_string();
 TcpStream::connect(&*addr);
 ```
 
+- This doesn't automatically coerce because `TcpStream` doesn't take an argument
+  of type `&str`, but a Trait bounded type:
+    - `TcpStream::connect<A: ToSocketAddr>(addr: A);`
+
+---
+### Aside: `Deref` Coercions
+
+- Rust's automatic dereferencing behavior works *between* types as well.
+
+```rust
+pub trait Deref {
+    type Target: ?Sized;
+    fn deref(&self) -> &Self::Target;
+}
+```
+- Since `String` implements `Deref<Target=str>`, so values of `&String` will
+  automatically be dereferenced to `&str` when possible.
+
 ---
 ## `String` & `&str`: Why?
 
-- Like slices for `Vec`s, `&str`s are useful for passing a view into a `String`
+- Like slices for `Vec`s, `&str`s are useful for passing a view into a `String`.
 - It's expensive to copy a `String` around, and lending an entire `String` out
     may be overkill.
 - `&str` therefore allows you to pass portions of a `String` around, saving
     memory.
 
 ---
-## `String` & `&str`
-
+## `String` & `&str`: Why?
 - Generally, if you want to do more than use string literals, use `String`.
-- You can then lend out `&str`s easily.
+    - You can then lend out `&str`s easily.
 
 ---
-## Option
+## `Option<T>`
 
 ```rust
 enum Option<T> {
@@ -95,7 +133,7 @@ enum Option<T> {
 - No restrictions on what `T` may be.
 
 ---
-### Option - `unwrap`
+### `Option::unwrap()`
 
 - The pattern where None values are ignored is pretty common:
 
@@ -112,7 +150,7 @@ match foo() {
 ```
 
 ---
-### Option - `unwrap`
+### `Option::unwrap()`
 
 - What if we extracted the pattern match into a separate function to simplify it?
 
@@ -130,13 +168,13 @@ let y = bar(x);
 ```
 
 - Unfortunately, `panic!`ing on `None` values makes this abstraction inflexible.
-- Slightly better: use `expect(&self, msg: String) -> T` instead.
+- Better: use `expect(&self, msg: String) -> T` instead.
     - `panic!`s with a custom error message if a `None` value is found.
 
 ---
-### Option - `map`
+### `Option::map()`
 
-- Let's make the pattern a little more flexible.
+- Let's make the pattern a little better.
 - We'll take an `Option`, change the value if it exists, and return an `Option`.
     - Instead of failing on `None`, we'll keep it as `None`.
 
@@ -155,14 +193,13 @@ let x = foo().map(|x| bar(x));
 ```
 
 ---
-### `and_then`
+### `Option::and_then()`
 
 - There's a similar function `and_then`:
 
 ```rust
 fn and_then<U, F>(self, f: F) -> Option<U>
-    where F: FnOnce(T) -> Option<U> {
-
+      where F: FnOnce(T) -> Option<U> {
     match self {
         Some(x) => f(x),
         None => None,
@@ -174,8 +211,10 @@ fn and_then<U, F>(self, f: F) -> Option<U>
 let x = foo().and_then(|x| Some(bar(x)));
 ```
 
+- Notice the type of `f` changes from `T -> U` to `T -> Some(U)`.
+
 ---
-### `unwrap_or`
+### `Option::unwrap_or()`
 
 - If we don't want to operate on an `Option` value, but it has a sensible
   default value, there's `unwrap_or`.
@@ -192,7 +231,7 @@ impl<T> Option<T> {
 ```
 
 ---
-### `unwrap_or_else`
+### `Option::unwrap_or_else()`
 
 - If you don't have a static default value, but you can write a closure to
   compute one:
@@ -241,8 +280,9 @@ enum Result<T, E> {
 ```
 
 - `Result` is like `Option`, but it also encodes an `Err` type.
-- Also defines `unwrap` and `expect` methods.
+- Also defines `unwrap()` and `expect()` methods.
 - Can be converted to an `Option` using `ok()` or `err()`.
+    - Takes either `Ok` or `Err` and discards the other as `None`.
 - Can be operated on in almost all the same ways as `Option`
     - `and`, `or`, `unwrap`, etc.
 
@@ -315,7 +355,7 @@ let socket2: TcpStream =
 ```
 
 - This is actually a _slight_ simplification.
-    - Actual `try!` has some associated trait logic.
+    - Actual `try!` has some associated trait ~~magic~~logic.
 
 ---
 ## [Collections](https://doc.rust-lang.org/stable/std/collections/)
@@ -338,17 +378,18 @@ let socket2: TcpStream =
 
 - A doubly-linked list.
 - Even if you want this, you probably don't want this.
+    - Seriously, did you even read *any* of Gankro's book?
 
 ---
 ## `HashMap<K,V>`/`BTreeMap<K,V>`
 
-- Map/dictionary types
-- `HashMap<K, V>` is useful when you want a basic map
-    - Requires that `K` is `Hash + Eq`
-    - Uses "linear probing with Robin Hood bucket stealing"
-- `BTreeMap<K, V>` is useful when you want a sorted map (with slightly worse performance)
-    - Requires that `K` is `Ord`
-    - Uses a B-tree under the hood (surprise surprise)
+- Map/dictionary types.
+- `HashMap<K, V>` is useful when you want a basic map.
+    - Requires that `K: Hash + Eq`.
+    - Uses "linear probing with Robin Hood bucket stealing".
+- `BTreeMap<K, V>` is a sorted map (with slightly worse performance).
+    - Requires that `K: Ord`.
+    - Uses a B-tree under the hood (surprise surprise).
 
 ---
 ## `HashSet<T>`/`BTreeSet<T>`
@@ -383,11 +424,12 @@ let socket2: TcpStream =
     - `iter_mut()` for a mutable borrow iterator.
     - `into_iter()` for an ownership-passing iterator.
 - Nothing new here...
+- TODO?
 
 ---
 ## Iterator Consumers
 
-- Consumers operate on an iterator & return one or more values.
+- Consumers operate on an iterator and return one or more values.
 - There are like a billion of these, so let's look at a few.
 
 <img src="img/consume.png" style="width: 350px;"/>
@@ -518,15 +560,15 @@ fn enumerate(self) -> Enumerate<Self>;
 - Want to iterate over a collection by item and index?
 - Use `enumerate`!
 - This iterator returns `(index, value)` pairs.
-    - `index` is the `usize` index of `value` in the collection
+    - `index` is the `usize` index of `value` in the collection.
 
 ---
 ## Iterator Adapters
 
-- Adapters operate on an iterator & return a new iterator.
+- Adapters operate on an iterator and return a new iterator.
 - Adapters are often _lazy_  -- they don't evaluate unless you force them to!
 - You must explicitly call some iterator consumer on an adapter or use it in a
-    `for` loop etc. to cause it to evaluate
+    `for` loop to cause it to evaluate.
 
 ---
 ## `map`
@@ -541,7 +583,7 @@ let twice_vs: Vec<_> = vs.iter().map(|x| x * 2).collect();
 
 - `map` takes a function and creates an iterator that calls the function on each
     element
-- Abstractly, it takes a `Collection<A>` and a function of type `A -> B` and
+- Abstractly, it takes a `Collection<A>` and a function of `A -> B` and
     returns a `Collection<B>`
     - (`Collection` is not a real type)
 
@@ -583,7 +625,7 @@ fn cloned<'a, T>(self) -> Cloned<Self>
 
 - Not actually an `Iterator` method, but is very similar.
 - Calling `drain()` on a collection removes and returns some or all elements.
-- e.g. `Vec::drain(&mutself, range: R)` removes & returns a range out of a vector.
+- e.g. `Vec::drain(&mut self, range: R)` removes and returns a range out of a vector.
 
 ---
 ## Iterators
