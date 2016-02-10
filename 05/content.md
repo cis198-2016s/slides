@@ -254,20 +254,24 @@ impl<T> Option<T> {
 - Some other methods provided by Option:
 - `fn is_some(&self) -> bool`
 - `fn is_none(&self) -> bool`
-- `fn map_or(self, default: T) -> T`
-- `fn map_or_else(self, default: T) -> T`
-    - Similar to `map`, but with a default value or closure.
+- `fn map_or<U, F>(self, default: U, f: F) -> U`
+    - `where F: FnOnce(T) -> U`
+    - A default value`: U`.
+- `fn map_or_else<U, D, F>(self, default: D, f: F) -> U`
+    - `where D: FnOnce() -> U, F: FnOnce(T) -> U`
+    - A default-generating closure`: D`.
 
 ---
 ### Other
 
 - `fn ok_or(self, err: E) -> Result<T, E>`
-- `fn ok_or_else(self, default: F) -> Result<T, E> where F: FnOnce() -> E`
+- `fn ok_or_else(self, default: F) -> Result<T, E>`
+    - `where F: FnOnce() -> E`
     - Similar to `unwrap_or` but returns a `Result` with a default `Err` or closure.
 - `fn and<U>(self, optb: Option<U>) -> Option<U>`
     - Returns `None` if `self` is `None`, else `optb`
 - `fn or(self, optb: Option<T>) -> Option<T>`
-    - returns `self` if `Some(_)`, else `optb`
+    - returns `self` if `self` is `Some(_)`, else `optb`
 
 ---
 ## Result<T, E>
@@ -514,20 +518,23 @@ for one in &ones {
 ---
 ## `collect`
 
-- `collect()` takes an iterator and rolls it back into a new collection.
-- The object iterated over must define the `FromIterator` trait for the `Item`
-    inside the `Iterator`.
-- `collect()` sometimes needs a type hint to properly compile:
+- `collect()` rolls a (lazy) iterator back into an actual collection.
+- The target collection must define the `FromIterator` trait for the `Item`
+  inside the `Iterator`.
+- `collect()` sometimes needs a type hint to properly compile.
+    - The output type can be practically any collection.
 
 ```rust
+fn collect<B>(self) -> B where B: FromIterator<Self::Item>
+
 let vs = vec![1,2,3,4];
 // What type is this?
 let set = vs.iter().collect();
 // Hint to `collect` that we want a HashSet back.
 // Note the lack of an explicit <i32>.
 let set: HashSet<_> = vs.iter().collect();
-// Alternate syntax!
-let set = vs.iter().collect::<HashSet<i32>>();
+// Alternate syntax! The "turbofish" ::<>
+let set = vs.iter().collect::<HashSet<_>>();
 ```
 
 ---
