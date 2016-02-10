@@ -106,14 +106,14 @@ println!("magic_num: {}", magic_num);
 let mut magic_num = 5;
 {
     let plus_magic = |x: i32| x + magic_num;
-}
+} // the borrow of magic_num ends here
 
 let more_magic = &mut magic_num; // Ok!
 println!("magic_num: {}", more_magic);
 ```
 
 ---
-## Moving Into Closures
+## Closure Ownership
 
 - Sometimes, a closure _must_ take ownership of an environment variable to be
   valid. This happens automatically:
@@ -137,6 +137,27 @@ println!("magic_num: {}", more_magic);
         ```
 
 - If the type is not `Copy`, the original variable is invalidated.
+
+---
+## Closure Ownership
+
+- A closure can take some values by reference and others by moving ownership.
+- Generally determined by behavior.
+
+---
+## Closure Ownership
+
+```rust
+let numbers = vec![2, 5, 32768];
+let alphabet_soup = || { numbers; vec!['a', 'b'] };
+                      // ^ throw away unneeded ingredients
+alphabet_soup();
+alphabet_soup(); // use of moved value
+```
+
+- A closure which owns data that is not `Copy` is itself not `Copy`.
+- Normally calling a closure creates and runs a `Copy` of it.
+- But! If the closure cannot be Copied, then it can only be called once.
 
 ---
 ## Move Closures
@@ -227,7 +248,8 @@ fn map<B, F>(self, f: F) -> Map<Self, F>
 - `map` takes an argument `f: F`, where `F` is an `FnMut` trait object.
 - You can pass regular function in as well, since the traits line up!
 
-&sup1;A function from a container of type A's and a function from type A to type B and produces a container of type B's. Rust's definition is a little confusing due to type transformations, but the basic idea is the same.
+&sup1;A function which takes `Container<A>` and a function `f: A -> B` and
+returns `Container<B>` by calling `f` on elements in the container.
 
 ---
 ## Returning Closures
