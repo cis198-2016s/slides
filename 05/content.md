@@ -2,6 +2,7 @@
 
 ### CIS 198 Lecture 5
 
+---
 ## Iterators
 
 - Seen in homework 3!
@@ -17,7 +18,7 @@
 - Consumers operate on an iterator & return one or more values.
 - There are like a billion of these, so let's look at a few.
 
-<img src="img/consume.png" style="width: 1000px;"/>
+<img src="img/consume.png" style="width: 400px;"/>
 
 ###### Photo credit: [Hal Hefner](http://halhefner.com/)
 
@@ -333,7 +334,7 @@ fn std::io::read_line(&self, buf: &mut String)
 ---
 ## [Collections](https://doc.rust-lang.org/stable/std/collections/)
 
-<img src="img/collector.jpg" style="width: 1000px;"/>
+<img src="img/collector.jpg" style="width: 400px;"/>
 
 ---
 ## `Vec<T>`
