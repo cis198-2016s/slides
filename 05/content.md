@@ -143,8 +143,10 @@ let y = bar(x);
 ```rust
 fn map<U, F>(self, f: F) -> Option<U>
         where F: FnOnce(T) -> U {
-    None => None,
-    Some(value) => Some(f(value))
+    match self {
+        None => None,
+        Some(x) => Some(f(x))
+    }
 }
 
 // fn foo() -> Option<i32>
@@ -159,11 +161,17 @@ let x = foo().map(|x| bar(x));
 
 ```rust
 fn and_then<U, F>(self, f: F) -> Option<U>
-    where F: FnOnce(T) -> Option<U>
+    where F: FnOnce(T) -> Option<U> {
+
+    match self {
+        Some(x) => f(x),
+        None => None,
+    }
+}
 
 // fn foo() -> Option<i32>
 
-let x = foo().map(|x| Some(bar(x)));
+let x = foo().and_then(|x| Some(bar(x)));
 ```
 
 ---
@@ -191,7 +199,7 @@ impl<T> Option<T> {
 
 ```rust
 impl<T> Option<T> {
-    fn unwrap_or<T>(&self, f: F) -> T
+    fn unwrap_or_else<T>(&self, f: F) -> T
             where F: FnOnce() -> T {
         match *self {
             None => f(),
@@ -210,6 +218,10 @@ impl<T> Option<T> {
 - `fn map_or(self, default: T) -> T`
 - `fn map_or_else(self, default: T) -> T`
     - Similar to `map`, but with a default value or closure.
+
+---
+### Other
+
 - `fn ok_or(self, err: E) -> Result<T, E>`
 - `fn ok_or_else(self, default: F) -> Result<T, E> where F: FnOnce() -> E`
     - Similar to `unwrap_or` but returns a `Result` with a default `Err` or closure.
@@ -245,7 +257,7 @@ enum Result<T, E> {
         crashing!
 
 ---
-### Custom Result Alias
+### Custom Result Aliases
 
 - A common pattern is to define a type alias for Result which uses your libary's
   custom Error type.
