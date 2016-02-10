@@ -92,8 +92,8 @@ let mut magic_num = 5;
 let magic_johnson = 32;
 let plus_magic = |x: i32| x + magic_num;
 
-let more_magic = &mut magic_num;
-println!("magic_num: {}", magic_num);
+let more_magic = &mut magic_num; // Err!
+println!("{}", magic_johnson); // Ok!
 ```
 
 ```
@@ -122,6 +122,11 @@ let mut magic_num = 5;
 let more_magic = &mut magic_num; // Ok!
 println!("magic_num: {}", more_magic);
 ```
+
+???
+
+Questions?
+
 ---
 ## Move Closures
 
@@ -209,8 +214,7 @@ alphabet_soup(); // Delicious soup
 ## Closure Ownership
 
 - The same closure can take some values by reference and others by moving
-  ownership, determined by behavior.
-
+  ownership (or Copying values), determined by behavior.
 
 ---
 ## Closure Traits
