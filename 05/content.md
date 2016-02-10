@@ -418,13 +418,79 @@ let socket2: TcpStream =
 ---
 ## Iterators
 
-- Seen in homework 3!
-- Three variant methods:
-    - `iter()` for an immutable borrow iterator.
-    - `iter_mut()` for a mutable borrow iterator.
-    - `into_iter()` for an ownership-passing iterator.
-- Nothing new here...
-- TODO?
+- You've seen these in HW3!
+
+```rust
+pub trait Iterator {
+    type Item;
+    fn next(&mut self) -> Option<Self::Item>;
+
+    // More fields omitted
+}
+```
+
+- A Trait with an associated type, `Item`, and a method `next` which yields that
+  type.
+- Other methods (consumers and adapters) are implemented on `Iterator` as
+  default methods using `next`.
+
+---
+## Iterators
+
+- Like everything else, there are three types of iteration:
+    - `into_iter()`, yielding `T`s.
+    - `iter()`, yielding `&T`s.
+    - `iter_mut()`, yielding `&mut T`s.
+- A collection may provide some or all of these.
+
+---
+## Iterators
+
+- Iterators provide syntactic sugar for for loops:
+
+```rust
+let values = vec![1, 2, 3, 4, 5];
+{
+    let result = match values.into_iter() {
+        mut iter => loop {
+            match iter.next() {
+                Some(x) => { /* loop body */ },
+                None => break,
+            }
+        },
+    };
+    result
+}
+```
+
+- `into_iter()` is provided by the trait `IntoIterator`.
+    - Automatically implemented by anything with the Trait `Iterator`.
+
+---
+## `IntoIterator`
+
+```rust
+pub trait IntoIterator where Self::IntoIter::Item == Self::Item {
+    type Item;
+    type IntoIter: Iterator;
+
+    fn into_iter(self) -> Self::IntoIter;
+}
+```
+
+- As you did in HW3, you can implement `IntoIterator` on a `&T` to iterate over
+  a collection by reference.
+    - Or on `&mut T` to iterate by mutable reference.
+- This allows this syntax:
+
+```rust
+let ones = vec![1, 1, 1, 1, 1, 1];
+
+for one in &ones {
+    // Doesn't move any values.
+    // Also, why are you doing this?
+}
+```
 
 ---
 ## Iterator Consumers
@@ -439,10 +505,10 @@ let socket2: TcpStream =
 ---
 ## Preface: Type Transformations
 
-- Many iterator manipulators take an `Iterator` and return some other, unrelated
-    type
-    - e.g. `map` returns a `Map`, `filter` returns a `Filter`
-- Generally, don't worry about what these types are, or what they contain.
+- Many iterator manipulators take an `Iterator` and return some other type.
+    - e.g. `map` returns a `Map`, `filter` returns a `Filter`.
+- These types are just structs which themselves implement `Iterator`.
+    - Don't worry about the internal state.
 - The type transformations are used mostly to enforce type safety.
 
 ---

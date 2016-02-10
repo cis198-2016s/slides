@@ -1,6 +1,6 @@
 # Closures
 
-### CIS 198 Lecture 3.
+### CIS 198 Lecture 4.
 
 ---
 ## Closures
@@ -38,9 +38,10 @@ let foo_v4 = |x: i32| if x == 0 { 0 } else { 1 };
 ## Type Inference
 
 ```rust
-let square_v4 = |x: i32| { x as i32 };
+let square_v4 = |x: u32| { (x * x) as i32 };
 // ERROR: not enough type information!
 let square_v4 = |x| -> i32 { x * x };
+// ERROR: not enough type information!
 let square_v4 = |x|        { x * x };
 ```
 
@@ -57,7 +58,7 @@ closures, ease of use is more important.
 ---
 ## Closure Environment
 
-- Closures _close_ over their environment.
+- Closures _close_ over (contain) their environment.
 
 ```rust
 let magic_num = 5;
@@ -73,7 +74,7 @@ let plus_magic = |x: i32| x + magic_num;
 ---
 ## Closure Environment
 
-- If we try to use the binding `magic_num` in a conflicting way after the
+- If we try to borrow `magic_num` in a conflicting way after the
   closure is bound, we'll get an error from the compiler:
 
 ```rust
@@ -115,7 +116,7 @@ println!("magic_num: {}", more_magic);
 ---
 ## Move Closures
 
-- As usual, closures are choose-your-own-~~adventure~~ ownership.
+- As usual in Rust, closures are choose-your-own-~~adventure~~ ownership.
 - Sometimes it's not enough to have a closure borrow its environment.
 - You can force a closure to _take ownership_ of its environments by using the `move` keyword.
 
