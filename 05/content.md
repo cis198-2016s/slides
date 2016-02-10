@@ -305,7 +305,8 @@ macro_rules! try {
 let socket1: TcpStream = try!(TcpStream::connect("127.0.0.1:8000"));
 
 // Is equivalent to...
-let maybe_socket: Result<TcpStream> = TcpStream::connect("127.0.0.1:8000");
+let maybe_socket: Result<TcpStream> =
+    TcpStream::connect("127.0.0.1:8000");
 let socket2: TcpStream =
     match maybe_socket {
         Ok(val) => val,
@@ -362,7 +363,7 @@ let socket2: TcpStream =
 - A priority queue implemented with a binary max-heap.
 
 ---
-## [Rust Nursery](https://github.com/rust-lang-nursery)
+## Aside: [Rust Nursery](https://github.com/rust-lang-nursery)
 
 - Useful "stdlib-ish" crates that are community-developed, but not
     official-official.
@@ -474,6 +475,11 @@ fn position<P>(&mut self, predicate: P) -> Option<usize>
 ---
 ## `skip`
 
+```rust
+fn skip(self, n: usize) -> Skip<Self>;
+```
+- Creates an iterator that skips its first `n` elements.
+
 ---
 ## `zip`
 
@@ -561,6 +567,27 @@ for i in (0..).take(5) {
 ```
 
 ---
-## Alternative Iterators
-// Drain etc.
+## `cloned`
+
+```rust
+fn cloned<'a, T>(self) -> Cloned<Self>
+    where T: 'a + Clone, Self: Iterator<Item=&'a T>;
+```
+
+- Creates an iterator which calls `clone` on all of its elements.
+- Abstracts the common pattern `vs.iter().map(|v| v.clone())`.
+- Useful when you have an iterator over `&T`, but need one over `T`.
+
+---
+## `drain`
+
+- Not actually an `Iterator` method, but is very similar.
+- Calling `drain()` on a collection removes and returns some or all elements.
+- e.g. `Vec::drain(&mutself, range: R)` removes & returns a range out of a vector.
+
+---
+## Iterators
+
+- There are many more `Iterator` methods we didn't cover.
+- Take a look at [the docs](https://doc.rust-lang.org/std/iter/trait.Iterator.html) for the rest.
 
