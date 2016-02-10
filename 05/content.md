@@ -18,7 +18,7 @@
 - `&str`s are statically-allocated & fixed-size.
 - May not be indexed like `some_str[i]`, as each character may be multiple bytes
     due to Unicode.
-    - However, may be iterated with `chars()` or indexed by bytes.
+    - However, may be iterated with `chars()`
 - As with all Rust references, they have an associated lifetime.
 
 *More specifically, they have the type `&'static str`.
@@ -53,9 +53,32 @@ let course_name = course_code + &course_num;
 ```
 
 ---
+## String Conversion
+
+- However, converting a `String` into an `&str` requires a dereference:
+
+```rust
+use std::net::TcpStream;
+
+TcpStream::connect("192.168.0.1:3000"); // &str
+let addr = "192.168.0.1:3000".to_string();
+TcpStream::connect(&*addr);
+```
+
+---
 ## `String` & `&str`: Why?
 
-// TODO
+- Like slices for `Vec`s, `&str`s are useful for passing a view into a `String`
+- It's expensive to copy a `String` around, and lending an entire `String` out
+    may be overkill.
+- `&str` therefore allows you to pass portions of a `String` around, saving
+    memory.
+
+---
+## `String` & `&str`
+
+- Generally, if you want to do more than use string literals, use `String`.
+- You can then lend out `&str`s easily.
 
 ---
 ## Option
@@ -325,6 +348,18 @@ let socket2: TcpStream =
 ## `BinaryHeap<T>`
 
 - A priority queue implemented with a binary max-heap.
+
+---
+## [Rust Nursery](https://github.com/rust-lang-nursery)
+
+- Useful "stdlib-ish" crates that are community-developed, but not
+    official-official.
+- Contains things like:
+    - Bindings to `libc`
+    - A `rand` library
+    - Regex support
+    - Serialization
+    - UUID generation
 
 ---
 ## Iterators
