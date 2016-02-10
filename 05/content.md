@@ -121,7 +121,8 @@ enum Result<T, E> {
 
 ```rust
 // Actually returns a `Result<usize, std::io::Error>`
-fn std::io::read_line(&self, buf: &mut String) -> std::io::Result<usize>
+fn std::io::read_line(&self, buf: &mut String)
+    -> std::io::Result<usize>
 ```
 
 ---
@@ -136,6 +137,8 @@ fn std::io::read_line(&self, buf: &mut String) -> std::io::Result<usize>
     - If a function returns a `Result`, you should be sure to `unwrap`/`expect`
         it, or otherwise handle the `Ok`/`Err` in a meaningful way.
     - The compiler warns you if you don't.
+    - Not using a result could result (ha) in your program unintentionally
+        crashing!
 
 ---
 ## [Collections](https://doc.rust-lang.org/stable/std/collections/)
@@ -174,7 +177,7 @@ fn std::io::read_line(&self, buf: &mut String) -> std::io::Result<usize>
 ## `HashSet<T>`/`BTreeSet<T>`
 
 - Sets for storing unique values.
-- `HashSet<T>` and `BTreeSet<T>` are literally the same as `HashMap<T, ()>` and `BTreeMap<T, ()>`.
+- `HashSet<T>` and `BTreeSet<T>` are literally struct wrappers for `HashMap<T, ()>` and `BTreeMap<T, ()>`.
 - Same tradeoffs and requirements as their Map variants.
 
 ---
@@ -197,6 +200,10 @@ fn std::io::read_line(&self, buf: &mut String) -> std::io::Result<usize>
 
 - Consumers operate on an iterator & return one or more values.
 - There are like a billion of these, so let's look at a few.
+
+![](img/consume.png)
+
+###### Photo credit: [Hal Hefner](http://halhefner.com/)
 
 ---
 ## `collect`
