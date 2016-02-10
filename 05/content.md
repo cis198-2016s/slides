@@ -17,7 +17,7 @@
 - Consumers operate on an iterator & return one or more values.
 - There are like a billion of these, so let's look at a few.
 
-![](img/consume.png)
+<img src="img/consume.png" style="width: 1000px;"/>
 
 ###### Photo credit: [Hal Hefner](http://halhefner.com/)
 
@@ -333,7 +333,7 @@ fn std::io::read_line(&self, buf: &mut String)
 ---
 ## [Collections](https://doc.rust-lang.org/stable/std/collections/)
 
-![](img/collector.jpg)
+<img src="img/collector.jpg" style="width: 1000px;"/>
 
 ---
 ## `Vec<T>`
