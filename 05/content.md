@@ -15,7 +15,7 @@
 
 - `&str` is a string slice (like array slice).
 - `"string literals"` are of type `&str`.&sup1;
-- `&str`s are statically-allocated & fixed-size.
+- `&str`s are statically-allocated and fixed-size.
 - May not be indexed with `some_str[i]`, as each character may be multiple bytes
     due to Unicode.
 - Instead, iterate with `chars()`:

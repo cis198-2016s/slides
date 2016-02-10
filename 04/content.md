@@ -1,6 +1,6 @@
 # Closures
 
-### CIS 198 Lecture 4.
+### CIS 198 Lecture 4
 
 ---
 ## Closures
@@ -31,18 +31,17 @@ let foo_v4 = |x: i32| if x == 0 { 0 } else { 1 };
 ```
 
 - These look pretty similar to function definitions.
-- Specify arguments in `||`. The function block can be any expression.
-    - Any single expression or series of expressions in `{}`.
+- Specify arguments in `||`, followed by the return expression.
+    - The return expression can be a series of expressions in `{}`.
 
 ---
 ## Type Inference
 
 ```rust
 let square_v4 = |x: u32| { (x * x) as i32 };
-// ERROR: not enough type information!
-let square_v4 = |x| -> i32 { x * x };
-// ERROR: not enough type information!
-let square_v4 = |x|        { x * x };
+
+let square_v4 = |x| -> i32 { x * x }; // ← unable to infer enough
+let square_v4 = |x|        { x * x }; // ← type information!
 ```
 
 - Unlike functions, we don't _need_ to specify the return type or argument types
@@ -87,11 +86,11 @@ println!("magic_num: {}", magic_num);
 ```
 
 ```
-error: cannot borrow `magic_num` as mutable because it is already
-    borrowed as immutable
+  error: cannot borrow `magic_num` as mutable because it is
+  already borrowed as immutable
 
-[...] the immutable borrow prevents subsequent moves or mutable
-    borrows of `magic_num` until the borrow ends
+  [...] the immutable borrow prevents subsequent moves or mutable
+  borrows of `magic_num` until the borrow ends
 ```
 
 - Why? `plus_magic` borrows `magic_num` when it closes over it!
@@ -114,11 +113,39 @@ println!("magic_num: {}", more_magic);
 ```
 
 ---
+## Moving Into Closures
+
+- Sometimes, a closure _must_ take ownership of an environment variable to be
+  valid. This happens automatically:
+
+    - If the value is moved into the return value.
+        ```rust
+        let lottery_numbers = vec![11, 39, 51, 57, 75];
+        {
+            let ticket = || { lottery_numbers };
+        }
+        // The braces do no good here.
+        println!("{:?}", lottery_numbers); // use of moved value
+        ```
+
+    - Or anywhere else.
+        ```rust
+        let numbers = vec![2, 5, 32768];
+        let alphabet_soup = || { numbers; vec!['a', 'b'] };
+                              // ^ throw away unneeded ingredients
+        println!("{:?}", numbers); // use of moved value
+        ```
+
+- If the type is not `Copy`, the original variable is invalidated.
+
+---
 ## Move Closures
 
-- As usual in Rust, closures are choose-your-own-~~adventure~~ ownership.
-- Sometimes it's not enough to have a closure borrow its environment.
-- You can force a closure to _take ownership_ of its environments by using the `move` keyword.
+- As usual, closures are choose-your-own-~~adventure~~ ownership.
+- Sometimes it's not okay to have a closure borrow _anything_.
+- You can force a closure to _take ownership_ of all environment
+  variables by using the `move` keyword.
+    - "Taking ownership" can mean taking a copy, not just moving.
 
 ```rust
 let mut magic_num = 5;
@@ -131,44 +158,48 @@ let more_magic = &mut magic_num;
 ---
 ## Move Closures
 
-- Move closures are necessary when the closure needs to outlive the scope in
+- `move` closures are necessary when the closure `f` needs to outlive the scope in
   which it was created.
-    - e.g. when you pass it into a thread, or return one from a function.
-
-- Some closures are _forced_ to take ownership of their environment:
-    - Types which are not `Copy` will take ownership of data that it uses.
+    - e.g. when you pass `f` into a thread, or return `f` from a function.
+    - `move` essentially _disallows_ bringing references into the closure.
 
 ```rust
-let lottery_numbers = vec![11, 39, 51, 57, 75];
-{
-    let ticket = || { lottery_numbers };
+fn make_closure(x: i32) -> Box<Fn(i32) -> i32> {
+    let f = move |y| x + y; // ^ more on this in 15 seconds
+    Box::new(f)
 }
-// The braces do no good here.
-println!("{:?}", lottery_numbers);
+
+let f = make_closure(2);
+println!("{}", f(3));
 ```
 
 ---
 ## Closure Traits
 
 - Closures are actually based on a set of traits under the hood!
-    - `Fn`, `FnMut`, and `FnOnce`.
-    - `()` is an overloadable operator.
+    - `Fn`, `FnMut`, `FnOnce` - method calls are overloadable operators.
 
 ```rust
 pub trait Fn<Args> : FnMut<Args> {
-    extern "rust-call" fn call(&self, args: Args) -> Self::Output;
+    extern "rust-call"
+      fn call(&self, args: Args) -> Self::Output;
 }
 
 pub trait FnMut<Args> : FnOnce<Args> {
-    extern "rust-call" fn call_mut(&mut self, args: Args) -> Self::Output;
+    extern "rust-call"
+      fn call_mut(&mut self, args: Args) -> Self::Output;
 }
 
 pub trait FnOnce<Args> {
     type Output;
 
-    extern "rust-call" fn call_once(self, args: Args) -> Self::Output;
+    extern "rust-call"
+      fn call_once(self, args: Args) -> Self::Output;
 }
 ```
+
+---
+## Closure Traits
 
 - These traits all look pretty similar, but differ in the way they take `self`:
     - `Fn` borrows `self` as `&self`
@@ -216,7 +247,7 @@ error: the trait `core::marker::Sized` is not implemented
     for the type `core::ops::Fn(i32) -> i32 + 'static`
 ```
 
-- An `Fn` object is not of constant size at compile time
+- An `Fn` object is not of constant size at compile time.
     - The compiler cannot properly reason about how much space to allocate for the `Fn`.
 
 ---
@@ -252,7 +283,8 @@ fn box_me_up_that_closure() -> Box<Fn(i32) -> i32> {
 ```
 
 ```
-error: closure may outlive the current function, but it borrows `local`, which is owned by the current function [E0373]
+error: closure may outlive the current function, but it
+borrows `local`, which is owned by the current function [E0373]
 ```
 
 - Augh! We were so close!
