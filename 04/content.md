@@ -5,7 +5,7 @@
 ---
 ## Closures
 - A closure, anonymous function, or lambda function is a common paradigm in
-  function languages.
+  functional languages.
 - In Rust, they're fairly robust, and match up well with the rest of Rust's
   ownership model.
 
