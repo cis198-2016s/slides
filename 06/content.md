@@ -254,7 +254,7 @@ build = "build.rs"
 ## Cargo: The Rabbit Hole
 
 - Cargo has a lot of features. If you're interested, check them out
-  in the [Cargo manifest format] documentation.
+  in the [Cargo manifest format][] documentation.
 
 [Cargo manifest format]: http://doc.crates.io/manifest.html
 
