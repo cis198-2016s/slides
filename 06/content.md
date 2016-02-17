@@ -1,517 +1,240 @@
-# Misc: Syntax, Crates, `std`
+# `std`: Pointer Types
 
 ### CIS 198 Lecture 6
 
+###### Reference: [TRPL 5.8](https://doc.rust-lang.org/book/choosing-your-guarantees.html)
+
 ---
-## `const`
+## `&T` and `&mut T`
+
+- Your basic, economy-class references.
+- Zero runtime cost; all checks are done at compile time.
+- Not allowed to outlive their associated lifetime.
+    - Can introduce serious lifetime complexity if you're not careful!
+- Use these unless you _actually_ need something more complicated.
+
+---
+## `Box<T>`
+
+- A `Box<T>` is one of Rust's ways of allocating data on the heap.
+- A `Box<T>` owns a `T`, so its pointer is unique - it can't be aliased (only referenced).
+- `Box`es are automatically freed when they go out of scope.
+- Almost the same as unboxed values, but dynamically allocated.
+- Create a `Box` with `Box::new()`.
 
 ```rust
-const PI: f32 = 3.1419;
+let boxed_five = Box::new(5);
 ```
 
-- Defines constants that live for the duration of the program.
-- Must annotate the type!
-- Constants "live" for the duration of the program.
-    - Think of them as being inlined every time they're used.
-    - No guarantee that multiple references to the same constant are the same.
+---
+## `Box<T>`
+
+- Pros:
+    - Easiest way to put something on the heap.
+    - Zero-cost abstraction for dynamic allocation.
+    - Shares typical borrowing and move semantics.
+    - Automatic destruction.
+- Cons (ish):
+    - The `T` is strictly owned by the `Box` - only one owner.
+        - This means the particular variable holding the box can't go away
+          until all references are gone - sometimes this won't work out!
 
 ---
-## `static`
+## Aside: Box Syntax & Patterns
+
+- In homework 2 & 3, you may have noticed patterns like this:
 
 ```rust
-static PI: f32 = 3.1419;
-```
+let opt_box: Option<Box<i32>> = Some(Box::new(5));
 
-- As above: must annotate type.
-- Typical global variable with fixed memory address.
-- All references to static variables has the `'static` lifetime, because statics
-  live as long as the program.
-- `unsafe` to mutate.
-
-```rust
-let life_of_pi: &'static f32 = &PI;
-```
-
-- String literals are references (with lifetime `'static`) to `static str`s.
-
----
-## `static`
-
-```rust
-static mut counter: i32 = 0;
-```
-
-- You can create mutable static variables, but you can only mutate them inside
-  `unsafe` blocks.
-    - Rust forces you to declare when you're doing things that are...
-      ~~morally questionable~~ potentially going to crash your program.
-
----
-# Modules & Crates
-
----
-## Modules
-
-- We've seen these in the homework, but not talked about them.
-- Everything in Rust is module-scoped: if it's not pub, it's only
-  accessible from within the same module.
-- Modules can be defined within one file:
-
-```rust
-mod english {
-    pub mod greetings {
+match opt_box {
+    Some(boxed) => {
+        let unboxed = *boxed;
+        println!("Some {}", unboxed);
     }
-    pub mod farewells {
-    }
+    None => println!("None :("),
 }
 
-mod japanese {
-    pub mod greetings {
-    }
-    pub mod farewells {
-    }
-}
 ```
 
-Reference: [TRPL 4.25](http://doc.rust-lang.org/book/crates-and-modules.html)
-
 ---
-## Modules
+## Aside: Box Syntax & Patterns
+
+- It's currently not possible to destructure the `Box` inside the `Option`. :(
+- In Nightly Rust, it is, thanks to `box` syntax!
 
 ```rust
-mod english {
-    pub mod greetings { /* ... */ }
-}
-```
+#![feature(box_syntax, box_patterns)]
 
-- Modules can be defined as files instead:
-- `lib.rs`:
-    ```rust
-    mod english;
-    ```
-- `english.rs`:
-    ```rust
-    pub mod greetings { /* ... */ }
-    ```
+let opt_box = Some(box 5);
 
----
-## Modules
-
-```rust
-mod english {
-    pub mod greetings { /* ... */ }
+match opt_box {
+    Some(box unboxed) => println!("Some {}", unboxed),
+    None => println!("None :("),
 }
 ```
 
-- Modules can also be defined as directories:
-- `lib.rs`:
-    ```rust
-    mod english;
-    ```
-- `english/`
-    - `mod.rs`:
-        ```rust
-        pub mod greetings;
-        ```
-    - `greetings.rs`:
-        ```rust
-        /* ... */
-        ```
+- This may change before it reaches Stable.
 
 ---
-## `use`ing Modules
+## `std::rc::Rc<T>`
 
-- `use` directives are absolute by default:
+- Want to share a pointer with your friends? Use an `Rc<T>`!
+- A "**R**eference **C**ounted" pointer.
+    - Keeps track of how many aliases exist for the pointer.
+- Call `clone()` on an `Rc` to get a reference.
+    - Increments its reference count.
+    - No data gets copied!
+- When the ref count drops to 0, the value is freed.
+- The `T` can only be mutated when the reference count is 1 😕.
+    - Same as the borrowing rules - there must be only one owner.
 
 ```rust
-use english::greetings;
+let mut shared_six = Rc::new(6);
+let mut cloned_six = shared_six.clone(); // ==> Another reference to same data
+let maybe_six1 = Rc::get_mut(&mut shared_six); // ==> Some(6)
+let maybe_six2 = Rc::get_mut(&mut cloned_six); // ==> None
 ```
 
-- But can be relative to the current module:
+---
+## `std::rc::Weak<T>`
+
+- Reference counting has weaknesses: if a cycle is created:
+    - A has an `Rc` to B, B has an `Rc` to A - both have count = 1.
+    - They'll never be freed! ~~Eternal imprisonment~~ a memory leak!
+- This can be avoided with _weak references_.
+    - These don't increment the _strong reference_ count.
+    - But that means they aren't always valid!
+- An `Rc` can be downgraded into a `Weak` using `rc.downgrade()`.
+    - To access it, turn it back into `Rc`: `weak.upgrade() -> Option<Rc<T>>`
+    - Nothing else can be done with `Weak` - upgrading prevents the value from becoming invalid mid-use.
+
+---
+## Strong Pointers vs. Weak Pointers
+
+- When do you use an `Rc` vs. a `Weak`?
+    - Generally, you probably want a strong reference via `Rc`.
+- If your ownership semantics need to convey a notion of possible access to data but no
+    ownership, you might want to use a `Weak`.
+    - Such a structure would also need to be okay with the `Weak` coming up as
+        `None` when upgraded.
+- Any structure with reference cycles may also need `Weak`, to avoid the leak.
+    - Note: `Rc` cycles are difficult to create in Rust, because of mutability rules.
+
+---
+## `std::rc::Rc<T>`
+
+- Pros:
+    - Allows sharing ownership of data.
+- Cons:
+    - Has a (small) runtime cost.
+        - Holds two reference counts (strong and weak).
+        - Must update and check reference counts dynamically.
+    - Reference cycles can leak memory. This can only be resolved by:
+        - Avoiding creating dangling cycles.
+        - Garbage collection (which Rust doesn't have).
+
+---
+## Cells
+
+- A way to wrap data to allow _interior mutability_.
+- An _immutable_ reference allows modifying the contained value!
+- There are two types of cell: `Cell<T>` and `RefCell<T>`.
 
 ```rust
-// english/mod.rs
-use self::greetings;
-use super::japanese;
-```
-
-- `use` can be used to re-export other items:
-
-```rust
-// default_language.rs
-
-#[cfg(english)]
-pub use english::*;
-
-#[cfg(japanese)]
-pub use japanese::*;
-```
-
----
-## Using External Crates
-
-- For external crates, use `extern crate` instead of `mod`.
-
-```rust
-extern crate rand;
-
-use rand::Rng;
-```
-
----
-## Making Your Own Crate
-
-- We've been writing lib crates - but how do we export from them?
-- Anything marked `pub` in the root module (`lib.rs`) is exported:
-
-```rust
-pub mod english;
-```
-
-- Easy!
-
----
-## Using Your Own Crate
-
-- Now, you can use your own crate from Cargo:
-
-```toml
-[dependencies]
-myfoo = { git = "https://github.com/me/foo-rs" }
-mybar = { path = "../rust-bar" }
-```
-
-- Or:
-
-```toml
-[dependencies.myfoo]
-git = "https://github.com/me/foo-rs"
-```
-
-- And use them:
-
-```rust
-extern crate myfoo;
-
-use myfoo::english;
-```
-
----
-## Cargo: you got your bins in my lib
-
-- We've seen both lib and bin (executable) crates in homework
-    - Executable-only crates don't export any importable crates.
-    - But this isn't _really_ a distinction!
-- Cargo allows _both_ `:/src/lib.rs` and `:/src/main.rs`.
-    - Cargo will also build `:/src/bin/*.rs` as executables.
-- Examples go in `:/examples/*.rs`.
-    - Built by `cargo test` (to ensure examples always build).
-    - Can be called with `cargo run --example foo`.
-- Integration (non-unit) tests go in `:/tests/*.rs`.
-- Benchmarks go in `:/benches/*.rs`.
-
----
-## Cargo: Features
-
-- Features of a crate can be toggled at build time:
-
-```toml
-[package]
-name = "myfacebumblr"
-
-[features]
-# No default optional dependencies
-default = []
-
-# An extra feature, enables #[cfg(feature = "web-vortal")]
-web-vortal = []
-
-# Also requires the html9 responsive boilerstrap js crate
-# with commodore64 option enabled
-html9 = [h9rbs-js/commodore64]
-
-[dependencies]
-# Optional dependencies can be enabled by either:
-# (a) feature dependencies or (b) extern crate.
-h9rbs-js = { optional = "true" }
-```
-
----
-## Cargo: Build Scripts
-
-- Sometimes, you need more than what Cargo can provide.
-- For this, we have build scripts!
-    - Of course, they're written in Rust.
-
-```toml
-[package]
-build = "build.rs"
-```
-
-- Now, `cargo build` will compile and run `:/build.rs` first.
-
----
-## Cargo: The Rabbit Hole
-
-- Cargo has a lot of features. If you're interested, check them out
-  in the [Cargo manifest format][] documentation.
-
-[Cargo manifest format]: http://doc.crates.io/manifest.html
-
-
----
-# Attributes
-
-- Ways to pass information to the compiler.
-- `#[test]` is an attribute that annotates a function as a test.
-- `#[test]` annotates the next block; `#![test]` annotates the surrounding block.
-
-```rust
-#[test]
-fn midterm1() {
-    // ...
-}
-
-fn midterm2() {
-    #![test]
-    // ...
+struct Foo {
+    x: Cell<i32>,
+    y: RefCell<u32>,
 }
 ```
 
 ---
-## Attributes
+## `std::cell::Cell<T>`
 
-- Use attributes to...
-    - `#![no_std]` disable the standard library.
-    - `#[derive(Debug)]` auto-derive traits.
-    - `#[inline(always)]` give compiler behavior hints.
-    - `#[allow(missing_docs)]` disable compiler warnings for certain lints.
-    - `#![crate_type = "lib"]` provide crate metadata.
-    - `#![feature(box_syntax)]` enable unstable syntax.
-    - `#[cfg(target_os = "linux")]` define conditional compilation.
-    - And [many more][reference/attributes]!
-
-[reference/attributes]: https://doc.rust-lang.org/stable/reference.html#attributes
-
----
-# Rust Code Style
-
----
-## Rust Code Style
-
-- A [style guide][] is being _drafted_ as part of the Rust docs.
-- The main reason for many of the rules is to prevent pointless
-  arguments about things like spaces and braces.
-    - If you contribute to an open-source Rust project, it will probably be
-      expected that you follow these rules.
-- The [rustfmt][] project is an automatic code formatter.
-
-[style guide]: https://github.com/rust-lang/rust/tree/master/src/doc/style
-[rustfmt]: https://github.com/rust-lang-nursery/rustfmt
-
----
-## Spaces
-
-- Lines must not exceed 99 characters.
-- Use 4 spaces for indentation, not tabs.
-- No trailing whitespace at the end of lines or files.
-- Use spaces around binary operators: `x + y`.
-- Put spaces after, but not before, commas and colons: `x: i32`.
-- When line-wrapping function parameters, they should align.
-    ```rust
-    fn frobnicate(a: Bar, b: Bar,
-                  c: Bar, d: Bar)
-                  -> Bar {
-    }
-    ```
-
----
-## Braces
-
-- Opening braces always go on the same line.
-- Match arms get braces, except for single-line expressions.
-- `return` statements get semicolons.
-- Trailing commas (in structs, matches, etc.) should be included if the
-  closing delimiter is on a separate line.
-
----
-## Capitalization & Naming
-
-- You may have seen built-in lints on how to spell identifiers.
-    - `CamelCase`: types, traits.
-    - `lowerCamelCase`: not used.
-    - `snake_case`: crates, modules, functions, methods, variables.
-    - `SCREAMING_SNAKE_CASE`: static variables and constants.
-    - `T` (single capital letter): type parameters.
-    - `'a` (tick + short lowercase name): lifetime parameters.
-- Constructors and conversions should be worded:
-    - `new`, `new_with_stuff`: constructors.
-    - `from_foo`: conversion constructors.
-    - `as_foo`: free non-consuming conversion.
-    - `to_foo`: expensive non-consuming conversion.
-    - `into_foo`: consuming conversion.
-
----
-## Advanced `format!`ing
-
-- The `?` means debug-print. But what goes before the `:` part?
-    - A _positional parameter_! An index into the argument list.
+- A wrapper type providing interior mutability for `Copy` types.
+    - `Cell<T>`s cannot contain references.
+- Get values from a `Cell` with `get()`.
+- Update the value inside a `Cell` with `set()`.
+     - Can't mutate the `T`, only replace it.
+- Generally pretty limited, but safe & cheap.
 
 ```rust
-println!("{2} {} {} {0} {} {}", 0, 1, 2, 3) // ==> "2 0 1 0 2 3"
+let c = Cell::new(10);
+c.set(20);
+println!("{}", c.get()); // 20
 ```
 
-- Among the specifiers with no positional parameter, they implicitly
-  count up: `{0} {1} {2} ...`.
+---
+## `std::cell::Cell<T>`
 
-- There are also _named parameters_:
+- Pros:
+    - Interior mutability.
+    - No runtime cost!
+    - Small allocation cost.
+- Cons:
+    - Very limited - only works on `Copy` types.
+
+---
+## `std::cell::RefCell<T>`
+
+- A wrapper type providing interior mutability for any type.
+- Uses dynamic borrow checking rules (performed at runtime).
+    - This may cause a panic at runtime.
+- Borrow inner data via `borrow()` or `borrow_mut()`.
+    - These may panic if the `RefCell` is already borrowed!
 
 ```rust
-format!("{name} {}", 1, name = 2); // ==> "2 1"
+use std::cell::RefCell;
+
+let refc = RefCell::new(vec![12]);
+let mut inner = refc.borrow_mut();
+inner.push(24);
+println!("{:?}", *inner); // [12, 24]
+
+let inner2 = refc.borrow();
+// ==> Panics since refc is already borrow_mut'd!
 ```
 
 ---
-## `format!` Specifiers
+## `std::cell::RefCell<T>`
 
-- We've been printing stuff out with `println!("{:?}", bst);`
-- There are more format specifiers than just `{}` and `{:?}`.
-    - These all call traits in `std::fmt`:
-
-| Spec.  | Trait    | Spec.  | Trait    | Spec.  | Trait    |
-| ------ | -------- | ------ | -------- | ------ | -------- |
-| `{}`   | Display  | `{:?}` | Debug    | `{:o}` | Octal    |
-| `{:x}` | LowerHex | `{:X}` | UpperHex | `{:p}` | Pointer  |
-| `{:b}` | Binary   | `{:e}` | LowerExp | `{:E}` | UpperExp |
+- A common paradigm is putting a `RefCell` inside an `Rc` to allow shared mutability.
+- Not thread-safe! `borrow()` et al don't prevent race conditions.
+- There is no way (in stable Rust) to check if a borrow will panic before executing it.
+    - `borrow_state(&self)` is an unstable way to do this.
 
 ---
-## `format!` Specifiers
+## `std::cell::RefCell<T>`
 
-- There are tons of options for each of these format specifiers.
-- Examples:
-    - `{:04}` -> `0010`: padding
-    - `'{:^4}'` -> `' 10 '`:  alignment (centering)
-    - `#` indicates an "alternate" print format:
-    - `{:#X}` -> `0xA`: including `0x`
-    - `{:#?}`: Pretty-prints objects:
-
-```
-A {
-    x: 5,
-    b: B {
-        y: 4
-    }
-}
-```
-
-- Complete reference: [std::fmt](https://doc.rust-lang.org/std/fmt/)
+- Pros:
+    - Interior mutability for any type.
+- Cons:
+    - Stores an additional borrow state variable.
+    - Must check borrow state to dynamically allow borrows.
+    - May panic at runtime.
+    - Not thread-safe.
 
 ---
-## Operators
+## `std::cell::Ref<T>` & `RefMut<T>`
 
-- Operators are evaluated left-to-right, in the following order:
-    - Unary operators: `!` `-` `*` `&` `&mut`
-    - `as` casting
-    - `*` `/` `%` multiplicative arithmetic
-    - `+` `-` additive arithmetic
-    - `<<` `>>` shift arithmetic
-    - `&` bitwise and
-    - `^` bitwise xor
-    - `|` bitwise or
-    - `==` `!=` `<` `>` `<=` `>=` logical comparison
-    - `&&` logical and
-    - `||` logical or
-    - `=` `..` assignment and ranges
-- Also: `call()`, `index[]`
+- When you invoke `borrow()` on a `RefCell<T>`, you actually get `Ref<T>`, not `&T`.
+    - Similarly, `borrow_mut()` gives you a `RefMut<T>`.
+- These are pretty simple wrapper over `&T`, but define some extra methods.
+    - Sadly, all of them are unstable pending the `cell_extras` feature 😞.
 
 ---
-## Operator Overloading
+## `*const T` & `*mut T`
 
-- Okay, same old, same old. We can customize these!
-- Rust defines these - surprise! - using traits, in `std::ops`.
-    - `Neg`, `Not`, `Deref`, `DerefMut`
-    - `Mul`, `Div`, `Mod`
-    - `Add`, `Sub`
-    - `Shl`, `Shr`
-    - `BitAnd`
-    - `BitXor`
-    - `BitOr`
-    - `Eq`, `PartialEq`, `Ord`, `PartialOrd`
-    - `And`
-    - `Or`
-- Also: `Fn`, `FnMut`, `FnOnce`, `Index`, `IndexMut`, `Drop`
-
----
-### `From` One Type `Into` Another
-
-- Casting (`as`) cannot be overloaded - instead, we use `From` and `Into`.
-    - `trait From<T> { fn from(T) -> Self; }`, called like `Y::from(x)`.
-    - `trait Into<T> { fn into(self) -> T; }`, called like `x.into()`.
-- If you implement `From`, `Into` will be automatically implemented.
-    - So you should prefer implementing `From`.
-
-```rust
-struct A(Vec<i32>);
-impl From<Vec<i32>> for A {
-    fn from(v: Vec<i32>) -> Self {
-        A(v)
-    }
-}
-```
-
----
-### `From` One Type `Into` Another
-
-- But sometimes, for various reasons, implementing `From` isn't possible - only `Into`.
-
-```rust
-struct A(Vec<i32>);
-
-impl From<A> for Vec<i32> { // error: private type A in
-    fn from(a: A) -> Self { // exported type signature.
-        let A(v) = a; v     // (This impl is exported because
-    }                       // both the trait (From) and the type
-}                           // (Vec) are visible from outside.)
-
-impl Into<Vec<i32>> for A {
-    fn into(self) -> Vec<i32> {
-        let A(v) = self; v
-    }
-}
-```
-
----
-### Making References
-
-- `Borrow`/`BorrowMut`: "a trait for borrowing data."&sup1;
-
-```rust
-trait Borrow<Borrowed> { fn borrow(&self) -> &Borrowed; }
-```
-
-- `AsRef`/`AsMut`: "a cheap, reference-to-reference conversion."&sup2;
-
-```rust
-trait AsRef<T>         { fn as_ref(&self) -> &T; }
-```
-
-- So... they're exactly the same?
-
-&sup1; [Trait std::borrow::Borrow](https://doc.rust-lang.org/std/borrow/trait.Borrow.html)
-
-&sup2; [Trait std::convert::AsRef](https://doc.rust-lang.org/std/convert/trait.AsRef.html)
-
----
-### Making References
-
-- No! While the have the same definition, `Borrow` carries additional connotations:
-    - "If you are implementing Borrow and both Self and Borrowed implement Hash, Eq, and/or Ord, they must produce the same result."&sup1; &sup2;
-- Borrow has a blanket implementation:
-    - `impl<T> Borrow<T> for T`: you can always convert `T` to `&T`.
-- `AsRef` actually has its own blanket implementation:
-    - `impl<'a, T, U> AsRef<U> for &'a T where T: AsRef<U>`
-    - For all `T`, if `T` implements `AsRef`, `&T` also implements `AsRef`.
-- All this means you usually want to implement `AsRef`.
-
-&sup1; [Trait std::borrow::Borrow](https://doc.rust-lang.org/std/borrow/trait.Borrow.html)
-
-&sup2; [aturon on Borrow vs AsMut](https://github.com/rust-lang/rust/issues/24140#issuecomment-90626264)
+- C-like raw pointers: they just point... somewhere in memory.
+- No ownership rules.
+- No lifetime rules.
+- Zero-cost abstraction... because there is no abstraction.
+- Requires `unsafe` to be dereferenced.
+    - May eat your laundry if you're not careful.
+- Use these if you're building a low-level structure like `Vec<T>`, but not in
+  typical code.
+    - Can be useful for manually avoiding runtime costs.
+- We won't get to unsafe Rust for a while, but for now:
+    - Unsafe Rust is basically C with Rust syntax.
+    - Unsafe means having to manually maintain Rust's assumptions
+      (borrowing, non-nullability, non-undefined memory, etc.)
