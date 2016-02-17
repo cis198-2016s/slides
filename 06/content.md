@@ -1,4 +1,4 @@
-## Misc: Syntax, Crates, `std`
+# Misc: Syntax, Crates, `std`
 
 ### CIS 198 Lecture 6
 
