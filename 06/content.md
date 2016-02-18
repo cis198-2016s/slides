@@ -105,7 +105,7 @@ let maybe_six2 = Rc::get_mut(&mut cloned_six); // ==> None
 - This can be avoided with _weak references_.
     - These don't increment the _strong reference_ count.
     - But that means they aren't always valid!
-- An `Rc` can be downgraded into a `Weak` using `rc.downgrade()`.
+- An `Rc` can be downgraded into a `Weak` using `Rc::downgrade()`.
     - To access it, turn it back into `Rc`: `weak.upgrade() -> Option<Rc<T>>`
     - Nothing else can be done with `Weak` - upgrading prevents the value from becoming invalid mid-use.
 
