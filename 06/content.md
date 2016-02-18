@@ -90,10 +90,15 @@ match opt_box {
     - Same as the borrowing rules - there must be only one owner.
 
 ```rust
-let mut shared_six = Rc::new(6);
-let mut cloned_six = shared_six.clone(); // ==> Another reference to same data
-let maybe_six1 = Rc::get_mut(&mut shared_six); // ==> Some(6)
-let maybe_six2 = Rc::get_mut(&mut cloned_six); // ==> None
+let mut shared = Rc::new(6);
+{
+    println!("{:?}", Rc::get_mut(&mut shared)); // ==> Some(6)
+}
+let mut cloned = shared.clone(); // ==> Another reference to same data
+{
+    println!("{:?}", Rc::get_mut(&mut shared)); // ==> None
+    println!("{:?}", Rc::get_mut(&mut cloned)); // ==> None
+}
 ```
 
 ---
