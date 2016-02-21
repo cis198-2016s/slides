@@ -119,8 +119,35 @@ mod english {
         ```
 
 ---
+## Namespacing
+
+- When accessing a member of a module, by default, namespaces
+  are relative to the current module:
+
+```rust
+mod one {
+    mod two { pub fn foo() {} }
+    fn bar() {
+        two::foo()
+    }
+}
+```
+
+- But it can be made absolute with a leading `::` operator:
+
+```rust
+mod one {
+    mod two { pub fn foo() {} }
+    fn bar() {
+        ::one::two::foo()
+    }
+}
+```
+
+---
 ## `use`ing Modules
 
+- `use` has the opposite rules.
 - `use` directives are absolute by default:
 
 ```rust
@@ -135,7 +162,7 @@ use self::greetings;
 use super::japanese;
 ```
 
-- `use` can be used to re-export other items:
+- `pub use` can be used to re-export other items:
 
 ```rust
 // default_language.rs
@@ -214,25 +241,25 @@ use myfoo::english;
 ## Cargo: Features
 
 - Features of a crate can be toggled at build time:
+    - `cargo build --features using-html9`
 
 ```toml
 [package]
 name = "myfacebumblr"
 
 [features]
-# No default optional dependencies
-default = []
+# Enable default dependencies: require web-vortal *feature*
+default = ["web-vortal"]
 
-# An extra feature, enables #[cfg(feature = "web-vortal")]
+# Extra feature; now we can use #[cfg(feature = "web-vortal")]
 web-vortal = []
 
-# Also requires the html9 responsive boilerstrap js crate
-# with commodore64 option enabled
-html9 = [h9rbs-js/commodore64]
+# Also require h9rbs-js *crate* with its commodore64 feature.
+using-html9 = ["h9rbs-js/commodore64"]
 
 [dependencies]
-# Optional dependencies can be enabled by either:
-# (a) feature dependencies or (b) extern crate.
+# Optional dependency can be enabled by either:
+# (a) feature dependencies or (b) extern crate h9rbs_js.
 h9rbs-js = { optional = "true" }
 ```
 
