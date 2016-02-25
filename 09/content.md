@@ -262,7 +262,7 @@ println!("{}", get_contents("http://cis198-2016s.github.io/")
 ---
 ### `Client` Requests
 
-- A POST request, using of the `url` crate to do URL encoding:
+- A POST request, using `form_urlencoded` from the `url` crate to do URL encoding:
 
 ```rust
 extern crate hyper;
@@ -331,7 +331,3 @@ Server::http("127.0.0.1:3000").unwrap().handle(hello).unwrap();
     - (It actually defines 3 more methods, but they all have default
         implementations.)
 
----
-### [Iron](http://ironframework.io/doc/iron/)
-
--
