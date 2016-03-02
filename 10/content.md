@@ -316,8 +316,8 @@ pub unsafe trait Send { }
 
 - A `Send` type may have its ownership tranferred across threads.
 - Not implementing `Send` enforces that a type _may not_ leave its original thread.
-    - e.g. a C-like raw pointer, which might be invalid outside of the current
-        context.
+    - e.g. a C-like raw pointer, which might point to data aliased by another
+      (mutable) raw pointer that could modify it in a thread-unsafe way.
 
 ---
 ## `Sync`
@@ -332,7 +332,7 @@ pub unsafe trait Sync { }
   are `Sync` are also `Sync`.
     - Immutable types (`&T`) and simple inherited mutability (`Box<T>`) are
       `Sync`.
-    - Actually, all types without interior mutability are inherently `Sync`.
+    - Actually, all types without interior mutability are inherently (and automatically) `Sync`.
 
 ---
 ## `Sync`
@@ -341,8 +341,8 @@ pub unsafe trait Sync { }
     - `T` is thread safe if there is no possibility of data races when passing
       `&T` references between threads
 - Consequently, `&mut T` is also `Sync` if `T` is `Sync`.
-    - An `&mut T` stored in an aliasable reference (an `& &mut T`) has no risk of
-        data races.
+    - An `&mut T` stored in an aliasable reference (an `& &mut T`) becomes
+      immutable and has no risk of data races.
 - Types like `Cell` are not `Sync` because they allow their contents to be
     mutated even when in an immutable, aliasable slot.
     - The contents of an `&Cell<T>` could be mutated, even when shared across
@@ -358,7 +358,7 @@ pub unsafe trait Sync { }
     - The guarantees the trait makes must be assumed to hold, regardless of
         whether it does or not.
 - `Send` and `Sync` are unsafe because thread safety is not a property that can
-    be guaranteed by safe code.
+    be guaranteed by Rust's safety checks.
     - Thread unsafety can only be 100% prevented by _not using threads_.
 - `Send` and `Sync` require a level of trust that safe code alone cannot provide.
 
@@ -366,16 +366,23 @@ pub unsafe trait Sync { }
 ## Derivation
 
 - `Send` is auto-derived for all types whose members are all `Sync`.
-- Symmetrically, `Sync` is auto-derived for all types whose memberse are all
+- Symmetrically, `Sync` is auto-derived for all types whose members are all
   `Send`.
-- They can also be trivially `impl`ed, because they contain no functions:
+- They can be trivially `impl`ed, since they require no members:
 
 ```rust
 unsafe impl Send for Foo {}
 unsafe impl Sync for Foo {}
 ```
 
-- If you _really_ need to remove an automatic derivation, it's possible:
+---
+## Derivation
+
+- If you need to remove an automatic derivation, it's possible.
+    - Types which _appear_ `Sync` but _aren't_ (due to `unsafe`
+      implementation) must be marked explicitly.
+    - Doing this requires so-called
+      ["OIBITs": "opt-in builtin traits"](https://github.com/rust-lang/rust/issues/13231).
 
 ```rust
 #![feature(optin_builtin_traits)]
@@ -383,6 +390,12 @@ unsafe impl Sync for Foo {}
 impl !Send for Foo {}
 impl !Sync for Foo {}
 ```
+
+> _The acronym "OIBIT", while quite fun to say, is quite the anachronism. It
+> stands for "opt-in builtin trait". But in fact, Send and Sync are neither
+> opt-in (rather, they are opt-out) nor builtin (rather, they are defined in
+> the standard library). It seems clear that it should be changed._
+> [&mdash;nikomatsakis](https://internals.rust-lang.org/t/pre-rfc-renaming-oibits-and-changing-their-declaration-syntax/3086)
 
 ---
 ## Sharing Thread State
@@ -408,7 +421,6 @@ fn main() {
 // error: capture of moved value: `data`
 //        data[i] += 1;
 //        ^~~~
-
 ```
 
 ---
@@ -422,7 +434,7 @@ fn main() {
 ---
 ### `std::sync::Arc<T>`
 
-- Solution: `Arc<T>`, an **A**tomic **R**eference-**C**ounted pointer!
+- One solution: `Arc<T>`, an **A**tomic **R**eference-**C**ounted pointer!
     - Pretty much just like an `Rc`, but is thread-safe due to atomic reference counting.
     - Also has a corresponding `Weak` variant.
 - Let's see this in action...
@@ -457,9 +469,9 @@ fn main() {
 - Unfortunately, not quite.
 
 ```
-// error: cannot borrow immutable borrowed content as mutable
-//                    data[i] += 1;
-//                    ^~~~
+error: cannot borrow immutable borrowed content as mutable
+                   data[i] += 1;
+                   ^~~~
 ```
 
 - Like `Rc`, `Arc` has no interior mutability.
