@@ -764,6 +764,28 @@ fn main() {
 ```
 
 ---
+### Calling C from Rust
+
+- In C APIs, it's common to use incomplete struct definitions to
+  define types whose implementation shouldn't be exposed to users.
+    - These can't be instantiated by the user.
+
+```c
+struct OpaqueThing;
+```
+
+- To represent a type like this in Rust (for FFI), we want to make a
+  type that we can't instantiate! So we do this:
+
+```rust
+enum OpaqueThing { }
+```
+
+- Now, we can't have one of these, but we _can_ have a pointer to one:
+  `*mut OpaqueThing`.
+    - Pointers to opaque types are very common in C interfaces.
+
+---
 ### Calling Rust from C
 
 - Why?
