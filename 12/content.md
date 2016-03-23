@@ -720,13 +720,21 @@ pub fn remove(&mut self, index: usize) -> T {
       would be too costly to reimplement in Rust.
     - Sometimes you need to interface with a particular language; many
       native programming languages can make C bindings.
+- Calling foreign functions from Rust is `unsafe`!
+    - Because, of course, C is unsafe.
 
 ---
 ### Calling C from Rust
 - Compile C to static libraries (`.a`/`.lib`).
-    - `cc -c -o foo.o foo.c && ar rcs libfoo.a foo.o`
+    - `cc -c -o foo.o foo.c`
+    - `ar rcs libfoo.a foo.o`
 - Or to dynamic libraries (`.so`/`.dylib`/`.dll`).
-    - `cc -shared -fPIC -o libfoo.so foo.c`
+    - `cc -c -fPIC -o foo.o foo.c`
+    - `cc -shared -fPIC -o libfoo.so foo.o`
+
+---
+### Calling C from Rust
+
 - In C:
 
 ```c
@@ -747,6 +755,14 @@ extern {               // By default, this is also
 }
 ```
 
+- Calling foreign functions is unsafe:
+
+```rust
+fn main() {
+    println!("foo: {}", unsafe { foo() });
+}
+```
+
 ---
 ### Calling Rust from C
 
@@ -757,7 +773,8 @@ extern {               // By default, this is also
 ---
 ### Rust from C: `#[repr(C)]`, `extern "C"`
 
-- Rust has its own rules about memory layout, calling convention, etc.
+- Rust has its own rules about memory layout and calling convention,
+  which are different from C's.
 - In order to call from C (**or any other language!**), we have to
   use C rules. (C doesn't have generics, enums with fields, etc.)
 
@@ -908,6 +925,5 @@ extern "C" { pub fn mysql_thread_init() -> my_bool; }
 
 - Only C-like enums (no fields).
 - No diverging (`-> !`) functions.
-
 
 &sup1; disclaimer: we haven't tried this.
