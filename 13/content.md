@@ -206,12 +206,12 @@
 
         ```
         Parens
-        └─ Parens
-           │  ├─ '2'
-           │  ├─ '+'
-           │  └─ '3'
-           ├─ '+'
-           └─ 10
+        ├─ Parens
+        │  ├─ '2'
+        │  ├─ '+'
+        │  └─ '3'
+        ├─ '+'
+        └─ 10
         ```
 
 - In Rust, macros see _one_ token tree as input.

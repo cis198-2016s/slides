@@ -33,7 +33,8 @@
 
 - If you wish to contribute, make sure you also read and follow Rust's
     [Code of Conduct.](https://www.rust-lang.org/conduct.html)
-// TODO More here on Github etiquette? IDK
+- Be polite. Be organized. Don't create unnecessary work for other people.
+  Test your code well. Use GitHub properly (issues and pull requests). 
 
 ---
 ### Fork-Pull Request Model
@@ -58,7 +59,7 @@
 - If you think your idea is still worth proposing, write a formal RFC using the template on the RFCs
     repo, [following the process here][rfcs].
 
-[rfcs](https://www.rust-lang.org/conduct.html)
+[rfcs]: https://www.rust-lang.org/conduct.html
 
 ---
 ### Resources
