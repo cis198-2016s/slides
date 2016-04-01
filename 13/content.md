@@ -79,6 +79,7 @@
     #define SWAP(x, y) do { \
         (x) = (x) ^ (y);    \
         (y) = (x) ^ (y);    \
+        (x) = (x) ^ (y);    \
     } while (0)  // Also, creating multiple statements is weird.
 
     int x = 10;
