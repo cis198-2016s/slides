@@ -394,7 +394,9 @@ fn weaponize() -> bool {
     using trait objects.
 - Trait specialization should strictly improve the performance of your code!
     - Assuming you actually write everything correctly, of course.
-- Available on the Rust 1.9 Nightly: `#![feature(specialization)]`
+- Available on the Rust 1.9 Nightly:
+
+    `#![feature(specialization)]`
 
 ???
 
