@@ -35,10 +35,9 @@
 
 ???
 
-Linting
-- "unused variable warning" or "snake case"
-LLVM
-- An intermediate step between "Rust source code" and "binary executable file"
+- Probably the biggest/most interesting feature gated feature
+- Linting: "unused variable warning" or "snake case"
+- LLVM: An intermediate step between "Rust source code" and "binary executable file"
 
 ---
 ## Compiler Plugins
@@ -80,7 +79,7 @@ pub fn plugin_registrar(reg: &mut Registry) {
 ---
 ### Procedural Macros
 
-- Similar to macros; call them with the same `foo!` pattern.
+- Similar to "normal" macros; call them with the same `foo!` pattern.
 - Typical macros generate code by matching against syntax patterns.
 - Compiler plugins run Rust code to manipulate the syntax tree directly.
 - Benefits:
@@ -128,7 +127,6 @@ Options:
       system in the future. -Kai)
 - Decoupling macros from compiler's internal `libsyntax`, using `libmacro`
   instead.
-- Use a token-based instead of AST-based system.
 
 ```rust
 #[macro]
@@ -139,7 +137,7 @@ pub fn foo(TokenStream, &mut MacroContext) -> TokenStream;
 ### Syntex-syntax
 
 - A pre-processing workaround for compiler plugins for stable Rust.
-  - Part of `serde`, used by `mio` and other projects.
+  - Part of `serde`, used by many other projects.
 - Uses Cargo support for `build.rs`: a pre-compilation "script".
   - Compiles and runs before the rest of your crate
 - `syntex` uses an external build of `libsyntax` to run any code generation that
@@ -147,7 +145,10 @@ pub fn foo(TokenStream, &mut MacroContext) -> TokenStream;
 
 ???
 
-The output of syntex is then built with the rest of the project.
+The output of syntex is then built with the rest of the project:
+
+foo.rs.in -> syntex -> foo.rs -> crate built normally
+
 
 ---
 ### Lints
