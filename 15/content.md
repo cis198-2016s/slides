@@ -22,7 +22,7 @@
 #![feature(plugin_registrar, rustc_private)]
 ```
 
-- Include this attribute at the top of your root module.
+- Include the appropriate attributes at the top of your root module.
 
 ---
 ## Compiler Plugins
@@ -56,7 +56,7 @@ LLVM
   including linking against all of its dependencies.
 
 ---
-## Compiler Plugin
+## Compiler Plugins
 
 - To write a plugin:
 
@@ -119,13 +119,19 @@ Options:
 ---
 ### Procedural Macros
 
-- Very recent RFC proposing a major change to the macro system.
+- Very recent
+  [RFC](https://github.com/nrc/rfcs/blob/proc-macros/text/0000-proc-macros.md)
+  ([PR](https://github.com/rust-lang/rfcs/pull/1566))
+  proposing a major change to the macro system.
+    - (Literally, the PR for this RFC was opened since I wrote
+      last week's lecture and said there might be a new macro
+      system in the future. -Kai)
 - Decoupling macros from compiler's internal `libsyntax`, using `libmacro`
   instead.
 - Use a token-based instead of AST-based system.
 
 ---
-#### Syntex-syntax
+### Syntex-syntax
 
 - A pre-processing workaround for compiler plugins for stable Rust.
   - Part of `serde`, used by `mio` and other projects.
