@@ -130,6 +130,11 @@ Options:
   instead.
 - Use a token-based instead of AST-based system.
 
+```rust
+#[macro]
+pub fn foo(TokenStream, &mut MacroContext) -> TokenStream;
+```
+
 ---
 ### Syntex-syntax
 
