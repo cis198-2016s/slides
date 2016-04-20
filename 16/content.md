@@ -1,4 +1,4 @@
-# Higher-Rank Trait Bounds, Subtyping, & Variance
+## Higher-Rank Trait Bounds, Subtyping, & Variance
 
 ### CIS 198 Lecture 16
 
