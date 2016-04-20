@@ -71,7 +71,7 @@ unergonomic. The whole thing is silly and inefficient, and there really should
 be a way around it without having to settle for either of these solutions.
 
 ---
-## `std::convert::Into` & `std::convert::From`
+### `std::convert::Into` & `std::convert::From`
 
 ```rust
 pub trait Into<T> {
