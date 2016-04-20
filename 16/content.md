@@ -208,6 +208,31 @@ else will know, so you can't do this. "The `'a` is owned, the `T` is borrowed."
 ---
 ## Type Variance
 
+- What about the variance of types you define yourself?
+- Struct `Foo` contains a field of type `A`...
+    - `Foo` is variant over `A` if all uses of `A` are variant.
+    - Otherwise, it's invariant over `A`.
+
+---
+## Type Variance
+
+```rust
+    struct Foo<'a, 'b, A: 'a, B: 'b, C, D, E, F, G, H> {
+        a: &'a A,     // variant over 'a and A
+        b: &'b mut B, // variant over 'b, invariant over B
+        c: *const C,  // variant over C
+        d: *mut D,    // invariant over D
+        e: Vec<E>,    // variant over E
+        f: Cell<F>,   // invariant over F
+        g: G,         // variant over G
+        h1: H,        // would be variant over H...
+        h2: Cell<H>,  // ...but Cell forces invariance
+    }
+```
+
+---
+## Type Variance
+
 - A good way to think about lifetime variance is in terms of ownership.
 - If someone else owns a value, and you own a reference to it, the reference can
     be variant over its lifetime, but might not be variant over the value's
