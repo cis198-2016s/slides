@@ -24,7 +24,7 @@ let secret: String = load_secret("api.example.com");
 let token = StrToken::new(&secret[..]);
 ```
 
-*Code and examples taken from [From &str to Cow](blog.jwilm.io/from-str-to-cow)
+*Code and examples taken from [From &str to Cow](http://blog.jwilm.io/from-str-to-cow)
 
 ???
 
