@@ -310,7 +310,7 @@ let mut vectors = (vec![0], vec![1]);
 match vectors {
     (ref v1, ref mut v2) => {
         v1.len();
-        v2.push(2);.
+        v2.push(2);
     }
 }
 ```
