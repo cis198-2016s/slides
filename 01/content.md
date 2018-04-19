@@ -289,10 +289,12 @@ println!("{}", *ref_a + 4);
 ```rust
 let mut vector = vec![0];
 
-// These are equivalent
-let ref1 = &vector;
-let ref ref2 = vector;
-assert_eq!(ref1, ref2);
+{
+      // These are equivalent
+      let ref1 = &vector;
+      let ref ref2 = vector;
+      assert_eq!(ref1, ref2);
+}
 
 let ref mut ref3 = vector;
 ref3.push(1);
